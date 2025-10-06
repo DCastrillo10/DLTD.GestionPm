@@ -1,0 +1,76 @@
+﻿@inherits LayoutComponentBase
+
+<div class="app-wrapper">
+
+    <nav class="app-header navbar navbar-expand bg-body">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                    <i class="bi bi-list"></i>
+                </a>
+            </li>
+        </ul>
+
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown user-menu">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <img src="/img/user1-128x128.jpg" class="user-image img-circle shadow" alt="User Image">
+                    <span class="d-none d-md-inline">Usuario PM</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                    <li class="user-header bg-primary">
+                        <img src="/img/user1-128x128.jpg" class="img-circle shadow" alt="User Image">
+                        <p>
+                            Usuario PM - Administrador
+                            <small>Miembro desde Nov. 2023</small>
+                        </p>
+                    </li>
+                    <li class="user-footer">
+                        <a href="#" class="btn btn-default btn-flat">Perfil</a>
+                        <a href="#" class="btn btn-default btn-flat float-end">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    <aside class="app-sidebar bg-body-secondary shadow" data-widget="treeview">
+        <div class="sidebar-brand">
+            <a href="/" class="brand-link">
+                <img src="/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image opacity-80 shadow">
+                <span class="brand-text fw-light">PM System</span>
+            </a>
+        </div>
+
+        <div class="sidebar-wrapper">
+            <nav class="mt-2">
+                <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation" data-accordion="false">
+
+                    <li class="nav-item">
+                        <a href="/" class="nav-link active">
+                            <i class="nav-icon bi bi-house-fill"></i>
+                            <p>Dashboard</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="/pm-listado" class="nav-link">
+                            <i class="nav-icon bi bi-list-check"></i>
+                            <p>Listado de PMs</p>
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
+        </div>
+    </aside>
+    <main class="app-content">
+        <div class="container-fluid">
+            @Body
+        </div>
+    </main>
+    <footer class="app-footer">
+        <div class="float-end d-none d-sm-inline">AdminLTE v4</div>
+        <strong>Copyright &copy; 2024 PM System.</strong> Todos los derechos reservados.
+    </footer>
+
+</div>
