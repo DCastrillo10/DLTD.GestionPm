@@ -1,7 +1,8 @@
-﻿@page "/admin/Dashboard"
+﻿@page "/"
 @layout AdminLayout
 
-<h3>Mantenimiento Preventivo PM</h3>
+<h3>Dashboard de Mantenimiento Preventivo (PM)</h3>
+
 
 <!--begin::Row-->
 <div class="row">
@@ -32,7 +33,7 @@
         <!--begin::Small Box Widget 2-->
         <div class="small-box text-bg-success">
             <div class="inner">
-                <h3>53<sup class="fs-5">%</sup></h3>
+                <h3>53%</h3>
                 <p>PM Completados</p>
             </div>
             <svg class="small-box-icon"
@@ -105,92 +106,97 @@
 
 
 <div class="card mb-4">
-    <div class="card-header text-bg-light">
-        <i class="bi bi-table"></i>
-        Listado de PM
+    <div class="card-header d-flex justify-content-between align-items-center text-bg-light">
+        <span>Listado Progresos de PM</span>
+        @* <button class="btn btn-primary btn-sm">Crear Nueva WO</button> *@
     </div>
     <div class="card-body py-3">
-        <table class="table table-bordered">
+        <table class="table table-bordered mb-0">
             <thead>
                 <tr>
-                    <th>Work Order</th>
+                    <th>WO</th>
                     <th>Modelo</th>
-                    <th>Maquina</th>
+                    <th>Máquina</th>
                     <th>Ruta</th>
-                    <th>Completado</th>
-                    <th>Tareas</th>
+                    <th>Tarea</th>
+                    <th>% Completado</th>
+                    <th>Ver Tareas</th>
                 </tr>
             </thead>
-            <tfoot>
-                <tr>
-                    <th>Work Order</th>
-                    <th>Modelo</th>
-                    <th>Maquina</th>
-                    <th>Ruta</th>
-                    <th>Completado</th>
-                    <th>Tareas</th>
-                </tr>
-            </tfoot>
             <tbody>
-                @foreach (var user in PagedUsers)
+                @foreach (var wo in PagedWorkOrders)
                 {
                     <tr>
-                        <td>@user.Name</td>
-                        <td>@user.Position</td>
-                        <td>@user.Office</td>
-                        <td>@user.Age</td>
-                        <td>@user.StartDate</td>
-                        <td>@user.Salary</td>
+                        <td>@wo.WO</td>
+                        <td>@wo.Modelo</td>
+                        <td>@wo.Maquina</td>
+                        <td>@wo.Ruta</td>
+                        <td>@wo.Tarea</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="me-2">@wo.PorcentajeCompletado%</span>
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar" role="progressbar" style="width: @wo.PorcentajeCompletado%;" aria-valuenow="@wo.PorcentajeCompletado" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-info me-1" title="Ver"><i class="bi bi-eye"></i></button>
+                            @* <button class="btn btn-sm btn-success me-1" title="Editar"><i class="bi bi-pencil"></i></button> *@
+                            @* <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button> *@
+                        </td>
                     </tr>
                 }
             </tbody>
         </table>
-        <nav>
-            <ul class="pagination">
-                <li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
-                    <button class="page-link" @onclick="PrevPage">Previous</button>
-                </li>
-                @for (int i = 1; i <= TotalPages; i++)
-                {
-                    <li class="page-item @(CurrentPage == i ? "active" : "")">
-                        <button class="page-link" @onclick="() => GoToPage(i)">@i</button>
+        <div class="d-flex justify-content-end mt-2">
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
+                        <button class="page-link" @onclick="PrevPage">«</button>
                     </li>
-                }
-                <li class="page-item @(CurrentPage == TotalPages ? "disabled" : "")">
-                    <button class="page-link" @onclick="NextPage">Next</button>
-                </li>
-            </ul>
-        </nav>
+                    @for (int i = 1; i <= TotalPages; i++)
+                    {
+                        <li class="page-item @(CurrentPage == i ? "active" : "")">
+                            <button class="page-link" @onclick="() => GoToPage(i)">@i</button>
+                        </li>
+                    }
+                    <li class="page-item @(CurrentPage == TotalPages ? "disabled" : "")">
+                        <button class="page-link" @onclick="NextPage">»</button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
 </div>
 
 @code {
-    private class User
+    private class WorkOrder
     {
-        public string Name { get; set; }
-        public string Position { get; set; }
-        public string Office { get; set; }
-        public int Age { get; set; }
-        public string StartDate { get; set; }
-        public string Salary { get; set; }
+        public string WO { get; set; }
+        public string Modelo { get; set; }
+        public string Maquina { get; set; }
+        public string Ruta { get; set; }
+        public string Tarea { get; set; }
+        public int PorcentajeCompletado { get; set; }
     }
 
-    private List<User> Users = new()
+    private List<WorkOrder> WorkOrders = new()
     {
-        new User { Name = "Tiger Nixon", Position = "System Architect", Office = "Edinburgh", Age = 61, StartDate = "2011/04/25", Salary = "$320,800" },
-        new User { Name = "Garrett Winters", Position = "Accountant", Office = "Tokyo", Age = 63, StartDate = "2011/07/25", Salary = "$170,750" },
-        new User { Name = "Ashton Cox", Position = "Junior Technical Author", Office = "San Francisco", Age = 66, StartDate = "2009/01/12", Salary = "$86,000" },
-        new User { Name = "Cedric Kelly", Position = "Senior Javascript Developer", Office = "Edinburgh", Age = 22, StartDate = "2012/03/29", Salary = "$433,060" },
-        new User { Name = "Airi Satou", Position = "Accountant", Office = "Tokyo", Age = 33, StartDate = "2008/11/28", Salary = "$162,700" },
-        new User { Name = "Brielle Williamson", Position = "Integration Specialist", Office = "New York", Age = 61, StartDate = "2012/12/02", Salary = "$372,000" },
-        // ... agrega el resto de los usuarios aquí ...
+        new WorkOrder { WO = "WO-1001", Modelo = "Rubber 24H", Maquina = "8094", Ruta = "Ruta Pruebas",Tarea = "RPM motor en relenti alto (TMI WEB). Especificado 1950 ± 10 RPM.", PorcentajeCompletado = 100 },
+        new WorkOrder { WO = "WO-1002", Modelo = "Tractor D250", Maquina = "5962", Ruta = "Ruta 0",Tarea="Tomar dos (2) muestra de aceite transmisión.", PorcentajeCompletado = 75 },
+        new WorkOrder { WO = "WO-1003", Modelo = "Loader 988F", Maquina = "8024", Ruta = "Ruta 1", Tarea="Cambiar el filtro separador de agua P/N 438-5386 (P/S 104739).", PorcentajeCompletado = 30 },
+        new WorkOrder { WO = "WO-1004", Modelo = "Rubber 16G", Maquina = "8018", Ruta = "Ruta 2", Tarea="Analizar el estado de carga de las baterías utilizando el analizador de batería MDX-600 SERIES.", PorcentajeCompletado = 0 },
+        new WorkOrder { WO = "WO-1005", Modelo = "Tractor 730", Maquina = "5225", Ruta = "Ruta Contratista Kaltire", Tarea="Inspeccionar el estado y presiones de cada una de las llantas.", PorcentajeCompletado = 100 },
+        new WorkOrder { WO = "WO-1005", Modelo = "Loader 854", Maquina = "7417", Ruta = "Ruta Calidad", Tarea="Nivel de aceite transmisión.", PorcentajeCompletado = 80 },
+        // Agrega más si lo deseas
     };
 
     private int CurrentPage = 1;
     private int PageSize = 6;
-    private int TotalPages => (int)Math.Ceiling(Users.Count / (double)PageSize);
+    private int TotalPages => (int)Math.Ceiling(WorkOrders.Count / (double)PageSize);
 
-    private IEnumerable<User> PagedUsers => Users.Skip((CurrentPage - 1) * PageSize).Take(PageSize);
+    private IEnumerable<WorkOrder> PagedWorkOrders => WorkOrders.Skip((CurrentPage - 1) * PageSize).Take(PageSize);
 
     private void NextPage()
     {
@@ -212,8 +218,4 @@
     {
         CurrentPage = page;
     }
-}
-
-@code {
-
 }

@@ -1,5 +1,5 @@
 ﻿@inherits LayoutComponentBase
-
+@inject IJSRuntime JS
 
 <!--begin::Div-->
 <div class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
@@ -12,12 +12,12 @@
                 <!--begin::Start Navbar Links-->
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                        <a class="nav-link" data-lte-toggle="sidebar" href="javascript:void(0);" role="button">
                             <i class="bi bi-list"></i>
                         </a>
                     </li>
-                    <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Home</a></li>
-                    <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Contact</a></li>
+                    @* <li class="nav-item d-none d-md-block"><a href="/" class="nav-link">Home</a></li> *@
+                    @* <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Contact</a></li> *@
                 </ul>
                 <!--end::Start Navbar Links-->
                 <!--begin::End Navbar Links-->
@@ -221,7 +221,7 @@
                         data-accordion="false"
                         id="navigation">
                         <li class="nav-item menu-open">
-                            <a href="/Admin/Dashboard" class="nav-link active">
+                            <a href="/" class="nav-link active">
                                 <i class="nav-icon bi bi-speedometer"></i>
                                 <p>
                                     Dashboard                                    
@@ -239,20 +239,20 @@
                         <li class="nav-item">
                             <a href="/Admin/Mensajes" class="nav-link">
                                 <i class="nav-icon bi bi-grip-horizontal"></i>
-                                <p>Mensajes</p>
+                                <p>Modelos</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="./docs/color-mode.html" class="nav-link">
                                 <i class="nav-icon bi bi-star-half"></i>
-                                <p>Color Mode</p>
+                                <p>Maquinas</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon bi bi-ui-checks-grid"></i>
                                 <p>
-                                    Components
+                                    CheckList PM
                                     <i class="nav-arrow bi bi-chevron-right"></i>
                                 </p>
                             </a>
@@ -275,7 +275,7 @@
                             <a href="#" class="nav-link">
                                 <i class="nav-icon bi bi-filetype-js"></i>
                                 <p>
-                                    Javascript
+                                    Rutas
                                     <i class="nav-arrow bi bi-chevron-right"></i>
                                 </p>
                             </a>
@@ -291,25 +291,25 @@
                         <li class="nav-item">
                             <a href="./docs/browser-support.html" class="nav-link">
                                 <i class="nav-icon bi bi-browser-edge"></i>
-                                <p>Browser Support</p>
+                                <p>Tareas</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="./docs/how-to-contribute.html" class="nav-link">
                                 <i class="nav-icon bi bi-hand-thumbs-up-fill"></i>
-                                <p>How To Contribute</p>
+                                <p>Tipos de Demoras</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="./docs/faq.html" class="nav-link">
                                 <i class="nav-icon bi bi-question-circle-fill"></i>
-                                <p>FAQ</p>
+                                <p>Backlogs</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="./docs/license.html" class="nav-link">
                                 <i class="nav-icon bi bi-patch-check-fill"></i>
-                                <p>License</p>
+                                <p>Reportes</p>
                             </a>
                         </li>
                         <li class="nav-header">MULTI LEVEL EXAMPLE</li>
@@ -442,3 +442,10 @@
     
 </div>
 <!--end::div-->
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("initAdminLteSidebar");
+    }
+}
