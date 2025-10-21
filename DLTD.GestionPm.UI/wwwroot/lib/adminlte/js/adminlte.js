@@ -1172,3 +1172,10 @@
 
 }));
 //# sourceMappingURL=adminlte.js.map
+
+// AÑADIR ESTA LÍNEA AL FINAL DE /lib/adminlte/js/adminlte.js
+// Esto garantiza que la inicialización ocurra inmediatamente después de que la librería se define.
+if (typeof adminlte !== 'undefined' && adminlte.init) {
+    adminlte.init();
+    console.log("AdminLTE 4.0.0-rc4: Inicialización por inyección en el script base.");
+} 

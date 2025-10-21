@@ -29,8 +29,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "05.Servidor", "05.Servidor"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "06.Cliente", "06.Cliente", "{5F9A4420-8369-4C2A-8FD5-26FFED78A3F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DLTD.GestionPm.UI", "DLTD.GestionPm.UI\DLTD.GestionPm.UI.csproj", "{A5BA9BBD-734D-4C18-B251-8E098E8CBCB1}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,10 +63,6 @@ Global
 		{8FDC5386-1694-424A-BF1E-113CC2412B50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8FDC5386-1694-424A-BF1E-113CC2412B50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8FDC5386-1694-424A-BF1E-113CC2412B50}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A5BA9BBD-734D-4C18-B251-8E098E8CBCB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5BA9BBD-734D-4C18-B251-8E098E8CBCB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5BA9BBD-734D-4C18-B251-8E098E8CBCB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5BA9BBD-734D-4C18-B251-8E098E8CBCB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
