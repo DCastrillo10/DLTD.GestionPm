@@ -9,7 +9,7 @@ public partial class PmtareaActividad : EntidadBase
 
     public int IdPmDetalle { get; set; }
 
-    public string IdTecnico { get; set; } = null!;
+    public int IdTecnico { get; set; }
 
     public DateTime FechaInicialActividad { get; set; }
 
@@ -17,13 +17,15 @@ public partial class PmtareaActividad : EntidadBase
 
     public string? Descripcion { get; set; }
 
-   
+    
 
     public decimal? DuracionActividad { get; set; }
 
     public int IdTipoActividad { get; set; }
 
     public virtual Pmdetalle IdPmDetalleNavigation { get; set; } = null!;
+
+    public virtual Tecnico IdTecnicoNavigation { get; set; } = null!;
 
     public virtual TipoActividad IdTipoActividadNavigation { get; set; } = null!;
 }

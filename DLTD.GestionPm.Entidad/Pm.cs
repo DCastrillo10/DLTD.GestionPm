@@ -29,7 +29,7 @@ public partial class Pm : EntidadBase
 
     public string? Observacion { get; set; }
 
-    
+   
 
     public virtual Modelo IdModeloNavigation { get; set; } = null!;
 

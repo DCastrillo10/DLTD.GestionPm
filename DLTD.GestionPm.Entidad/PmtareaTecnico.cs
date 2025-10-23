@@ -9,7 +9,7 @@ public partial class PmtareaTecnico : EntidadBase
 
     public int IdPmDetalle { get; set; }
 
-    public string IdTecnico { get; set; } = null!;
+    public int IdTecnico { get; set; }
 
     public DateTime FechaInicialAsignacion { get; set; }
 
@@ -20,4 +20,6 @@ public partial class PmtareaTecnico : EntidadBase
     public bool? Activo { get; set; }
 
     public virtual Pmdetalle IdPmDetalleNavigation { get; set; } = null!;
+
+    public virtual Tecnico IdTecnicoNavigation { get; set; } = null!;
 }

@@ -9,7 +9,7 @@ public partial class PmtecnicoTurno : EntidadBase
 
     public int IdPm { get; set; }
 
-    public string IdTecnico { get; set; } = null!;
+    public int IdTecnico { get; set; }
 
     /// <summary>
     /// Dia o Noche
@@ -25,4 +25,6 @@ public partial class PmtecnicoTurno : EntidadBase
     public decimal? DuracionTurno { get; set; }
 
     public virtual Pm IdPmNavigation { get; set; } = null!;
+
+    public virtual Tecnico IdTecnicoNavigation { get; set; } = null!;
 }

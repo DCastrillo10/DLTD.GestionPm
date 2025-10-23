@@ -19,11 +19,13 @@ public partial class PmtareaDemora : EntidadBase
 
     public string? Descripcion { get; set; }
 
-    
+   
 
-    public string IdTecnico { get; set; } = null!;
+    public int IdTecnico { get; set; }
 
     public virtual Pmdetalle IdPmDetalleNavigation { get; set; } = null!;
+
+    public virtual Tecnico IdTecnicoNavigation { get; set; } = null!;
 
     public virtual TipoDemora IdTipoDemoraNavigation { get; set; } = null!;
 }
