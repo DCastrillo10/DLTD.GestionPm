@@ -44,6 +44,8 @@ public partial class GestionPmBdContext : DbContext
 
     public virtual DbSet<Tarea> Tareas { get; set; }
 
+    public virtual DbSet<Tecnico> Tecnicos { get; set; }
+
     public virtual DbSet<TipoActividad> TipoActividads { get; set; }
 
     public virtual DbSet<TipoDemora> TipoDemoras { get; set; }
@@ -277,7 +279,6 @@ public partial class GestionPmBdContext : DbContext
                 .HasPrecision(0)
                 .HasColumnName("FechaInicial_Actividad");
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
-            entity.Property(e => e.IdTecnico).HasMaxLength(450);
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -288,6 +289,10 @@ public partial class GestionPmBdContext : DbContext
             entity.HasOne(d => d.IdPmDetalleNavigation).WithMany(p => p.PmtareaActividads)
                 .HasForeignKey(d => d.IdPmDetalle)
                 .HasConstraintName("PMTareaActividad_PMDetalles_FK");
+
+            entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmtareaActividads)
+                .HasForeignKey(d => d.IdTecnico)
+                .HasConstraintName("PMTareaActividad_Tecnicos_FK");
 
             entity.HasOne(d => d.IdTipoActividadNavigation).WithMany(p => p.PmtareaActividads)
                 .HasForeignKey(d => d.IdTipoActividad)
@@ -313,7 +318,6 @@ public partial class GestionPmBdContext : DbContext
                 .HasPrecision(0)
                 .HasColumnName("FechaInicial_Demora");
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
-            entity.Property(e => e.IdTecnico).HasMaxLength(450);
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -322,6 +326,10 @@ public partial class GestionPmBdContext : DbContext
             entity.HasOne(d => d.IdPmDetalleNavigation).WithMany(p => p.PmtareaDemoras)
                 .HasForeignKey(d => d.IdPmDetalle)
                 .HasConstraintName("PMTareaDemoras_PMDetalles_FK");
+
+            entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmtareaDemoras)
+                .HasForeignKey(d => d.IdTecnico)
+                .HasConstraintName("PMTareaDemoras_Tecnicos_FK");
 
             entity.HasOne(d => d.IdTipoDemoraNavigation).WithMany(p => p.PmtareaDemoras)
                 .HasForeignKey(d => d.IdTipoDemora)
@@ -339,7 +347,6 @@ public partial class GestionPmBdContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.FechaHallazgo).HasPrecision(0);
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
-            entity.Property(e => e.IdTecnico).HasMaxLength(450);
             entity.Property(e => e.ImagenUrl)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -355,6 +362,10 @@ public partial class GestionPmBdContext : DbContext
                 .HasForeignKey(d => d.IdPmDetalle)
                 .HasConstraintName("PMTareaHallazgos_PMDetalles_FK");
 
+            entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmtareaHallazgos)
+                .HasForeignKey(d => d.IdTecnico)
+                .HasConstraintName("PMTareaHallazgos_Tecnicos_FK");
+
             entity.HasOne(d => d.IdTipoHallazgoNavigation).WithMany(p => p.PmtareaHallazgos)
                 .HasForeignKey(d => d.IdTipoHallazgo)
                 .HasConstraintName("PMTareaHallazgos_TipoHallazgos_FK");
@@ -369,11 +380,21 @@ public partial class GestionPmBdContext : DbContext
             entity.Property(e => e.DuracionAsignacion).HasColumnType("decimal(6, 2)");
             entity.Property(e => e.FechaFinalAsignacion).HasPrecision(0);
             entity.Property(e => e.FechaInicialAsignacion).HasPrecision(0);
-            entity.Property(e => e.IdTecnico).HasMaxLength(450);
+            entity.Property(e => e.FechaRegistro).HasPrecision(0);            
+            entity.Property(e => e.Status)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro)
+                .HasMaxLength(100)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.IdPmDetalleNavigation).WithMany(p => p.PmtareaTecnicos)
                 .HasForeignKey(d => d.IdPmDetalle)
                 .HasConstraintName("PMTareaTecnico_PMDetalles_FK");
+
+            entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmtareaTecnicos)
+                .HasForeignKey(d => d.IdTecnico)
+                .HasConstraintName("PMTareaTecnico_Tecnicos_FK");
         });
 
         modelBuilder.Entity<PmtecnicoTurno>(entity =>
@@ -392,7 +413,6 @@ public partial class GestionPmBdContext : DbContext
                 .HasPrecision(0)
                 .HasColumnName("FechaInicial_Turno");
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
-            entity.Property(e => e.IdTecnico).HasMaxLength(450);
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -407,6 +427,10 @@ public partial class GestionPmBdContext : DbContext
             entity.HasOne(d => d.IdPmNavigation).WithMany(p => p.PmtecnicoTurnos)
                 .HasForeignKey(d => d.IdPm)
                 .HasConstraintName("PMTecnicoTurno_PM_FK");
+
+            entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmtecnicoTurnos)
+                .HasForeignKey(d => d.IdTecnico)
+                .HasConstraintName("PMTecnicoTurno_Tecnicos_FK");
         });
 
         modelBuilder.Entity<Ruta>(entity =>
@@ -447,6 +471,34 @@ public partial class GestionPmBdContext : DbContext
             entity.HasOne(d => d.IdRutaNavigation).WithMany(p => p.Tareas)
                 .HasForeignKey(d => d.IdRuta)
                 .HasConstraintName("Tareas_Rutas_FK");
+        });
+
+        modelBuilder.Entity<Tecnico>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("Tecnicos_PK");
+
+            entity.Property(e => e.Apellidos)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Especialidad)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.FechaRegistro).HasPrecision(0);
+            entity.Property(e => e.IdUser)
+                .HasMaxLength(450)
+                .IsUnicode(false);
+            entity.Property(e => e.Nombres)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Status)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TurnoActual)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro)
+                .HasMaxLength(100)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<TipoActividad>(entity =>

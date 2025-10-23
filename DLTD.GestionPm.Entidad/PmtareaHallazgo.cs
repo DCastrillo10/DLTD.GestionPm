@@ -21,9 +21,11 @@ public partial class PmtareaHallazgo : EntidadBase
 
   
 
-    public string IdTecnico { get; set; } = null!;
+    public int IdTecnico { get; set; }
 
     public virtual Pmdetalle IdPmDetalleNavigation { get; set; } = null!;
+
+    public virtual Tecnico IdTecnicoNavigation { get; set; } = null!;
 
     public virtual TipoHallazgo IdTipoHallazgoNavigation { get; set; } = null!;
 }

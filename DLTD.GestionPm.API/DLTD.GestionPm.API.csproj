@@ -7,7 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DLTD.GestionPm.AccesoDatos\DLTD.GestionPm.AccesoDatos.csproj" />
+    <ProjectReference Include="..\DLTD.GestionPm.Dto\DLTD.GestionPm.Dto.csproj" />
+    <ProjectReference Include="..\DLTD.GestionPm.Negocios\DLTD.GestionPm.Negocios.csproj" />
+    <ProjectReference Include="..\DLTD.GestionPm.Repositorios\DLTD.GestionPm.Repositorios.csproj" />
   </ItemGroup>
 
 </Project>

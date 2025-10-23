@@ -6,4 +6,11 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DLTD.GestionPm.Comun\DLTD.GestionPm.Comun.csproj" />
+    <ProjectReference Include="..\DLTD.GestionPm.Dto\DLTD.GestionPm.Dto.csproj" />
+    <ProjectReference Include="..\DLTD.GestionPm.Entidad\DLTD.GestionPm.Entidad.csproj" />
+    <ProjectReference Include="..\DLTD.GestionPm.Repositorios\DLTD.GestionPm.Repositorios.csproj" />
+  </ItemGroup>
+
 </Project>

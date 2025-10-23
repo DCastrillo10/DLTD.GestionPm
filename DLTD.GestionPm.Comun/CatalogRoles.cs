@@ -9,6 +9,7 @@ namespace DLTD.GestionPm.Comun
     public class CatalogRoles
     {
         public const string Administrador = "Rol_Adminisrtrador";
+        public const string Supervisor = "Rol_Supervisor";
         public const string Tecnico = "Rol_Tecnico";
     }
 }
