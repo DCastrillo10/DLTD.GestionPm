@@ -24,6 +24,7 @@ namespace DLTD.GestionPm.Repositorios.Interfaces
             int page = 1, int rows = 10
         );
         Task<TEntity?> FindAsync(int id);
+        Task<TEntity> AddAsync(TEntity request);
         Task UpdateAsync();
         Task DeleteAsync(int id);
     }

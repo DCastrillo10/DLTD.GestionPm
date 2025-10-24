@@ -7,17 +7,23 @@ public partial class Tecnico : EntidadBase
 {
     
 
-    public string IdUser { get; set; } = null!;
+    
+    public string Nombres { get; set; } = null!;
 
-    public string? Nombres { get; set; }
+    public string Apellidos { get; set; } = null!;
 
-    public string? Apellidos { get; set; }
-
-    public string? Especialidad { get; set; }
+    public string Email { get; set; } = null!;
 
     public string? TurnoActual { get; set; }
 
-    
+    public string NoIdentificacion { get; set; } = null!;
+
+    public string Telefono { get; set; } = null!;
+
+    public string Codigo { get; set; } = null!;
+
+    public string? Especialidad { get; set; }
+
 
     public virtual ICollection<PmtareaActividad> PmtareaActividads { get; set; } = new List<PmtareaActividad>();
 

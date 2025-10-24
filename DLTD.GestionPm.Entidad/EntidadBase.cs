@@ -9,10 +9,10 @@ namespace DLTD.GestionPm.Entidad
     public class EntidadBase
     {
         public int Id { get; set; }
-        public string Status { get; set; } = null!;
+        public string Status { get; set; } = "Activo";
 
-        public string UsuarioRegistro { get; set; } = null!;
+        public string UsuarioRegistro { get; set; } = Environment.UserName;
 
-        public DateTime FechaRegistro { get; set; }
+        public DateTime FechaRegistro { get; set; } = DateTime.Now;
     }
 }

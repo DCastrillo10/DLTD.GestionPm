@@ -1,8 +1,11 @@
 using DLTD.GestionPm.AccesoDatos.Configuracion;
 using DLTD.GestionPm.AccesoDatos.Contexto;
+using DLTD.GestionPm.Dto.Request.Email;
 using DLTD.GestionPm.Dto.Request.Security;
 using DLTD.GestionPm.Negocios.Implementaciones;
 using DLTD.GestionPm.Negocios.Interfaces;
+using DLTD.GestionPm.Repositorios.Implementaciones;
+using DLTD.GestionPm.Repositorios.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +22,9 @@ builder.Services.AddOpenApi();
 
 //Mapeo JwtSettings
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+//Mapeo EmailSettings
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 //Inyectar cadenas de conexion
 builder.Services.AddDbContext<SeguridadBdContext>(options =>
@@ -68,8 +74,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-//Inyeccion de Dependencias de los Servicios
+//Inyeccion de Dependencias de los Servicios y repositorios
 builder.Services.AddScoped<ISecurityService, SecurityService>();
+builder.Services.AddScoped<ITecnicoService, TecnicoService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+builder.Services.AddScoped<ITecnicoRepository, TecnicoRepository>();
 
 
 var app = builder.Build();
