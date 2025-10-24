@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mapster" Version="7.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DLTD.GestionPm.Comun\DLTD.GestionPm.Comun.csproj" />
     <ProjectReference Include="..\DLTD.GestionPm.Dto\DLTD.GestionPm.Dto.csproj" />
     <ProjectReference Include="..\DLTD.GestionPm.Entidad\DLTD.GestionPm.Entidad.csproj" />

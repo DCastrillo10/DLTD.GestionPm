@@ -480,13 +480,11 @@ public partial class GestionPmBdContext : DbContext
             entity.Property(e => e.Apellidos)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.Especialidad)
+            entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
-            entity.Property(e => e.IdUser)
-                .HasMaxLength(450)
-                .IsUnicode(false);
+            
             entity.Property(e => e.Nombres)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -499,6 +497,19 @@ public partial class GestionPmBdContext : DbContext
             entity.Property(e => e.UsuarioRegistro)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.NoIdentificacion)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Telefono)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Especialidad)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
         });
 
         modelBuilder.Entity<TipoActividad>(entity =>

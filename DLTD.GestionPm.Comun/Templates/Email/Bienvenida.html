@@ -1,0 +1,67 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Bienvenido al Sistema Integrado de PM DLTD</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, Helvetica, sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f8; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="padding: 20px; text-align: left; background: #f22121; color: #ffffff;">
+                            <!-- Opcional: logo -->
+                            <img src="{{logo_url}}" alt="Logo" width="120" style="display:block; margin-bottom:10px;">
+                            <h1 style="margin:0; font-size:20px; font-weight:700;">Sistema Integrado de PM - SIPM</h1>
+                        </td>
+                    </tr>
+
+                    <!-- Cuerpo -->
+                    <tr>
+                        <td style="padding:24px; color:#333333; line-height:1.5;">
+                            <p style="margin:0 0 12px;">Hola <strong>{{name}}</strong>,</p>
+
+                            <p style="margin:0 0 12px;">
+                                A continuacion encontrarás tus credenciales de acceso:
+                            </p>
+
+                            <p style="margin:0 0 12px;">
+                                <strong>Usuario:</strong>{{usuario}}
+                                <strong>Contraseña:</strong>{{contraseña}}
+                            </p>
+
+                            <p style="margin:0 0 16px;">
+                                Recuerdas que esta informacion es confidencial e intrasferible, por favor no compartirla con ningun colaborador.
+                            </p>
+
+                            <p style="text-align:center; margin:0 0 18px;">
+                                <!--<a href="{{login_link}}" style="display:inline-block; padding:12px 22px; text-decoration:none; border-radius:6px; font-weight:600; background:#f22121; color:#ffffff;">
+                                    Iniciar sesi�n
+                                </a>-->
+                            </p>
+
+                            <hr style="border:none; border-top:1px solid #e6e9ec; margin:18px 0;">
+
+                            <p style="margin:0 0 8px;">
+                                Si tienes alguna duda, por favor contactar a <a href="mailto:mttodltd@drummondltd.com">Mantenimiento RTTF</a>.
+                            </p>
+                            
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background:#f7f9fb; padding:14px 24px; font-size:12px; color:#6b7280; text-align:center;">
+                            <p style="margin:0 0 6px;">Drummond Colombia</p>
+                            
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
