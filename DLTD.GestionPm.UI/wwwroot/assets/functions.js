@@ -31,3 +31,29 @@
     }, false);
 
 })(window, document);
+
+
+
+function renderDonutChart() {
+    const ctx = document.getElementById('donutChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'In Progress', 'Behind'],
+            datasets: [{
+                data: [76, 32, 13],
+                backgroundColor: ['#198754', '#ffc107', '#dc3545'],
+                hoverBackgroundColor: ['#157347', '#e0a800', '#b02a37']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true, // Mantener proporciones
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}

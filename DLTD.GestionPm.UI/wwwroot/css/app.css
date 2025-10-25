@@ -112,3 +112,63 @@ code {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/*Seccion personalizada*/
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease;
+    color: #000; /* Texto negro para mejor contraste */
+}
+
+    .card:hover {
+        transform: translateY(-4px);
+    }
+
+.card-green {
+    background-color: #198754;
+}
+
+.card-blue {
+    background-color: #0d6efd;
+}
+
+.card-orange {
+    background-color: #ffc107;
+    color: #000; /* Texto negro para mejor contraste */
+}
+
+.card-red {
+    background-color: #dc3545
+}
+
+.rounded-circle {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.2); /* Fondo semitransparente */
+}
+
+.bi {
+    font-size: 1.2rem;
+}
+
+.progress {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+}
+
+/* Ajustar el contenedor del gráfico tipo Donut */
+.card-body canvas {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto; /* Ajusta la altura automáticamente */
+}

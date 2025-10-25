@@ -1,435 +1,208 @@
 ﻿@page "/"
-
-
 @layout MainLayout
-@inject IToastService Toast;
+@inject IJSRuntime JSRuntime
 
-<div class="home-hero" data-src="../assets/images/home-hero.png" uk-img="">
-    <div class="uk-width-1-1">
-        <div class="page-content-inner uk-position-z-index">
-            <h1>Learn HTML , CSS , iphone <br> Apps & More</h1>
-            <h4 class="my-lg-4"> Learn how to build websites & apps <br> write a code or start a business </h4>
-            <a href="#" class="btn btn-default">Free trailer </a>
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">Projects</h4>
+        <button class="btn btn-primary">Create New Project</button>
+    </div>
+
+    <div class="row g-4">
+        <!-- Project Card -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-green h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-light p-2 me-3">
+                            <i class="bi bi-folder text-primary"></i>
+                        </div>
+                        <h6 class="card-subtitle text-muted">Projects</h6>
+                    </div>
+                    <h2 class="card-title mb-2">18</h2>
+                    <p class="card-text text-muted mb-0">
+                        <span class="text-success">2</span> Completed
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Tasks Card -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-blue h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-light p-2 me-3">
+                            <i class="bi bi-list-check text-info"></i>
+                        </div>
+                        <h6 class="card-subtitle text-muted">Active Task</h6>
+                    </div>
+                    <h2 class="card-title mb-2">132</h2>
+                    <p class="card-text text-muted mb-0">
+                        <span class="text-success">28</span> Completed
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teams Card -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-orange h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-light p-2 me-3">
+                            <i class="bi bi-people text-warning"></i>
+                        </div>
+                        <h6 class="card-subtitle text-muted">Teams</h6>
+                    </div>
+                    <h2 class="card-title mb-2">12</h2>
+                    <p class="card-text text-muted mb-0">
+                        <span class="text-success">1</span> Completed
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Productivity Card -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-red h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-light p-2 me-3">
+                            <i class="bi bi-graph-up text-success"></i>
+                        </div>
+                        <h6 class="card-subtitle text-muted">Productivity</h6>
+                    </div>
+                    <h2 class="card-title mb-2">76%</h2>
+                    <p class="card-text text-muted mb-0">
+                        <span class="text-success">5%</span> Completed
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="container">
-
-    <!-- course card resume sliders  -->
-    <div class="section-small">
-
-        <div uk-slider="finite: true" class="course-grid-slider">
-
-            <div class="grid-slider-header">
-                <div>
-                    <h4 class="uk-text-truncate">
-                        Progress Courses
-                    </h4>
-                </div>
-                <div class="grid-slider-header-link">
-
-                    <a href="courses.html" class="button transparent uk-visible@m"> View all </a>
-                    <a href="#" class="slide-nav-prev" uk-slider-item="previous"></a>
-                    <a href="#" class="slide-nav-next" uk-slider-item="next"></a>
-
-                </div>
-            </div>
-
-            <ul class="uk-slider-items uk-child-width-1-2 uk-child-width-1-3@s uk-child-width-1-5@m uk-grid">
-                @* <TalleresCarrousel /> *@
-            </ul>
-
-        </div>
-
-    </div>
-
-
-    <div class="section-small pt-0">
-
-        <div class="course-grid-slider" uk-slider="finite: true">
-
-            <div class="grid-slider-header">
-                <div>
-                    <h4 class="uk-text-truncate"> popular <a href="#" class="text-muted">Topics</a> </h4>
-                </div>
-                <div class="grid-slider-header-link">
-
-                    <a href="course-path.html" class="button transparent uk-visible@m"> View all </a>
-                    <a href="#" class="slide-nav-prev" uk-slider-item="previous"></a>
-                    <a href="#" class="slide-nav-next" uk-slider-item="next"></a>
-
-                </div>
-            </div>
-
-            <ul class="uk-slider-items uk-child-width-1-4@m uk-child-width-1-3@s uk-grid">
-                <li>
-                    <a href="course-path-level.html" class="skill-card">
-                        <i class="icon-brand-angular skill-card-icon" style="color:#dd0031"></i>
-                        <div>
-                            <h2 class="skill-card-title"> Angular Courses</h2>
-                            <p class="skill-card-subtitle">
-                                5 courses <span class="skill-card-bullet"></span> 3
-                                bundles
-                            </p>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a href="course-path-level.html" class="skill-card">
-                        <i class="icon-brand-js-square skill-card-icon" style="color:#f7df1e"></i>
-                        <div>
-                            <h2 class="skill-card-title"> Angular Courses</h2>
-                            <p class="skill-card-subtitle">
-                                5 courses <span class="skill-card-bullet"></span> 3
-                                bundles
-                            </p>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a href="course-path-level.html" class="skill-card">
-                        <i class="icon-brand-html5 skill-card-icon" style="color:#f0653f"></i>
-                        <div>
-                            <h2 class="skill-card-title"> Angular Courses</h2>
-                            <p class="skill-card-subtitle">
-                                5 courses <span class="skill-card-bullet"></span> 3
-                                bundles
-                            </p>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a href="course-path-level.html" class="skill-card">
-                        <i class="icon-brand-node-js skill-card-icon" style="color:#64d25d"></i>
-                        <div>
-                            <h2 class="skill-card-title"> NodeJS Courses</h2>
-                            <p class="skill-card-subtitle">
-                                5 courses <span class="skill-card-bullet"></span> 3
-                                bundles
-                            </p>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a href="course-path-level.html" class="skill-card">
-                        <i class="icon-brand-angular skill-card-icon" style="color:#dd0031"></i>
-                        <div>
-                            <h2 class="skill-card-title"> Angular Courses</h2>
-                            <p class="skill-card-subtitle">
-                                5 courses <span class="skill-card-bullet"></span> 3
-                                bundles
-                            </p>
-                        </div>
-                    </a>
-                </li>
-            </ul>
-
-        </div>
-
-    </div>
-
-
-    <div class="section-small pt-0">
-
-        <div class="course-grid-slider" uk-slider="finite: true">
-
-            <div class="grid-slider-header">
-                <div>
-                    <h4 class="uk-text-truncate">
-                        Browse Web Development
-                        <a href="episode.html" class="text-muted">Episodes</a>
-                    </h4>
-                </div>
-                <div class="grid-slider-header-link">
-
-                    <a href="courses.html" class="button transparent uk-visible@m"> View all </a>
-                    <a href="#" class="slide-nav-prev" uk-slider-item="previous"></a>
-                    <a href="#" class="slide-nav-next" uk-slider-item="next"></a>
-
-                </div>
-            </div>
-
-            <ul class="uk-slider-items uk-child-width-1-4@m uk-child-width-1-3@s uk-grid">
-                <li>
-                    <a href="episode-details.html">
-                        <div class="course-card episode-card animate-this">
-                            <div class="course-card-thumbnail ">
-                                <span class="item-tag">HTML</span>
-                                <span class="duration">2:39</span>
-                                <img src="..\assets\images\episodes\2.png">
-                                <span class="play-button-trigger"></span>
-                            </div>
-                            <div class="course-card-body">
-                                <h4 class="mb-0"> Creating sticky in HTML </h4>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a href="episode-details.html">
-                        <div class="course-card episode-card animate-this">
-                            <div class="course-card-thumbnail ">
-                                <span class="item-tag">Tips</span>
-                                <span class="duration">5:39</span>
-                                <img src="..\assets\images\episodes\3.png">
-                                <span class="play-button-trigger"></span>
-                            </div>
-                            <div class="course-card-body">
-                                <h4 class="mb-0"> er Creating a Laravel Package </h4>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a href="episode-details.html">
-                        <div class="course-card episode-card animate-this">
-                            <div class="course-card-thumbnail ">
-                                <span class="item-tag">PHP</span>
-                                <span class="duration">5:39</span>
-                                <img src="..\assets\images\episodes\1.png">
-                                <span class="play-button-trigger"></span>
-                            </div>
-                            <div class="course-card-body">
-                                <h4 class="mb-0"> The PHP Singleton class </h4>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a href="episode-details.html">
-                        <div class="course-card episode-card animate-this">
-                            <div class="course-card-thumbnail ">
-                                <span class="item-tag">Design</span>
-                                <span class="duration">2:39</span>
-                                <img src="..\assets\images\episodes\5.png">
-                                <span class="play-button-trigger"></span>
-                            </div>
-                            <div class="course-card-body">
-                                <h4 class="mb-0"> Dev Design Quickie </h4>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a href="episode-details.html">
-                        <div class="course-card episode-card animate-this">
-                            <div class="course-card-thumbnail ">
-                                <span class="item-tag">HTML</span>
-                                <span class="duration">2:39</span>
-                                <img src="..\assets\images\episodes\2.png">
-                                <span class="play-button-trigger"></span>
-                            </div>
-                            <div class="course-card-body">
-                                <h4 class="mb-0"> Creating sticky in HTML </h4>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-            </ul>
-
-        </div>
-
-    </div>
-
-
-    <div class="section-small pt-0">
-
-        <div class="course-grid-slider" uk-slider="finite: true">
-
-            <div class="grid-slider-header">
-                <div>
-                    <h4 class="uk-text-truncate">
-                        Browse Web Development
-                        <a href="#" class="text-muted">Courses</a>
-                    </h4>
-                </div>
-                <div class="grid-slider-header-link">
-
-                    <a href="courses.html" class="button transparent uk-visible@m"> View all </a>
-                    <a href="#" class="slide-nav-prev" uk-slider-item="previous"></a>
-                    <a href="#" class="slide-nav-next" uk-slider-item="next"></a>
-
-                </div>
-            </div>
-
-            <ul class="uk-slider-items uk-child-width-1-4@m uk-child-width-1-3@s uk-grid">
-                <li>
-                    <a href="course-intro.html">
-                        <div class="course-card">
-                            <div class="course-card-thumbnail ">
-                                <img src="..\assets\images\course\2.png">
-                                <span class="play-button-trigger"></span>
-                            </div>
-                            <div class="course-card-body">
-                                <div class="course-card-info">
-                                    <div>
-                                        <span class="catagroy">Angular</span>
-                                    </div>
-                                    <div>
-                                        <i class="icon-feather-bookmark icon-small"></i>
-                                    </div>
+<div class="container-fluid p-4">
+    <!-- Tabla de PM Activos -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Active PMs</h5>
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Equipment</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Technician</th>
+                        <th scope="col">Progress</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pm in ActivePMs)
+                    {
+                        <tr>
+                            <td>@pm.Equipment</td>
+                            <td>@pm.Type</td>
+                            <td>@pm.Technician</td>
+                            <td>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar" role="progressbar" style="width:@pm.Progress%; background-color:@pm.Color;" aria-valuenow="@pm.Progress" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
-                                <h4>Learn Angular Fundamentals </h4>
-                                <p> Learn how to build and launch React web applications with .. </p>
-                                <div class="course-card-footer">
-                                    <h5> <i class="icon-feather-film"></i> 12 Lectures </h5>
-                                    <h5> <i class="icon-feather-clock"></i> 64 Hours </h5>
-                                </div>
-                            </div>
-
-                        </div>
-                    </a>
-
-                </li>
-                <li>
-                    <a href="course-intro.html">
-                        <div class="course-card">
-                            <div class="course-card-thumbnail ">
-                                <img src="..\assets\images\course\3.png">
-                                <span class="play-button-trigger"></span>
-                            </div>
-                            <div class="course-card-body">
-                                <div class="course-card-info">
-                                    <div>
-                                        <span class="catagroy">JavaScript</span>
-                                    </div>
-                                    <div>
-                                        <i class="icon-feather-bookmark icon-small"></i>
-                                    </div>
-                                </div>
-                                <h4>The Complete JavaScript </h4>
-                                <p> JavaScript is how you build interactivity on the web.. </p>
-                                <div class="course-card-footer">
-                                    <h5> <i class="icon-feather-film"></i> 14 Lectures </h5>
-                                    <h5> <i class="icon-feather-clock"></i> 55 Hours </h5>
-                                </div>
-                            </div>
-
-                        </div>
-                    </a>
-
-                </li>
-                <li>
-                    <a href="course-intro.html">
-                        <div class="course-card">
-                            <div class="course-card-thumbnail ">
-                                <img src="..\assets\images\course\1.png">
-                                <span class="play-button-trigger"></span>
-                            </div>
-                            <div class="course-card-body">
-                                <div class="course-card-info">
-                                    <div>
-                                        <span class="catagroy">HTML</span>
-                                    </div>
-                                    <div>
-                                        <i class="icon-feather-bookmark icon-small"></i>
-                                    </div>
-                                </div>
-
-                                <h4>Ultimate Web Developer Course </h4>
-                                <p>
-                                    HTML is the building blocks of the web. It gives pages structure .
-                                </p>
-
-                                <div class="course-card-footer">
-                                    <h5> <i class="icon-feather-film"></i> 33 Lectures </h5>
-                                    <h5> <i class="icon-feather-clock"></i> 26 Hours </h5>
-                                </div>
-                            </div>
-
-                        </div>
-                    </a>
-
-                </li>
-                <li>
-                    <a href="course-intro.html">
-                        <div class="course-card">
-                            <div class="course-card-thumbnail ">
-                                <img src="..\assets\images\course\6.png">
-                                <span class="play-button-trigger"></span>
-                            </div>
-                            <div class="course-card-body">
-                                <div class="course-card-info">
-                                    <div>
-                                        <span class="catagroy">HTML</span>
-                                    </div>
-                                    <div>
-                                        <i class="icon-feather-bookmark icon-small"></i>
-                                    </div>
-                                </div>
-                                <h4>Learn Modern HTML &amp; CSS </h4>
-                                <p> HTML is the building blocks of the web. It gives pages structure.. </p>
-
-                                <div class="course-card-footer">
-                                    <h5> <i class="icon-feather-film"></i> 16 Lectures </h5>
-                                    <h5> <i class="icon-feather-clock"></i> 52 Hours </h5>
-                                </div>
-                            </div>
-
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a href="course-intro.html">
-                        <div class="course-card">
-                            <div class="course-card-thumbnail ">
-                                <img src="..\assets\images\course\5.png">
-                                <span class="play-button-trigger"></span>
-                            </div>
-                            <div class="course-card-body">
-                                <div class="course-card-info">
-                                    <div>
-                                        <span class="catagroy">HTML</span>
-                                    </div>
-                                    <div>
-                                        <i class="icon-feather-bookmark icon-small"></i>
-                                    </div>
-                                </div>
-
-                                <h4>Ultimate Web Developer Course </h4>
-                                <p>
-                                    HTML is the building blocks of the web. It gives pages structure.
-                                </p>
-
-                                <div class="course-card-footer">
-                                    <h5> <i class="icon-feather-film"></i> 34 Lectures </h5>
-                                    <h5> <i class="icon-feather-clock"></i> 54 Hours </h5>
-                                </div>
-                            </div>
-
-                        </div>
-                    </a>
-                </li>
-            </ul>
-
-        </div>
-
-    </div>
-
-
-    <!-- footer
-    ================================================== -->
-    <div class="footer">
-        <div class="uk-grid-collapse" uk-grid="">
-            <div class="uk-width-expand@s uk-first-column">
-                <p>© 2019 <strong>Courseplus</strong>. All Rights Reserved. </p>
-            </div>
-            <div class="uk-width-auto@s">
-                <nav class="footer-nav-icon">
-                    <ul>
-                        <li><a href="#"><i class="icon-brand-facebook"></i></a></li>
-                        <li><a href="#"><i class="icon-brand-dribbble"></i></a></li>
-                        <li><a href="#"><i class="icon-brand-youtube"></i></a></li>
-                        <li><a href="#"><i class="icon-brand-twitter"></i></a></li>
-                    </ul>
-                </nav>
-            </div>
+                                <small>@pm.Progress% Complete</small>
+                            </td>
+                            <td>
+                                <span class="badge" style="background-color:@pm.Color;">@pm.Status</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
-
 </div>
+
+<div class="container-fluid p-4">
+    <div class="row g-4 mt-4">
+        <!-- Gráfico tipo Donut -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Tasks Performance</h5>
+                    <canvas id="donutChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Técnicos Activos -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Active Technicians</h5>
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Shift</th>
+                                <th scope="col">Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var technician in ActiveTechnicians)
+                            {
+                                <tr>
+                                    <td>@technician.Name</td>
+                                    <td>@technician.Shift</td>
+                                    <td>@technician.Duration</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @code {
+    private List<ActivePM> ActivePMs = new()
+    {
+        new ActivePM { Equipment = "CAT D9T", Type = "Short", Technician = "John Doe", Progress = 70, Status = "In Progress", Color = "#198754" },
+        new ActivePM { Equipment = "CAT 980H", Type = "Medium", Technician = "Jane Smith", Progress = 40, Status = "Pending", Color = "#ffc107" },
+        new ActivePM { Equipment = "CAT D10R", Type = "Long", Technician = "Mike Johnson", Progress = 85, Status = "Finalizing", Color = "#0d6efd" }
+    };
 
+    public class ActivePM
+    {
+        public string Equipment { get; set; } = "";
+        public string Type { get; set; } = "";
+        public string Technician { get; set; } = "";
+        public int Progress { get; set; }
+        public string Status { get; set; } = "";
+        public string Color { get; set; } = "";
+    }
+
+    private List<Technician> ActiveTechnicians = new()
+    {
+        new Technician { Name = "John Doe", Shift = "Day", Duration = "4h 20m" },
+        new Technician { Name = "Jane Smith", Shift = "Day", Duration = "3h 15m" },
+        new Technician { Name = "Mike Johnson", Shift = "Night", Duration = "5h 10m" },
+        new Technician { Name = "Emily Davis", Shift = "Night", Duration = "2h 50m" }
+    };
+
+    public class Technician
+    {
+        public string Name { get; set; } = "";
+        public string Shift { get; set; } = "";
+        public string Duration { get; set; } = "";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("renderDonutChart");
+        }
+    }
 }
