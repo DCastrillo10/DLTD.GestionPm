@@ -1,5 +1,6 @@
-html, body {
+﻿html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    
 }
 
 h1:focus {
@@ -113,7 +114,7 @@ code {
     text-align: start;
 }
 
-/*Seccion personalizada*/
+/*Seccion Dashboard*/
 .card {
     border: none;
     border-radius: 12px;
@@ -165,10 +166,190 @@ code {
     transition: width 0.3s ease;
 }
 
-/* Ajustar el contenedor del gr�fico tipo Donut */
+/* Ajustar el contenedor del gráfico tipo Donut */
 .card-body canvas {
     display: block;
     margin: 0 auto;
     max-width: 100%;
-    height: auto; /* Ajusta la altura autom�ticamente */
+    height: auto; /* Ajusta la altura automáticamente */
 }
+
+/* ============================================
+   🎨 Estilos personalizados del proyecto
+   ============================================ */
+
+/* Forzar color de texto negro globalmente */
+body, h1, h2, h3, h4, h5, h6, p, label, span, a {
+    color: #000 !important;
+}
+
+.uk-light, .uk-light * {
+    color: #fff !important;
+}
+
+/* Fondo gris tenue general para todas las páginas */
+.page-content {
+    background-color: #eae9e9; /* Gris muy suave */
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+/* Resalta las tarjetas sobre ese fondo */
+.uk-card-default {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Fondo completo del login */
+.login-container {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url("/assets/images/Dragalina.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+    /* Card principal del login (efecto vidrio esmerilado) */
+    .login-container .login-card.uk-card-default {
+        position: relative;
+        z-index: 1;
+        border-radius: 16px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.82) !important; /* blanco translúcido */
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+
+    /* Panel izquierdo con logo */
+    .login-container .login-left {
+        background-color: rgba(244, 244, 244, 0.85); /* gris tenue translúcido */
+        color: #000;
+        padding: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+/* Panel derecho (formulario) */
+.login-right {
+    padding: 3rem;
+}
+
+/* Botón corporativo */
+.btn-corporativo {
+    background-color: #d62828;
+    border-color: #d62828;
+    color: #fff;
+    padding: 0.6rem 1.5rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+}
+
+    .btn-corporativo:hover {
+        background-color: #b71c1c;
+        border-color: #b71c1c;
+    }
+
+
+/* === Logo personalizado DLTD === */
+
+header .container {
+    margin-left: 5px !important;
+    margin-right: 35px !important;
+    padding-left: 5px !important;
+    padding-right: 35px !important;
+    max-width: 100% !important; /* evita que UIkit limite el ancho */
+}
+
+/* --- Ajustar navbar izquierdo para que quede pegado --- */
+.uk-navbar-left.custom-navbar-left {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* espacio mínimo entre logo y breadcrumbs */
+}
+
+/* --- Logo pequeño y bien alineado --- */
+.logo-dltd {
+    display: flex;
+    align-items: center;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+    .logo-dltd img {
+        height:180px;
+        width: auto;
+    }
+
+/* --- Breadcrumb sin espacio extra --- */
+#breadcrumbs,
+.breadcrumbs-dltd {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+    #breadcrumbs ul {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+
+/* 🔧 Ajustar formularios de página (como Técnicos) */
+.page-content .uk-width-2-3\@m {
+    width: 90% !important;  antes era 66%, ahora más ancho 
+    max-width: 1200px;  evita que se extienda demasiado en pantallas grandes 
+    margin: 0 auto !important;  centrado horizontal 
+}
+
+ Opcional: reducir el padding interno del card 
+.page-content .uk-card.uk-card-body {
+    padding: 2rem !important;
+}
+
+ Opcional: bordes más suaves 
+.page-content .uk-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+
+/* cambiar el color a los iconos del navmenu Ulkit */
+.side-nav i {
+    font-size: 32px;
+    color: #d62828; /* Rojo corporativo */
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.side-nav a:hover i {
+    transform: scale(1.1);
+    color: #b71c1c;
+}
+
+/* 🔧 Ajuste del logo lateral (NavMenu) */
+.side-nav .logo img {
+    width: 60px !important; /* ajusta a gusto: 100, 120, etc */
+    height: auto !important;
+    object-fit: contain;
+}
+
+/* Si el contenedor lo recorta, aumentamos el espacio */
+.side-nav .logo {
+    padding: 1rem 0 !important;
+    display: flex;
+    justify-content: center;
+}
+

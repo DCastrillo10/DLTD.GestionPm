@@ -1,0 +1,106 @@
+﻿@page "/tecnicos"
+
+<div class="uk-flex uk-margin-large-top">
+    <div class="uk-width-2-3@m uk-width-1-1@s uk-margin-auto rounded">
+        <div class="uk-card uk-card-default uk-card-body uk-padding-large rounded">
+            
+            <div class="uk-text-center uk-margin-medium-bottom">
+                <h2 class="uk-text-bold uk-margin-small-bottom">Registrar Técnico</h2>
+                <p class="uk-text-muted uk-margin-remove-top">Ingresa los datos del nuevo técnico en el sistema.</p>
+            </div>
+
+            <form>
+                <div class="uk-grid-small" uk-grid>
+
+                    <div class="uk-width-1-2@s">
+                        <div class="uk-margin">
+                            <label class="uk-form-label">Nombre</label>
+                            <div class="uk-inline uk-width-1-1">
+                                <span class="uk-form-icon"><i class="icon-feather-user"></i></span>
+                                <input class="uk-input" type="text" placeholder="Ejm: Juanito" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-width-1-2@s">
+                        <div class="uk-margin">
+                            <label class="uk-form-label">Apellidos</label>
+                            <div class="uk-inline uk-width-1-1">
+                                <span class="uk-form-icon"><i class="icon-feather-user"></i></span>
+                                <input class="uk-input" type="text" placeholder="Ejm: Pérez" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="uk-width-1-2@s">
+                        <div class="uk-margin">
+                            <label class="uk-form-label">No. Identificación</label>
+                            <div class="uk-inline uk-width-1-1">
+                                <span class="uk-form-icon"><i class="icon-feather-credit-card"></i></span>
+                                <input class="uk-input" type="text" placeholder="71324212" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-width-1-2@s">
+                        <div class="uk-margin">
+                            <label class="uk-form-label">Código de Técnico (Usuario)</label>
+                            <div class="uk-inline uk-width-1-1">
+                                <span class="uk-form-icon"><i class="icon-feather-hash"></i></span>
+                                <input class="uk-input" type="text" placeholder="Ejm: juanito" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="uk-width-1-2@s">
+                        <div class="uk-margin">
+                            <label class="uk-form-label">Email</label>
+                            <div class="uk-inline uk-width-1-1">
+                                <span class="uk-form-icon"><i class="icon-feather-mail"></i></span>
+                                <input class="uk-input" type="email" placeholder="name@example.com" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-width-1-2@s">
+                        <div class="uk-margin">
+                            <label class="uk-form-label">Celular</label>
+                            <div class="uk-inline uk-width-1-1">
+                                <span class="uk-form-icon"><i class="icon-feather-phone"></i></span>
+                                <input class="uk-input" type="tel" placeholder="973122312">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="uk-width-1-2@s">
+                        <div class="uk-margin">
+                            <label class="uk-form-label">Contraseña</label>
+                            <div class="uk-inline uk-width-1-1">
+                                <span class="uk-form-icon"><i class="icon-feather-lock"></i></span>
+                                <input class="uk-input" type="password" placeholder="********" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-width-1-2@s">
+                        <div class="uk-margin">
+                            <label class="uk-form-label">Confirmar Contraseña</label>
+                            <div class="uk-inline uk-width-1-1">
+                                <span class="uk-form-icon"><i class="icon-feather-lock"></i></span>
+                                <input class="uk-input" type="password" placeholder="********" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <div class="uk-margin-large-top uk-flex uk-flex-right">
+                    <button type="submit" class="uk-button btn-corporativo">
+                        <i class="icon-feather-save uk-margin-small-right"></i> Registrar Técnico
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+}
