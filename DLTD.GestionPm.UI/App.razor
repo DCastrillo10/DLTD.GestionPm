@@ -1,7 +1,17 @@
 ﻿@using DLTD.GestionPm.UI.Layout.Main
+@using DLTD.GestionPm.UI.Pages.Security
+
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        @if (routeData.PageType == typeof(Login))
+        {
+            <RouteView RouteData="@routeData" DefaultLayout="@null" />
+        }
+        else
+        {
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />        
+        }
+        
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>
