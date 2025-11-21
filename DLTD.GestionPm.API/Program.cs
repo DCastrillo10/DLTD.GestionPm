@@ -37,6 +37,8 @@ builder.Services.AddDbContext<GestionPmBdContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("GestionPmBD"));
 });
 
+const string CorsPolicy = "AppGestionPM";
+
 //Configurar AspNetCore Identity
 builder.Services.AddIdentity<SecurityEntity, IdentityRole>(policy =>
 { 
@@ -74,6 +76,16 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddCors(policy =>
+{
+    policy.AddPolicy(CorsPolicy, conf =>
+    {
+        conf.AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+    });
+});
+
 //Inyeccion de Dependencias de los Servicios y repositorios
 builder.Services.AddScoped<ISecurityService, SecurityService>();
 builder.Services.AddScoped<ITecnicoService, TecnicoService>();
@@ -92,9 +104,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors(CorsPolicy);
 
 using (var service = app.Services.CreateScope())
 {

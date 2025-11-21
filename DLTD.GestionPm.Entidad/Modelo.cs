@@ -7,7 +7,7 @@ public partial class Modelo : EntidadBase
 {
     
 
-    public string Modelo1 { get; set; } = null!;
+    public string Referencia { get; set; } = null!;
 
     public string? Descripcion { get; set; }
 

@@ -1,5 +1,15 @@
-﻿@page "/Login"
+﻿@page "/"
+@using DLTD.GestionPm.Dto.Request.Login
+@using DLTD.GestionPm.UI.Proxies.Interfaces
+@using DLTD.GestionPm.UI.Services
+@using Microsoft.AspNetCore.Components.Authorization
 
+@inject ISecurityProxy securityProxy;
+@inject IToastService toastService;
+@inject AuthenticationStateProvider auth;
+@inject NavigationManager navegador;
+
+<BlazoredToasts Position="ToastPosition.BottomRight" />
 
 <div class="login-container" uk-height-viewport>
 
@@ -22,37 +32,69 @@
                 <p class="my-2">Ingresa tus credenciales para acceder.</p>
             </div>
 
-            <div>
-                <div class="uk-form-group">
-                    <label class="uk-form-label">Usuario</label>
-                    <div class="uk-position-relative w-100">
-                        <span class="uk-form-icon">
-                            <i class="icon-feather-user"></i>
-                        </span>
-                        <input class="uk-input" type="text" placeholder="Ejm: juanito">
+            <EditForm Model="Request" OnValidSubmit="OnLogin" class="uk-grid-width-1-1 uk-grid-small">
+
+                <DataAnnotationsValidator />
+
+                <div>
+                    <div class="uk-form-group">
+                        <label class="uk-form-label">Usuario</label>
+                        <div class="uk-position-relative w-100">
+                            <span class="uk-form-icon">
+                                <i class="icon-feather-user"></i>
+                            </span>
+                            <input class="uk-input" type="text" @bind="Request.UserName" placeholder="Ejm: Usuario">
+                        </div>
+                        <ValidationMessage For="() => Request.UserName"/>
                     </div>
                 </div>
-            </div>
 
-            <div>
-                <div class="uk-form-group">
-                    <label class="uk-form-label">Contraseña</label>
-                    <div class="uk-position-relative w-100">
-                        <span class="uk-form-icon">
-                            <i class="icon-feather-lock"></i>
-                        </span>
-                        <input class="uk-input" type="password" placeholder="********">
+                <div>
+                    <div class="uk-form-group">
+                        <label class="uk-form-label">Contraseña</label>
+                        <div class="uk-position-relative w-100">
+                            <span class="uk-form-icon">
+                                <i class="icon-feather-lock"></i>
+                            </span>
+                            <input class="uk-input" type="password" @bind="Request.Password" placeholder="********">
+                        </div>
+                        <ValidationMessage For="() => Request.Password" />
                     </div>
                 </div>
-            </div>
 
-            <div class="uk-text-center mt-4">
-                <button type="submit" class="btn btn-corporativo">
-                    <i class="icon-feather-log-in"></i> Iniciar Sesión
-                </button>
-            </div>
+                <div class="uk-text-center mt-4">
+                    <button type="submit" class="btn btn-corporativo">
+                        <i class="icon-feather-log-in"></i> Iniciar Sesión
+                    </button>
+                </div>
+            </EditForm>
+
         </div>
     </div>
 </div>
+
+@code{
+    public LoginRequest Request { get; set; } = new();
+
+    public async Task OnLogin()
+    {
+        try
+        {
+            var resultado = await securityProxy.Login(Request);
+
+            var authService = (AuthService)auth;
+            if (resultado.Result != null)
+            {
+                await authService.AuthenticationAsync(resultado.Result);
+                navegador.NavigateTo("/Home");
+                // toastService.ShowSuccess($"Bienvenid: {resultado.Result.Nombre}");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+    }
+}
 
 

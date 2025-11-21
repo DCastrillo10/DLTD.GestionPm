@@ -330,7 +330,8 @@ header .container {
 /* cambiar el color a los iconos del navmenu Ulkit */
 .side-nav i {
     font-size: 32px;
-    color: #d62828; /* Rojo corporativo */
+    /*color: #d62828;*/ /* Rojo corporativo */
+    color: #000; /* Rojo corporativo */
     transition: transform 0.2s ease, color 0.2s ease;
 }
 
@@ -353,3 +354,23 @@ header .container {
     justify-content: center;
 }
 
+/* --- Uniformar los select con los input --- */
+.uk-select {
+    border: 1px solid #dfe3e7 !important; /* mismo color que uk-input */
+    height: 40px; /* igual altura */
+    line-height: 1.5;
+    border-radius: 6px; /* bordes suaves */
+    background-color: #fff; /* blanco igual que input */
+    color: #333;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .uk-select:focus {
+        border-color: #b71c1c !important; /* rojo corporativo al focus */
+        box-shadow: 0 0 0 2px rgba(214, 40, 40, 0.2); /* efecto sutil */
+        outline: none;
+    }
+
+    .uk-select:hover {
+        border-color: #ccc;
+    }

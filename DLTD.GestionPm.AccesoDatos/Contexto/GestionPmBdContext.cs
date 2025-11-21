@@ -130,7 +130,7 @@ public partial class GestionPmBdContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
-            entity.Property(e => e.Modelo1)
+            entity.Property(e => e.Referencia)
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("Modelo");

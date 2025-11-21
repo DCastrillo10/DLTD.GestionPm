@@ -1,0 +1,29 @@
+﻿@page "/not-authorized"
+@layout MainLayout
+
+<div id="wrapper">
+    <div class="uk-card-default bg-gradient-grey py-4 uk-light">
+        <div class="uk-flex uk-flex-center uk-flex-middle">
+            <i class=" uil-graduation-hat icon-medium"></i>
+            <h4 class="mb-0 ml-3">
+                Drummond Colombia
+            </h4>
+        </div>
+    </div>
+
+    <div uk-height-viewport="expand: true" class="uk-flex uk-flex-middle">
+        <div class="uk-width-1-2@m uk-width-1-2@s m-auto text-center">
+
+            <img src="assets\images\maintenance.svg" alt="" class="my-3">
+
+            <h3>Sin autorización</h3>
+            <p class="mb-0">
+                Usted no está autorizado para acceder a esta pagina, pongase en contacto con el administrador del sistema.
+            </p>
+            <a href="/" class="button grey transition-3d-hover my-4 small" uk-toggle="">
+                <i class="icon-feather-clock mr-2"></i> Volver
+            </a>
+
+        </div>
+    </div>
+</div>

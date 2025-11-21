@@ -5,6 +5,7 @@ using DLTD.GestionPm.Dto.Response;
 using DLTD.GestionPm.Dto.Response.Login;
 using DLTD.GestionPm.Negocios.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -21,11 +22,13 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
     {
         private readonly UserManager<SecurityEntity> _userManager;
         private readonly JwtSettings _jwt;
+        private readonly ILogger<TecnicoService> _logger;
 
-        public SecurityService(UserManager<SecurityEntity> userManager, IOptions<JwtSettings> jwtOptios)
+        public SecurityService(UserManager<SecurityEntity> userManager, IOptions<JwtSettings> jwtOptios, ILogger<TecnicoService> logger)
         {
             _userManager = userManager;
             _jwt = jwtOptios.Value;
+            _logger = logger;
         }
 
         public async Task<BaseResponse<LoginResponse>> Login(LoginRequest request)
@@ -56,7 +59,8 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             }
             catch (Exception ex)
             {
-                response.Message = ex.Message;                
+                response.Message = "Hubo un error al iniciar sesion.";
+                _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
             }
             return response;
         }

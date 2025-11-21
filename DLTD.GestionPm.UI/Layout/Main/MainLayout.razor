@@ -1,4 +1,8 @@
-﻿@inherits LayoutComponentBase
+﻿
+@using System.Security.Claims
+@inherits LayoutComponentBase
+<BlazoredToasts Position="ToastPosition.BottomRight" />
+
 
 <div id="wrapper">
     <header class="header" uk-sticky="top:20 ; cls-active:header-sticky">
@@ -12,7 +16,7 @@
                     <span class="btn-mobile" uk-toggle="target: #wrapper ; cls: mobile-active"></span>
 
                     <!-- logo uk-flex uk-flex-middle -->
-                    <a href="/" class="logo-dltd ">                       
+                    <a href="Home" class="logo-dltd ">                       
                         <img src="/assets/images/Drummond.png" alt="Logo DLTD" class="logo-img">
                     </a>
 
@@ -27,233 +31,40 @@
                 </div>
 
 
-                
+                <AuthorizeView>
                     <!--  Right Side Content   -->
                     <div class="uk-navbar-right">
 
                         <div class="header-widget">
                             <!-- User icons close mobile-->
                             <span class="icon-feather-x icon-small uk-hidden@s" uk-toggle="target: .header-widget ; cls: is-active"> </span>
-
-
-                            <a href="#" class="header-widget-icon" uk-tooltip="title: My Courses ; pos: bottom ;offset:21">
-                                <i class="uil-youtube-alt"></i>
-                            </a>
-
-                            <!-- courses dropdown List -->
-                            <div uk-dropdown="pos: top;mode:click;animation: uk-animation-slide-bottom-small" class="dropdown-notifications my-courses-dropdown">
-
-                                <!-- notivication header -->
-                                <div class="dropdown-notifications-headline">
-                                    <h4>Your Courses</h4>
-                                    <a href="#">
-                                        <i class="icon-feather-settings" uk-tooltip="title: Notifications settings ; pos: left"></i>
-                                    </a>
-                                </div>
-
-                                <!-- notification contents -->
-                                <div class="dropdown-notifications-content" data-simplebar="">
-
-                                    <!-- notiviation list -->
-                                    <ul>
-                                        <li class="notifications-not-read">
-                                            <a href="course-intro.html">
-                                                <span class="notification-image">
-                                                    <img src="..\assets\images\course\1.png" alt="">
-                                                </span>
-                                                <span class="notification-text">
-                                                    <span class="course-title">
-                                                        Ultimate Web Designer & Web Developer
-                                                    </span>
-                                                    <span class="course-number">6/35 </span>
-                                                    <span class="course-progressbar">
-                                                        <span class="course-progressbar-filler" style="width:95%"></span>
-                                                    </span>
-                                                </span>
-
-                                                <!-- option menu -->
-                                                <span class="btn-option">
-                                                    <i class="icon-feather-more-vertical"></i>
-                                                </span>
-                                                <div class="dropdown-option-nav" uk-dropdown="pos: bottom-right ;mode : hover">
-                                                    <ul>
-                                                        <li>
-                                                            <span>
-                                                                <i class="icon-material-outline-dashboard"></i>
-                                                                Course Dashboard
-                                                            </span>
-                                                        </li>
-                                                        <li>
-                                                            <span>
-                                                                <i class="icon-feather-video"></i>
-                                                                Resume Course
-                                                            </span>
-                                                        </li>
-                                                        <li>
-                                                            <span>
-                                                                <i class="icon-feather-x"></i>
-                                                                Remove Course
-                                                            </span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </a>
-
-                                        </li>
-
-                                    </ul>
-
-                                </div>
-                                <div class="dropdown-notifications-footer">
-                                    <a href="#"> sell all</a>
-                                </div>
-                            </div>
-
-                            <!-- notificiation icon  -->
-
-                            <a href="#" class="header-widget-icon" uk-tooltip="title: Notificiation ; pos: bottom ;offset:21">
-                                <i class="uil-bell"></i>
-                                <span>4</span>
-                            </a>
-
-                            <!-- notificiation dropdown -->
-                            <div uk-dropdown="pos: top-right;mode:click ; animation: uk-animation-slide-bottom-small" class="dropdown-notifications">
-
-                                <!-- notivication header -->
-                                <div class="dropdown-notifications-headline">
-                                    <h4>Notifications </h4>
-                                    <a href="#">
-                                        <i class="icon-feather-settings" uk-tooltip="title: Notifications settings ; pos: left"></i>
-                                    </a>
-                                </div>
-
-                                <!-- notification contents -->
-                                <div class="dropdown-notifications-content" data-simplebar="">
-
-                                    <!-- notiviation list -->
-                                    <ul>
-                                        <li class="notifications-not-read">
-                                            <a href="#">
-                                                <span class="notification-icon btn btn-soft-danger disabled">
-                                                    <i class="icon-feather-thumbs-up"></i>
-                                                </span>
-                                                <span class="notification-text">
-                                                    <strong>Adrian Mohani</strong> Like Your Comment On Course
-                                                    <span class="text-primary">Javascript Introduction </span>
-                                                    <br> <span class="time-ago"> 9 hours ago </span>
-                                                </span>
-                                            </a>
-                                        </li>
-
-                                    </ul>
-
-                                </div>
-
-
-                            </div>
-
-
-                            <!-- Message  -->
-
-                            <a href="#" class="header-widget-icon" uk-tooltip="title: Message ; pos: bottom ;offset:21">
-                                <i class="uil-envelope-alt"></i>
-                                <span>1</span>
-                            </a>
-
-                            <!-- Message  notificiation dropdown -->
-                            <div uk-dropdown=" pos: top-right;mode:click" class="dropdown-notifications">
-
-                                <!-- notivication header -->
-                                <div class="dropdown-notifications-headline">
-                                    <h4>Messages</h4>
-                                    <a href="#">
-                                        <i class="icon-feather-settings" uk-tooltip="title: Message settings ; pos: left"></i>
-                                    </a>
-                                </div>
-
-                                <!-- notification contents -->
-                                <div class="dropdown-notifications-content" data-simplebar="">
-
-                                    <!-- notiviation list -->
-                                    <ul>
-                                        <li class="notifications-not-read">
-                                            <a href="#">
-                                                <span class="notification-avatar">
-                                                    <img src="..\assets\images\avatars\avatar-2.jpeg" alt="">
-                                                </span>
-                                                <div class="notification-text notification-msg-text">
-                                                    <strong>Jonathan Madano</strong>
-                                                    <p>
-                                                        Okay.. Thanks for The Answer I will be waiting for your...
-                                                    </p>
-                                                    <span class="time-ago"> 2 hours ago </span>
-                                                </div>
-                                            </a>
-                                        </li>
-
-                                    </ul>
-
-                                </div>
-                                <div class="dropdown-notifications-footer">
-                                    <a href="#"> sell all <i class="icon-line-awesome-long-arrow-right"></i> </a>
-                                </div>
-                            </div>
-
-
+                            
                             <!-- profile-icon-->
-
-                            <a href="#" class="header-widget-icon profile-icon">
-                                <img src="..\assets\images\avatars\avatar-2.jpeg" alt="" class="header-profile-icon">
+                            <a>
+                                Bienvenido, @context.User.Identity!.Name <span></span>
                             </a>
+                           @*  <a href="#" class="header-widget-icon profile-icon">
+                                <img src="..\assets\images\avatars\avatar-2.jpeg" alt="" class="header-profile-icon">
+                            </a> 
 
 
-                            <div uk-dropdown="pos: top-right ;mode:click" class="dropdown-notifications small">
+                            @* <div uk-dropdown="pos: top-right ;mode:click" class="dropdown-notifications small">
+                                
+                                    <!-- User Name / Avatar -->
+                                    <a href="profile-1.html">
 
-                                <!-- User Name / Avatar -->
-                                <a href="profile-1.html">
-
-                                    <div class="dropdown-user-details">
-                                        <div class="dropdown-user-avatar">
-                                            <img src="..\assets\images\avatars\avatar-2.jpeg" alt="">
+                                        <div class="dropdown-user-details">
+                                            <div class="dropdown-user-avatar">
+                                                <img src="..\assets\images\avatars\avatar-2.jpeg" alt="">
+                                            </div>
+                                            <div class="dropdown-user-name">
+                                                @context.User.Identity!.Name <span>@context.User.Claims.First(p => p.Type == ClaimTypes.Role).Value</span>
+                                            </div>
                                         </div>
-                                        <div class="dropdown-user-name">
-                                            Usuario Test <span>Tecnico</span>
-                                        </div>
-                                    </div>
 
-                                </a>
-
-
-
-                                <!-- User menu -->
-
-                                <ul class="dropdown-user-menu">
-
-                                    <li>
-                                        <a href="#">
-                                            <i class="icon-feather-bookmark"></i> Bookmark
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="profile-edit.html">
-                                            <i class="icon-feather-settings"></i> Account Settings
-                                        </a>
-                                    </li>
-
-                                    <li class="menu-divider"></li>
-
-                                    <li>
-                                        <a >
-                                            <i class="icon-feather-log-out"></i> Sing Out
-                                        </a>
-                                    </li>
-                                </ul>
-
-
-                            </div>
-
-
-
+                                    </a>                      
+                                
+                            </div> *@
 
                         </div>
 
@@ -270,7 +81,7 @@
 
                     </div>
                     <!-- End Right Side Content / End -->
-               
+                </AuthorizeView>
             </nav>
 
         </div>
@@ -316,3 +127,4 @@
     </div>
 
 </div>
+

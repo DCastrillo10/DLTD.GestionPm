@@ -4,6 +4,7 @@ using DLTD.GestionPm.Entidad;
 using DLTD.GestionPm.Negocios.Interfaces;
 using DLTD.GestionPm.Repositorios.Interfaces;
 using Mapster;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +17,13 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
     {
         private readonly ITecnicoRepository _repository;
         private readonly IEmailService _email;
+        private readonly ILogger<TecnicoService> _logger;
 
-        public TecnicoService(ITecnicoRepository repository, IEmailService email)
+        public TecnicoService(ITecnicoRepository repository, IEmailService email, ILogger<TecnicoService> logger)
         {
             _repository = repository;
             _email = email;
+            _logger = logger;
         }
 
         public async Task<BaseResponse> AddAsync(TecnicoRequest request)
@@ -37,7 +40,8 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             }
             catch (Exception ex)
             {
-                response.Message = ex.Message;
+                response.Message = "Hubo un error al registrar el tecnico";
+                _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
             }
             return response;
         }

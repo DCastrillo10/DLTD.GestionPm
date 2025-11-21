@@ -1,4 +1,10 @@
 ﻿@page "/tecnicos"
+@using DLTD.GestionPm.Dto.Request.Tecnico
+@using DLTD.GestionPm.UI.Proxies.Interfaces
+@layout MainLayout
+@inject ITecnicoProxy TecnicoProxy;
+@inject IToastService ToastService;
+@inject NavigationManager Navegador;
 
 <div class="uk-flex uk-margin-large-top">
     <div class="uk-width-2-3@m uk-width-1-1@s uk-margin-auto rounded">
@@ -9,7 +15,9 @@
                 <p class="uk-text-muted uk-margin-remove-top">Ingresa los datos del nuevo técnico en el sistema.</p>
             </div>
 
-            <form>
+            <EditForm Model="Request" OnValidSubmit="OnGuardar" class="uk-child-width-1-1 uk-grid-small">
+                <DataAnnotationsValidator />
+
                 <div class="uk-grid-small" uk-grid>
 
                     <div class="uk-width-1-2@s">
@@ -17,17 +25,20 @@
                             <label class="uk-form-label">Nombre</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-user"></i></span>
-                                <input class="uk-input" type="text" placeholder="Ejm: Juanito" required>
+                                <input class="uk-input" type="text" @bind="Request.Nombres" placeholder="Ejm: Pedro" required>
                             </div>
+                            <ValidationMessage For="()=> Request.Nombres" />
                         </div>
                     </div>
+
                     <div class="uk-width-1-2@s">
                         <div class="uk-margin">
                             <label class="uk-form-label">Apellidos</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-user"></i></span>
-                                <input class="uk-input" type="text" placeholder="Ejm: Pérez" required>
+                                <input class="uk-input" type="text" @bind="Request.Apellidos" placeholder="Ejm: Pérez" required>
                             </div>
+                            <ValidationMessage For="() => Request.Apellidos" />
                         </div>
                     </div>
 
@@ -36,17 +47,53 @@
                             <label class="uk-form-label">No. Identificación</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-credit-card"></i></span>
-                                <input class="uk-input" type="text" placeholder="71324212" required>
+                                <input class="uk-input" type="text" @bind="Request.NoIdentificacion" placeholder="71324212" required>
                             </div>
+                            <ValidationMessage For="() => Request.NoIdentificacion" />
                         </div>
                     </div>
+
                     <div class="uk-width-1-2@s">
                         <div class="uk-margin">
-                            <label class="uk-form-label">Código de Técnico (Usuario)</label>
+                            <label class="uk-form-label">Código</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-hash"></i></span>
-                                <input class="uk-input" type="text" placeholder="Ejm: juanito" required>
+                                <input class="uk-input" type="text" @bind="Request.Codigo" placeholder="Ejm: CA0000" required>
                             </div>
+                            <ValidationMessage For="() => Request.Codigo" />
+                        </div>
+                    </div>
+
+                    <div class="uk-width-1-2@s">
+                        <div class="uk-margin">
+                            <label class="uk-form-label">Especialidad</label>
+                            <div class="uk-position-relative uk-width-1-1">
+                                <span class="uk-form-icon"><i class="icon-feather-activity"></i></span>
+                                <select class="uk-select uk-form-icon-flip" @bind="Request.Especialidad" style="padding-left: 40px;" required>
+                                    <option value="">Seleccione una especialidad...</option>
+                                    <option value="mecanico">Mecánico</option>
+                                    <option value="electrico">Eléctrico</option>
+                                    <option value="soldador">Soldador</option>
+                                    <option value="lubricador">Lubricador</option>                                    
+                                </select>
+                            </div>
+                            <ValidationMessage For="() => Request.Especialidad" />
+                        </div>
+                    </div>
+
+                    <div class="uk-width-1-2@s">
+                        <div class="uk-margin">
+                            <label class="uk-form-label">Turno</label>
+                            <div class="uk-position-relative uk-width-1-1">
+                                <span class="uk-form-icon"><i class="icon-feather-clock"></i></span>
+                                <select class="uk-select uk-form-icon-flip" @bind="Request.TurnoActual" style="padding-left: 40px;" required>
+                                    <option value="">Seleccione un turno...</option>
+                                    <option value="grupo1">Grupo 1</option>
+                                    <option value="grupo2">Grupo 2</option>
+                                    <option value="grupo3">Grupo 3</option>                                    
+                                </select>
+                            </div>
+                            <ValidationMessage For="() => Request.TurnoActual" />
                         </div>
                     </div>
 
@@ -55,17 +102,20 @@
                             <label class="uk-form-label">Email</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-mail"></i></span>
-                                <input class="uk-input" type="email" placeholder="name@example.com" required>
+                                <input class="uk-input" type="email" @bind="Request.Email" placeholder="name@example.com" required>
                             </div>
+                            <ValidationMessage For="() => Request.Email" />
                         </div>
                     </div>
+
                     <div class="uk-width-1-2@s">
                         <div class="uk-margin">
                             <label class="uk-form-label">Celular</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-phone"></i></span>
-                                <input class="uk-input" type="tel" placeholder="973122312">
+                                <input class="uk-input" type="text" @bind="Request.Telefono" placeholder="973122312">
                             </div>
+                            <ValidationMessage For="() => Request.Telefono" />
                         </div>
                     </div>
 
@@ -74,17 +124,20 @@
                             <label class="uk-form-label">Contraseña</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-lock"></i></span>
-                                <input class="uk-input" type="password" placeholder="********" required>
+                                <input class="uk-input" type="password" @bind="Request.Clave" placeholder="********" required>
                             </div>
+                            <ValidationMessage For="() => Request.Clave" />
                         </div>
                     </div>
+
                     <div class="uk-width-1-2@s">
                         <div class="uk-margin">
                             <label class="uk-form-label">Confirmar Contraseña</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-lock"></i></span>
-                                <input class="uk-input" type="password" placeholder="********" required>
+                                <input class="uk-input" type="password" @bind="Request.ConfirmarClave" placeholder="********" required>
                             </div>
+                            <ValidationMessage For="() => Request.ConfirmarClave" />
                         </div>
                     </div>
                     
@@ -95,12 +148,28 @@
                         <i class="icon-feather-save uk-margin-small-right"></i> Registrar Técnico
                     </button>
                 </div>
-            </form>
+            </EditForm>
         </div>
     </div>
 </div>
 
 
 @code {
+    public TecnicoRequest Request { get; set; } = new();
+
+    public async Task OnGuardar()
+    {
+        try
+        {
+            var resultado = await TecnicoProxy.Registrar(Request);
+            ToastService.ShowSuccess("Tecnico registrado exitosamente.");
+            // Navegador.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message);
+            
+        }
+    }
 
 }
