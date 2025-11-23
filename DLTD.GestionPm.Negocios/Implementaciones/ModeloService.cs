@@ -99,14 +99,16 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             try
             {
                 var result = await _repository.ListAsync(
-                        predicate: p => p.Status == "Activo" &&
-                        (string.IsNullOrEmpty(request.Filter) || p.Descripcion!.Contains(request.Filter)),
+                        predicate: p => p.Status != "Eliminado" &&
+                        (string.IsNullOrEmpty(request.Filter) || p.Referencia.Contains(request.Filter) || p.Descripcion!.Contains(request.Filter) ||
+                                                                 p.IdMarcaNavigation.Descripcion.Contains(request.Filter) || p.Status.Contains(request.Filter)),
                         selector: p => new ListaModeloResponse
                         {
                             Id = p.Id,
                             Referencia = p.Referencia,
                             Descripcion = p.Descripcion,
-                            Marca = p.IdMarcaNavigation.Descripcion
+                            Marca = p.IdMarcaNavigation.Descripcion,
+                            Status = p.Status
                         },
                         page: request.Page,
                         rows: request.Rows,

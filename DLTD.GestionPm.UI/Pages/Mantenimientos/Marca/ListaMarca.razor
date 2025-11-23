@@ -1,0 +1,239 @@
+﻿@using DLTD.GestionPm.Dto.Response.Marca
+
+
+@attribute [Route(Routes.ListaMarcas)]
+@layout MainLayout
+@attribute [Authorize(Roles = CatalogRoles.Administrador)]
+
+@inject IMarcaProxy marcaProxy;
+@inject IToastService toastService;
+@inject SweetAlertService swal;
+
+<h3 class="uk-text-bold uk-margin-small-bottom">Listado de Marcas</h3>
+
+<GroupBox Titulo="Buscar Marcas">
+    <Contenido>
+        <div class="uk-grid-small" uk-grid>
+            <!-- Input + botones -->
+            <div class="uk-width-2-3@s">
+                <div class="uk-grid-small uk-flex-middle" uk-grid>                    
+                    <div class="uk-width-expand">
+                        <input class="uk-input uk-form-small" placeholder="Buscar por descripción..." @bind="Request.Filter" />
+                    </div>                    
+                    <div>
+                        <button class="uk-button uk-button-default uk-button-small" @onclick="Listar">
+                            <i class="icon-feather-search"></i>
+                        </button>
+                    </div>                    
+                    <div>
+                        <button class="uk-button uk-button-default uk-button-small" @onclick="OnRefrescar">
+                            <i class="icon-feather-rotate-ccw"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="uk-width-1-3@s uk-flex uk-flex-right">
+                <button class="uk-button btn-corporativo uk-button-small" style="padding: 6px 18px;" @onclick="OnNuevo">
+                    <i class="icon-feather-plus uk-margin-small-right"></i>
+                    Nuevo
+                </button>
+            </div>
+
+        </div>
+    </Contenido>
+
+</GroupBox>
+
+<!-- Tabla -->
+<div class="uk-overflow-auto tabla-container">    
+    <table class="uk-table uk-table-striped uk-table-hover uk-table-small uk-table-middle tabla-compacta">
+
+        <thead class="table-header">
+            <tr>
+                <th>Id</th>
+                <th>Descripción</th>
+                <th>Status</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Listado)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Descripcion</td>
+                    <td>@item.Status</td>
+                    <td class="uk-text-center">
+
+                        <button class="uk-icon-button uk-margin-small-right" uk-tooltip="Editar" @onclick="() => OnShowEditar(item)">
+                            <i class="icon-feather-edit"></i>
+                        </button>                        
+                        
+                        <button class="uk-icon-button uk-button-danger" uk-tooltip="Eliminar"  @onclick="() => OnEliminar(item)">
+                            <i class="icon-feather-trash-2"></i>
+                        </button>
+
+                    </td>
+                </tr>
+            }
+            
+        </tbody>
+    </table>
+</div>
+
+<Modal Title="Marcas" Size="ModalSize.Regular" UseStaticBackdrop=true @ref="ModalMarcas">
+    <BodyTemplate>        
+        <FrmMarca Request="RequestMarca" OnGuardarEvent="OnGuardar" OnCancelarEvent="() => ModalMarcas.HideAsync()" />
+    </BodyTemplate>
+</Modal>
+
+<Loading Isloading="isLoading" />
+
+@code {
+    public List<ListaMarcaResponse> Listado { get; set; } = new();
+    public PaginationRequest Request { get; set; } = new();
+    public Modal ModalMarcas { get; set; } = new();
+    public bool isLoading { get; set; }
+
+    public MarcaRequest RequestMarca { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Listar();
+    }
+
+    public async Task Listar()
+    {
+        isLoading = true;
+        try
+        {
+            var respuesta = await marcaProxy.Listar(Request);
+            if(respuesta?.Result != null)
+            {
+                Listado = respuesta.Result.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);            
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task OnRefrescar()
+    {
+        Request = new();
+        await Listar();
+    }
+
+    public async Task OnNuevo()
+    {
+        RequestMarca = new();
+        await ModalMarcas.ShowAsync();
+    }
+
+    public async Task OnShowEditar(ListaMarcaResponse item)
+    {
+        RequestMarca.Id = item.Id;
+        RequestMarca.Descripcion = item.Descripcion;
+        RequestMarca.Status = item.Status;
+        await ModalMarcas.ShowAsync();
+    }
+
+    public async Task OnGuardar()
+    {
+        isLoading = true;
+        try
+        {
+            if(RequestMarca.Id == 0)
+            {
+                if (Listado.Any(x => string.Equals(x.Descripcion, RequestMarca.Descripcion, StringComparison.OrdinalIgnoreCase)))
+                {
+                    toastService.ShowError("Ya existe una marca con esa referencia");
+                    return;
+                }
+
+                var respuesta = await marcaProxy.Registrar(RequestMarca);
+                if (respuesta != null)
+                {
+                    await Listar();
+                    await ModalMarcas.HideAsync();
+                    toastService.ShowSuccess("Marca registrada exitosamente");
+                }
+            }
+            else
+            {
+                if (Listado.Any(x => string.Equals(x.Descripcion, RequestMarca.Descripcion, StringComparison.OrdinalIgnoreCase) && x.Id != RequestMarca.Id))
+                {
+                    toastService.ShowError("Ya existe un modelo con esa referencia");
+                    return;
+                }
+
+                var respuesta = await marcaProxy.Actualizar(RequestMarca.Id, RequestMarca);
+                if (respuesta != null)
+                {
+                    await Listar();
+                    await ModalMarcas.HideAsync();
+                    toastService.ShowSuccess("Marca actualizada exitosamente");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task OnEliminar(ListaMarcaResponse item)
+    {
+        var respuesta = await swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "Estas seguro en eliminar este registro?",
+            Text = $"Eliminar {item.Descripcion}.",
+            Icon = SweetAlertIcon.Question,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Si",
+            CancelButtonText = "No"
+        });
+
+        if (respuesta.IsConfirmed)
+        {
+            await Eliminar(item.Id);
+        }
+    }
+
+    public async Task Eliminar(int id)
+    {
+        isLoading = true;
+        try
+        {
+            var response = await marcaProxy.Eliminar(id);
+            if(response != null)
+            {
+                await Listar();
+                toastService.ShowSuccess("Registro eliminado correctamente");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+    
+}

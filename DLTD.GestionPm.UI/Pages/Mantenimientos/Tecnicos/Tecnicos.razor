@@ -1,7 +1,9 @@
-﻿@page "/tecnicos"
+﻿@attribute [Route(Routes.Tecnicos)]
+@layout MainLayout
+
 @using DLTD.GestionPm.Dto.Request.Tecnico
 @using DLTD.GestionPm.UI.Proxies.Interfaces
-@layout MainLayout
+
 @inject ITecnicoProxy TecnicoProxy;
 @inject IToastService ToastService;
 @inject NavigationManager Navegador;

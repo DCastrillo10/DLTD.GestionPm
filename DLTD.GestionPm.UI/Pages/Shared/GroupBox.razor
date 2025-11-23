@@ -1,0 +1,21 @@
+﻿
+<div class="uk-card uk-card-default uk-card-body uk-padding-small uk-margin-medium-top groupbox-container">
+
+    <div class="groupbox-title">
+        @Titulo
+    </div>
+
+    <div class="uk-margin-top">
+        @Contenido
+    </div>
+
+</div>
+
+@code {
+    [Parameter]
+    public string Titulo { get; set; } = string.Empty;
+
+    [Parameter]
+    [EditorRequired]
+    public RenderFragment Contenido { get; set; } = default!;
+}

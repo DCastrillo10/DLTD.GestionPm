@@ -13,6 +13,8 @@ namespace DLTD.GestionPm.Dto.Response.Modelo
 
         public string? Descripcion { get; set; }
 
-        public string Marca { get; set; } = default!;  
+        public string Marca { get; set; } = default!;
+
+        public string Status { get; set; } = default!;
     }
 }

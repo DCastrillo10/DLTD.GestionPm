@@ -72,7 +72,9 @@
 
 		// Button
 		function backToTop() {
-			$('body').append('<div id="backtotop"><a href="#"></a></div>');
+			/*$('body').append('<div id="backtotop"><a href="#"></a></div>');*/
+			$('body').append('<div id="backtotop"><a href="#" style="background:#d62828;"></a></div>');
+
 		}
 		backToTop();
 

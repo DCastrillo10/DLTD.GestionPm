@@ -10,6 +10,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Scrutor;
+using Serilog;
+using Serilog.Events;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +22,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+//Configuracion de Serilog
+var logger = new LoggerConfiguration()
+    .WriteTo.Console(LogEventLevel.Information)
+    .WriteTo.File("Logs/log-.log", rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: LogEventLevel.Warning)
+    .CreateLogger();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog();
 
 //Mapeo JwtSettings
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
@@ -86,12 +98,21 @@ builder.Services.AddCors(policy =>
     });
 });
 
-//Inyeccion de Dependencias de los Servicios y repositorios
-builder.Services.AddScoped<ISecurityService, SecurityService>();
-builder.Services.AddScoped<ITecnicoService, TecnicoService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+//Configurar scrutor - inyeccion de dependencias
+builder.Services.Scan(p => p
+    .FromAssemblies(typeof(ITecnicoRepository).Assembly, typeof(ITecnicoService).Assembly)
+    .AddClasses(false)
+    .UsingRegistrationStrategy(RegistrationStrategy.Skip)
+    .AsMatchingInterface()
+    .WithScopedLifetime()
+    );
 
-builder.Services.AddScoped<ITecnicoRepository, TecnicoRepository>();
+
+//Inyeccion de Dependencias de los Servicios y repositorios
+//builder.Services.AddScoped<ISecurityService, SecurityService>();
+//builder.Services.AddScoped<IEmailService, EmailService>();
+//builder.Services.AddScoped<ITecnicoService, TecnicoService>();
+//builder.Services.AddScoped<ITecnicoRepository, TecnicoRepository>();
 
 
 var app = builder.Build();

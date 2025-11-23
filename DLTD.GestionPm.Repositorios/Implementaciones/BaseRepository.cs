@@ -26,7 +26,7 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
         public async Task<ICollection<TEntity>> ListAsync()
         {
             return await _contexto.Set<TEntity>()
-                .Where(e => e.Status == "Activo")
+                .Where(e => e.Status != "Eliminado")
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -69,7 +69,7 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
 
         public async Task<TEntity?> FindAsync(int id)
         {
-            return await _contexto.Set<TEntity>().FirstOrDefaultAsync(p => p.Status == "Activo" && p.Id == id);
+            return await _contexto.Set<TEntity>().FirstOrDefaultAsync(p => p.Status != "Eliminado" && p.Id == id);
         }
         #endregion
 
@@ -99,7 +99,7 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
         {
             await _contexto.Set<TEntity>()
                 .Where(p => p.Id == id)
-                .ExecuteUpdateAsync(p => p.SetProperty(x => x.Status, "Inactivo"));
+                .ExecuteUpdateAsync(p => p.SetProperty(x => x.Status, "Eliminado"));
         }
 
         #endregion

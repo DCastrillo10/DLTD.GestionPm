@@ -133,7 +133,7 @@ public partial class GestionPmBdContext : DbContext
             entity.Property(e => e.Referencia)
                 .HasMaxLength(100)
                 .IsUnicode(false)
-                .HasColumnName("Modelo");
+                .HasColumnName("Referencia");
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
                 .IsUnicode(false);

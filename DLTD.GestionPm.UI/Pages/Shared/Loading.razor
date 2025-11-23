@@ -1,0 +1,11 @@
+﻿@if (Isloading)
+{
+    <div class="loading-overlay">
+        <span class="loader"></span>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool Isloading { get; set; }
+}
