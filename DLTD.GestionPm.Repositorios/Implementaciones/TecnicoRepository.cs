@@ -21,7 +21,7 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
             _userManager = userManager;
         }
         
-        public async Task<Tecnico?> CreateAsync(Tecnico request, string usuario, string clave)
+        public async Task<(Tecnico? tecnico, IdentityResult identityresult)> CreateAsync(Tecnico request, string usuario, string clave)
         {
             await using (var transaction = await _contexto.Database.BeginTransactionAsync())
             {
@@ -29,8 +29,6 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
                 {
                     var tecnico = await AddAsync(request);
 
-                    if (tecnico != null)
-                    {
                         var user = new SecurityEntity()
                         {
                             IdUsuario = tecnico.Id,
@@ -40,25 +38,31 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
                             Email = tecnico.Email
                         };
 
-                        var result = await _userManager.CreateAsync(user, clave);                        
-                        if (result.Errors.Any())
+                        var result = await _userManager.CreateAsync(user, clave);
+                        if (!result.Succeeded)
                         {
-                            throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
+                            await transaction.RollbackAsync();
+                            return (null,result);
                         }
 
-                        await _userManager.AddToRoleAsync(user, CatalogRoles.Tecnico);
+                        var roleResult = await _userManager.AddToRoleAsync(user, CatalogRoles.Tecnico);
+                        if (!roleResult.Succeeded)
+                        {
+                            await transaction.RollbackAsync();
+                            return (null,roleResult);
+                        }
 
                         await transaction.CommitAsync();
-                    }
-                    return tecnico;
+                        return (tecnico,IdentityResult.Success);                        
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    throw;
+                    return (null,IdentityResult.Failed(new IdentityError { Description = ex.Message }));
                 }
                 
             }
-        }
+        }       
+
     }
 }

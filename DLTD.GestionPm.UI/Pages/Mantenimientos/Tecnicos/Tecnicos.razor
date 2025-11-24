@@ -1,11 +1,11 @@
-﻿@attribute [Route(Routes.Tecnicos)]
+﻿@attribute [Route(Routes.TecnicoNuevo)]
+@attribute [Route(Routes.TecnicoEditar + "/{id:int}")]
+
 @layout MainLayout
+@attribute [Authorize(Roles = CatalogRoles.Administrador)]
 
-@using DLTD.GestionPm.Dto.Request.Tecnico
-@using DLTD.GestionPm.UI.Proxies.Interfaces
-
-@inject ITecnicoProxy TecnicoProxy;
-@inject IToastService ToastService;
+@inject ITecnicoProxy tecnicoProxy;
+@inject IToastService toastService;
 @inject NavigationManager Navegador;
 
 <div class="uk-flex uk-margin-large-top">
@@ -17,19 +17,19 @@
                 <p class="uk-text-muted uk-margin-remove-top">Ingresa los datos del nuevo técnico en el sistema.</p>
             </div>
 
-            <EditForm Model="Request" OnValidSubmit="OnGuardar" class="uk-child-width-1-1 uk-grid-small">
-                <DataAnnotationsValidator />
+            <EditForm Model="RequestTecnico" OnValidSubmit="Guardar" class="uk-child-width-1-1 uk-grid-small">
+                <DataAnnotationsValidator />               
 
-                <div class="uk-grid-small" uk-grid>
+                <div class="uk-grid-small" uk-grid>                   
 
                     <div class="uk-width-1-2@s">
                         <div class="uk-margin">
                             <label class="uk-form-label">Nombre</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-user"></i></span>
-                                <input class="uk-input" type="text" @bind="Request.Nombres" placeholder="Ejm: Pedro" required>
+                                <input class="uk-input" type="text" @bind="RequestTecnico.Nombres" placeholder="Ejm: Pedro">                               
                             </div>
-                            <ValidationMessage For="()=> Request.Nombres" />
+                            <ValidationMessage For="() => RequestTecnico.Nombres" />
                         </div>
                     </div>
 
@@ -38,9 +38,9 @@
                             <label class="uk-form-label">Apellidos</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-user"></i></span>
-                                <input class="uk-input" type="text" @bind="Request.Apellidos" placeholder="Ejm: Pérez" required>
+                                <input class="uk-input" type="text" @bind="RequestTecnico.Apellidos" placeholder="Ejm: Pérez" >
                             </div>
-                            <ValidationMessage For="() => Request.Apellidos" />
+                            <ValidationMessage For="() => RequestTecnico.Apellidos" />
                         </div>
                     </div>
 
@@ -49,9 +49,9 @@
                             <label class="uk-form-label">No. Identificación</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-credit-card"></i></span>
-                                <input class="uk-input" type="text" @bind="Request.NoIdentificacion" placeholder="71324212" required>
+                                <input class="uk-input" type="text" @bind="RequestTecnico.NoIdentificacion" placeholder="71324212" >
                             </div>
-                            <ValidationMessage For="() => Request.NoIdentificacion" />
+                            <ValidationMessage For="() => RequestTecnico.NoIdentificacion" />
                         </div>
                     </div>
 
@@ -60,9 +60,9 @@
                             <label class="uk-form-label">Código</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-hash"></i></span>
-                                <input class="uk-input" type="text" @bind="Request.Codigo" placeholder="Ejm: CA0000" required>
+                                <input class="uk-input" type="text" @bind="RequestTecnico.Codigo" placeholder="Ejm: CA0000" >
                             </div>
-                            <ValidationMessage For="() => Request.Codigo" />
+                            <ValidationMessage For="() => RequestTecnico.Codigo" />
                         </div>
                     </div>
 
@@ -71,7 +71,7 @@
                             <label class="uk-form-label">Especialidad</label>
                             <div class="uk-position-relative uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-activity"></i></span>
-                                <select class="uk-select uk-form-icon-flip" @bind="Request.Especialidad" style="padding-left: 40px;" required>
+                                <select class="uk-select uk-form-icon-flip" @bind="RequestTecnico.Especialidad" style="padding-left: 40px;" >
                                     <option value="">Seleccione una especialidad...</option>
                                     <option value="mecanico">Mecánico</option>
                                     <option value="electrico">Eléctrico</option>
@@ -79,7 +79,7 @@
                                     <option value="lubricador">Lubricador</option>                                    
                                 </select>
                             </div>
-                            <ValidationMessage For="() => Request.Especialidad" />
+                            <ValidationMessage For="() => RequestTecnico.Especialidad" />
                         </div>
                     </div>
 
@@ -88,14 +88,14 @@
                             <label class="uk-form-label">Turno</label>
                             <div class="uk-position-relative uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-clock"></i></span>
-                                <select class="uk-select uk-form-icon-flip" @bind="Request.TurnoActual" style="padding-left: 40px;" required>
+                                <select class="uk-select uk-form-icon-flip" @bind="RequestTecnico.TurnoActual" style="padding-left: 40px;" >
                                     <option value="">Seleccione un turno...</option>
                                     <option value="grupo1">Grupo 1</option>
                                     <option value="grupo2">Grupo 2</option>
                                     <option value="grupo3">Grupo 3</option>                                    
                                 </select>
                             </div>
-                            <ValidationMessage For="() => Request.TurnoActual" />
+                            <ValidationMessage For="() => RequestTecnico.TurnoActual" />
                         </div>
                     </div>
 
@@ -104,9 +104,9 @@
                             <label class="uk-form-label">Email</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-mail"></i></span>
-                                <input class="uk-input" type="email" @bind="Request.Email" placeholder="name@example.com" required>
+                                <input class="uk-input" type="email" @bind="RequestTecnico.Email" placeholder="name@example.com" >
                             </div>
-                            <ValidationMessage For="() => Request.Email" />
+                            <ValidationMessage For="() => RequestTecnico.Email" />
                         </div>
                     </div>
 
@@ -115,9 +115,9 @@
                             <label class="uk-form-label">Celular</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-phone"></i></span>
-                                <input class="uk-input" type="text" @bind="Request.Telefono" placeholder="973122312">
+                                <input class="uk-input" type="text" @bind="RequestTecnico.Telefono" placeholder="973122312">
                             </div>
-                            <ValidationMessage For="() => Request.Telefono" />
+                            <ValidationMessage For="() => RequestTecnico.Telefono" />
                         </div>
                     </div>
 
@@ -126,9 +126,9 @@
                             <label class="uk-form-label">Contraseña</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-lock"></i></span>
-                                <input class="uk-input" type="password" @bind="Request.Clave" placeholder="********" required>
+                                <input class="uk-input" type="password" @bind="RequestTecnico.Clave" placeholder="********" >
                             </div>
-                            <ValidationMessage For="() => Request.Clave" />
+                            <ValidationMessage For="() => RequestTecnico.Clave" />
                         </div>
                     </div>
 
@@ -137,41 +137,118 @@
                             <label class="uk-form-label">Confirmar Contraseña</label>
                             <div class="uk-inline uk-width-1-1">
                                 <span class="uk-form-icon"><i class="icon-feather-lock"></i></span>
-                                <input class="uk-input" type="password" @bind="Request.ConfirmarClave" placeholder="********" required>
+                                <input class="uk-input" type="password" @bind="RequestTecnico.ConfirmarClave" placeholder="********" >
                             </div>
-                            <ValidationMessage For="() => Request.ConfirmarClave" />
+                            <ValidationMessage For="() => RequestTecnico.ConfirmarClave" />
                         </div>
                     </div>
                     
                 </div>
-                
-                <div class="uk-margin-large-top uk-flex uk-flex-right">
+
+                <!-- Botones -->
+                <div class="uk-width-1-1 uk-flex uk-flex-right uk-margin-small-top">
+                    <button type="button" class="uk-button btn-secundario uk-margin-small-right" @onclick="Cancelar">
+                        <i class="icon-feather-x-circle uk-margin-small-right"></i> Cancelar
+                    </button>
                     <button type="submit" class="uk-button btn-corporativo">
-                        <i class="icon-feather-save uk-margin-small-right"></i> Registrar Técnico
+                        <i class="icon-feather-save uk-margin-small-right"></i> Guardar
                     </button>
                 </div>
+                
             </EditForm>
         </div>
     </div>
 </div>
 
+<Loading Isloading="isLoading" />
 
 @code {
-    public TecnicoRequest Request { get; set; } = new();
+    public TecnicoRequest RequestTecnico { get; set; } = new();
+    public bool isLoading { get; set; }
 
-    public async Task OnGuardar()
-    {
-        try
+    [Parameter]
+    public int? id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {        
+        if(id.HasValue && id.Value > 0)
         {
-            var resultado = await TecnicoProxy.Registrar(Request);
-            ToastService.ShowSuccess("Tecnico registrado exitosamente.");
-            // Navegador.NavigateTo("/");
+            await BuscarPorId(id.Value);
         }
-        catch (Exception ex)
+        else
         {
-            ToastService.ShowError(ex.Message);
-            
+            RequestTecnico = new();
         }
     }
 
+    private async Task BuscarPorId(int id)
+    {
+        isLoading = true;
+        try
+        {
+            var response = await tecnicoProxy.ObtenerPorId(id);
+            if(response?.Result != null)
+            {
+                RequestTecnico = new TecnicoRequest
+                    {
+                        Id = response.Result.Id,
+                        Nombres = response.Result.Nombres,
+                        Apellidos = response.Result.Apellidos,
+                        NoIdentificacion = response.Result.NoIdentificacion,
+                        Codigo = response.Result.Codigo,
+                        Especialidad = response.Result.Especialidad,
+                        TurnoActual = response.Result.TurnoActual,
+                        Email = response.Result.Email,
+                        Telefono = response.Result.Telefono,
+                        Status = response.Result.Status
+                    };
+
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task Guardar()
+    {
+        isLoading = true;
+        try
+        {
+            if (RequestTecnico.Id == 0)
+            {
+                var respuesta = await tecnicoProxy.Registrar(RequestTecnico);             
+                toastService.ShowSuccess("Tecnico registrado exitosamente.");
+                Navegador.NavigateTo(Routes.Tecnicos);
+                
+            }
+            else
+            {                
+                var respuesta = await tecnicoProxy.Actualizar(RequestTecnico.Id, RequestTecnico);               
+                toastService.ShowSuccess("Tecnico actualizado exitosamente.");
+                Navegador.NavigateTo(Routes.Tecnicos);
+                
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public void Cancelar()
+    {
+        Navegador.NavigateTo(Routes.Tecnicos);
+    }
 }

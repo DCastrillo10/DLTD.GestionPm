@@ -1,4 +1,5 @@
 ﻿using DLTD.GestionPm.Entidad;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace DLTD.GestionPm.Repositorios.Interfaces
 {
     public interface ITecnicoRepository: IBaseRepository<Tecnico>
     {
-        Task<Tecnico?> CreateAsync(Tecnico request, string usuario, string clave);
+        Task<(Tecnico? tecnico, IdentityResult identityresult)> CreateAsync(Tecnico request, string usuario, string clave);
     }
 }

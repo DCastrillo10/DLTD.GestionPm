@@ -1,0 +1,102 @@
+﻿
+@typeparam Titem
+
+<div class="pagination-container">
+    <div class="pagination-info">
+        Página @Request.Page de @Response.TotalPages — Total: @Response.TotalRows registros
+    </div>
+
+    <div class="pagination-buttons">
+
+        <!-- Primera página -->
+        <button class="pag-btn"
+                disabled="@(!CanGoPrev)"
+                @onclick="FirstPage">
+            ⏮
+        </button>
+
+        <!-- Página anterior -->
+        <button class="pag-btn"
+                disabled="@(!CanGoPrev)"
+                @onclick="PrevPage">
+            ◀
+        </button>
+
+        <!-- Info -->
+        <span class="pag-text">
+            @Request.Page / @Response.TotalPages
+        </span>
+
+        <!-- Página siguiente -->
+        <button class="pag-btn"
+                disabled="@(!CanGoNext)"
+                @onclick="NextPage">
+            ▶
+        </button>
+
+        <!-- Última página -->
+        <button class="pag-btn"
+                disabled="@(!CanGoNext)"
+                @onclick="LastPage">
+            ⏭
+        </button>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public PaginationRequest Request { get; set; } = default!;
+    [Parameter]
+    public PaginationResponse<Titem> Response { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnChange { get; set; }
+
+    bool CanGoPrev => Request.Page > 1;
+    bool CanGoNext => Request.Page < Response.TotalPages;
+
+    public async Task FirstPage()
+    {
+        if (CanGoPrev)
+        {
+            Request.Page = 1;
+            await OnChange.InvokeAsync();
+        }
+    }
+
+    public async Task LastPage()
+    {
+        if (CanGoNext)
+        {
+            Request.Page = Response.TotalPages;
+            await OnChange.InvokeAsync();
+        }
+    }
+    public async Task PrevPage()
+    {
+        if (CanGoPrev)
+        {
+            Request.Page--;
+            await OnChange.InvokeAsync();
+        }
+    }
+
+    public async Task NextPage()
+    {
+        if (CanGoNext)
+        {
+            Request.Page++;
+            await OnChange.InvokeAsync();
+        }
+    }
+
+    // private async Task OnPageSelected(ChangeEventArgs e)
+    // {
+    //     if (int.TryParse(e.Value?.ToString(), out int page) && page != Request.Page)
+    //     {
+    //         Request.Page = page;
+    //         await OnChange.InvokeAsync();
+    //     }
+    // }
+}

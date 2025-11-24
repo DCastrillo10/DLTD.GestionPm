@@ -1,0 +1,86 @@
+﻿@using DLTD.GestionPm.Dto.Response.Modelo
+
+
+<EditForm Model="Request" OnValidSubmit="OnGuardar">
+    <DataAnnotationsValidator />
+
+    <div class="uk-grid-small" uk-grid>
+
+        <!-- Campo Codigo -->
+        <div class="uk-width-1-1">
+            <label class="uk-form-label">Codigo</label>
+            <input class="uk-input uk-form-small" type="text" placeholder="Ingrese la referencia." @bind="Request.Codigo"
+                   @onblur="() => Request.Codigo = LetraCapital.ToUpperSafe(Request.Codigo)" />
+            <span class="uk-text-danger uk-text-small">
+                <ValidationMessage For="() => Request.Codigo" />
+            </span>
+        </div>
+        <!-- Campo Descripción -->
+        <div class="uk-width-1-1">
+            <label class="uk-form-label">Descripción</label>
+            <input class="uk-input uk-form-small" type="text" placeholder="Ingrese la descripción..." @bind="Request.Descripcion"
+                   @onblur="() => Request.Descripcion = LetraCapital.ToProper(Request.Descripcion!)" />
+            <span class="uk-text-danger uk-text-small">
+                <ValidationMessage For="() => Request.Descripcion" />
+            </span>
+        </div>
+        <!-- Campo Modelo -->
+        <div class="uk-width-1-1">
+            <label class="uk-form-label">Modelo</label>
+            <select class="uk-select uk-form-small" @bind="Request.IdModelo" >
+                <option value="0">Seleccione una Marca</option>
+                @foreach (var item in ListadoModelos)
+                {
+                    <option value="@item.Id">@item.Descripcion</option>
+                }
+            </select>
+            <span class="uk-text-danger uk-text-small">
+                <ValidationMessage For="() => Request.IdModelo" />
+            </span>
+        </div>
+        <!-- Campo Status -->
+        <div class="uk-width-1-1">
+            <label class="uk-form-label">Status</label>
+            <select class="uk-select uk-form-small" @bind="Request.Status" disabled="@(Request.Id == 0)">
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+            </select>
+            <span class="uk-text-danger uk-text-small">
+                <ValidationMessage For="() => Request.Status" />
+            </span>
+        </div>
+
+        <!-- Botones -->
+        <div class="uk-width-1-1 uk-flex uk-flex-right uk-margin-small-top">
+            <button type="button" class="uk-button btn-secundario uk-margin-small-right" @onclick="OnCancelar">
+                <i class="icon-feather-x-circle uk-margin-small-right"></i> Cancelar
+            </button>
+            <button type="submit" class="uk-button btn-corporativo">
+                <i class="icon-feather-save uk-margin-small-right"></i> Guardar
+            </button>
+        </div>
+
+    </div>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public List<ListaModeloResponse> ListadoModelos { get; set; } = new();
+    [Parameter]
+    public MaquinaRequest Request { get; set; } = new();
+    [Parameter]
+    public EventCallback OnGuardarEvent { get; set; } = default!;
+    [Parameter]
+    public EventCallback OnCancelarEvent { get; set; } = default!;
+
+    public async Task OnGuardar()
+    {
+        await OnGuardarEvent.InvokeAsync();
+    }
+    
+    public async Task OnCancelar()
+    {
+        await OnCancelarEvent.InvokeAsync();
+    }
+}

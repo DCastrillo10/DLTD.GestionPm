@@ -1,0 +1,297 @@
+﻿
+@using DLTD.GestionPm.Dto.Response.Maquina
+@using DLTD.GestionPm.Dto.Response.Modelo
+
+
+@attribute [Route(Routes.ListaEquipos)]
+@layout MainLayout
+@attribute [Authorize(Roles = CatalogRoles.Administrador)]
+
+@inject IMaquinaProxy maquinaProxy;
+@inject IModeloProxy modeloProxy;
+@inject IToastService toastService;
+@inject SweetAlertService swal;
+
+<h3 class="uk-text-bold uk-margin-small-bottom">Listado de Equipos</h3>
+
+<GroupBox Titulo="Buscar Equipo">
+    <Contenido>
+        <div class="uk-grid-small" uk-grid>
+            <!-- Input + botones -->
+            <div class="uk-width-2-3@s">
+                <div class="uk-grid-small uk-flex-middle" uk-grid>                    
+                    <div class="uk-width-expand">
+                        <input class="uk-input uk-form-small" placeholder="Buscar por Equipos" @bind="Request.Filter" />
+                    </div>                    
+                    <div>
+                        <button class="uk-button uk-button-default uk-button-small" @onclick="Listar">
+                            <i class="icon-feather-search"></i>
+                        </button>
+                    </div>                    
+                    <div>
+                        <button class="uk-button uk-button-default uk-button-small" @onclick="OnRefrescar">
+                            <i class="icon-feather-rotate-ccw"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="uk-width-1-3@s uk-flex uk-flex-right">
+                <button class="uk-button btn-corporativo uk-button-small" style="padding: 6px 18px;" @onclick="OnNuevo">
+                    <i class="icon-feather-plus uk-margin-small-right"></i>
+                    Nuevo
+                </button>
+            </div>
+
+        </div>
+    </Contenido>
+
+</GroupBox>
+
+<!-- Tabla -->
+<div class="uk-overflow-auto tabla-container">    
+    <table class="uk-table uk-table-striped uk-table-hover uk-table-small uk-table-middle tabla-compacta">
+
+        <thead class="table-header">
+            <tr>
+                <th>Id</th>
+                <th>Codigo</th>
+                <th>Descripción</th>
+                <th>Modelo</th>
+                <th>Status</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Listado)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Codigo</td>
+                    <td>@item.Descripcion</td>
+                    <td>@item.Modelo</td>
+                    <td>@item.Status</td>
+                    <td class="uk-text-center">
+
+                        <button class="uk-icon-button uk-margin-small-right" uk-tooltip="Editar" @onclick="() => OnShowEditar(item)">
+                            <i class="icon-feather-edit"></i>
+                        </button>                        
+                        
+                        <button class="uk-icon-button uk-button-danger" uk-tooltip="Eliminar"  @onclick="() => OnEliminar(item)">
+                            <i class="icon-feather-trash-2"></i>
+                        </button>
+
+                    </td>
+                </tr>
+            }
+            
+        </tbody>
+    </table>
+</div>
+
+<Modal Title="Maquinas" Size="ModalSize.Regular" UseStaticBackdrop=true @ref="ModalMaquinas">
+    <BodyTemplate>         
+        <FrmMaquina Request="RequestMaquina" OnGuardarEvent="OnGuardar" OnCancelarEvent="() => ModalMaquinas.HideAsync()" ListadoModelos="ListadoModelos" />
+    </BodyTemplate>
+</Modal>
+
+<Loading Isloading="isLoading" />
+
+@code {
+    public List<ListaMaquinaResponse> Listado { get; set; } = new();    
+    public PaginationRequest Request { get; set; } = new();
+    public Modal ModalMaquinas { get; set; } = new();
+    public bool isLoading { get; set; }
+
+    public MaquinaRequest RequestMaquina { get; set; } = new();
+    public List<ListaModeloResponse> ListadoModelos { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Listar();
+        await ListarModelos();
+    }
+
+    public async Task ListarModelos()
+    {
+        isLoading = true;
+        try
+        {
+            var respuesta = await modeloProxy.Listar(Request);
+            if (respuesta?.Result != null)
+            {
+                ListadoModelos = respuesta.Result.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task Listar()
+    {
+        isLoading = true;
+        try
+        {
+            var respuesta = await maquinaProxy.Listar(Request);
+            if(respuesta?.Result != null)
+            {
+                Listado = respuesta.Result.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);            
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task OnRefrescar()
+    {
+        Request = new();
+        await Listar();
+    }
+
+    public async Task OnNuevo()
+    {
+        RequestMaquina = new();
+        await ModalMaquinas.ShowAsync();
+    }
+
+    public async Task OnShowEditar(ListaMaquinaResponse item)
+    {
+        await ObtenerPorId(item.Id);
+        await ModalMaquinas.ShowAsync();
+    }
+
+    public async Task OnGuardar()
+    {
+        isLoading = true;
+        try
+        {
+            if(RequestMaquina.Id == 0)
+            {                
+                if (Listado.Any(x => string.Equals(x.Codigo, RequestMaquina.Codigo, StringComparison.OrdinalIgnoreCase)))
+                {
+                    toastService.ShowError("Ya existe un Maquina con esa referencia");
+                    return; 
+                }
+
+                var respuesta = await maquinaProxy.Registrar(RequestMaquina);
+                if (respuesta != null)
+                {
+                    await Listar();
+                    await ModalMaquinas.HideAsync();
+                    toastService.ShowSuccess("Maquina registrada exitosamente");
+                }
+            }
+            else
+            {                
+                if (Listado.Any(x => string.Equals(x.Codigo, RequestMaquina.Codigo, StringComparison.OrdinalIgnoreCase) && x.Id != RequestMaquina.Id))
+                {
+                    toastService.ShowError("Ya existe un Maquina con esa referencia");
+                    return; 
+                }
+
+                var respuesta = await maquinaProxy.Actualizar(RequestMaquina.Id, RequestMaquina);
+                if (respuesta != null)
+                {
+                    await Listar();
+                    await ModalMaquinas.HideAsync();
+                    toastService.ShowSuccess("Maquina actualizada exitosamente");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task OnEliminar(ListaMaquinaResponse item)
+    {
+        var respuesta = await swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "Estas seguro en eliminar este registro?",
+            Text = $"Eliminar {item.Descripcion}.",
+            Icon = SweetAlertIcon.Question,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Si",
+            CancelButtonText = "No"
+        });
+
+        if (respuesta.IsConfirmed)
+        {
+            await Eliminar(item.Id);
+        }
+    }
+
+    public async Task Eliminar(int id)
+    {
+        isLoading = true;
+        try
+        {
+            var response = await maquinaProxy.Eliminar(id);
+            if(response != null)
+            {
+                await Listar();
+                toastService.ShowSuccess("Registro eliminado correctamente");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task ObtenerPorId(int id)
+    {
+        isLoading = true;
+        try
+        {
+            var response = await maquinaProxy.ObtenerPorId(id);
+            if (response?.Result != null)
+            {
+                RequestMaquina = new()
+                    {
+                        Id = response.Result.Id,
+                        Codigo = response.Result.Codigo,
+                        Descripcion = response.Result.Descripcion,
+                        IdModelo = response.Result.IdModelo,
+                        Status = response.Result.Status
+                    };
+            }
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

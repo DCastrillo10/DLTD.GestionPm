@@ -488,3 +488,43 @@ header .container {
     font-size: 13px !important;
 }
 
+
+.pagination-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+
+/* Botones de las paginacion */
+.pagination-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.pag-btn {
+    width: 32px;
+    height: 32px;
+    background: #f3f3f3;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .pag-btn:hover:not([disabled]) {
+        background: #e6e6e6;
+    }
+
+    .pag-btn[disabled] {
+        opacity: 0.4;
+        cursor: default;
+    }
+
+.pag-text {
+    font-weight: 600;
+    padding: 0 6px;
+}

@@ -1,7 +1,5 @@
 ﻿using DLTD.GestionPm.Dto.Request;
-using DLTD.GestionPm.Dto.Request.Login;
-using DLTD.GestionPm.Dto.Request.Marca;
-using DLTD.GestionPm.Dto.Request.Tecnico;
+using DLTD.GestionPm.Dto.Request.Maquina;
 using DLTD.GestionPm.Negocios.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -11,27 +9,27 @@ namespace DLTD.GestionPm.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
-    public class TecnicoController : ControllerBase
+    [Authorize]
+    public class MaquinaController : ControllerBase
     {
-        private readonly ITecnicoService _service;
+        private readonly IMaquinaService _service;
 
-        public TecnicoController(ITecnicoService service)
+        public MaquinaController(IMaquinaService service)
         {
             _service = service;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(TecnicoRequest request)
+        public async Task<IActionResult> Post([FromBody] MaquinaRequest request)
         {
             var response = await _service.AddAsync(request);
             return response.IsSuccess ? Ok(response) : BadRequest(response);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Put(int id, [FromBody] TecnicoRequest request)
+        public async Task<IActionResult> Put(int id, [FromBody] MaquinaRequest request)
         {
-            var response = await _service.UpdateAsync(id, request);
+            var response = await _service.UpdateAsync(id,request);
             return response.IsSuccess ? Ok(response) : BadRequest(response);
         }
 

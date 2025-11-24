@@ -10,7 +10,8 @@ namespace DLTD.GestionPm.Dto.Request.Tecnico
 {
     public class TecnicoRequest
     {
-        
+        public int Id { get; set; }
+
         [Required(ErrorMessage = Constantes.ErrorMessage)]
         public string Nombres { get; set; } = null!;
 
@@ -20,6 +21,7 @@ namespace DLTD.GestionPm.Dto.Request.Tecnico
         [Required(ErrorMessage = Constantes.ErrorMessage)]
         public string Email { get; set; } = null!;
 
+        [Required(ErrorMessage = Constantes.ErrorMessage)]
         public string? TurnoActual { get; set; }
 
         [Required(ErrorMessage = Constantes.ErrorMessage)]
@@ -31,8 +33,12 @@ namespace DLTD.GestionPm.Dto.Request.Tecnico
         [Required(ErrorMessage = Constantes.ErrorMessage)]
         public string Codigo { get; set; } = null!;
 
+        [Required(ErrorMessage = Constantes.ErrorMessage)]
         public string? Especialidad { get; set; }
 
+        public string Status { get; set; } = "Activo";
+
+        //Son necesarios para la creacion del usuario en UserIdentity
         public int? IdUsuario { get; set; }
 
         [Required(ErrorMessage = Constantes.ErrorMessage)]
@@ -41,5 +47,6 @@ namespace DLTD.GestionPm.Dto.Request.Tecnico
         [Required(ErrorMessage = Constantes.ErrorMessage)]
         [Compare(nameof(Clave), ErrorMessage = "Las contraseñas no coinciden.")]
         public string ConfirmarClave { get; set; } = null!;
+
     }
 }
