@@ -94,11 +94,13 @@
     </BodyTemplate>
 </Modal>
 
+<PagedList Titem="ListaModeloResponse" Request="Request" Response="Paginacion" OnChange="Listar" />
 <Loading Isloading="isLoading" />
 
 @code {
     public List<ListaModeloResponse> Listado { get; set; } = new();    
     public PaginationRequest Request { get; set; } = new();
+    public PaginationResponse<ListaModeloResponse> Paginacion { get; set; } = new();
     public Modal ModalModelos { get; set; } = new();
     public bool isLoading { get; set; }
 
@@ -116,7 +118,7 @@
         isLoading = true;
         try
         {
-            var respuesta = await marcaProxy.Listar(Request);
+            var respuesta = await marcaProxy.Listarcombo();
             if (respuesta?.Result != null)
             {
                 ListadoMarcas = respuesta.Result.ToList();
@@ -141,6 +143,7 @@
             var respuesta = await modeloProxy.Listar(Request);
             if(respuesta?.Result != null)
             {
+                Paginacion = respuesta;
                 Listado = respuesta.Result.ToList();
             }
         }

@@ -10,5 +10,12 @@
         public const string ListaMarcas = "/listamarcas";
         public const string ListaModelos = "/listamodelos";
         public const string ListaEquipos = "/listaequipos";
+        public const string ListaRutas = "/listarutas";
+        public const string ListaTareas = "/listatareas";
+        public const string ListaCheckList = "/listachecklist";
+        public const string ListaTipoPM = "/listatipopm";
+        public const string ListaActividades = "/listaactividades";
+        public const string ListaDemoras = "/listademoras";
+        public const string ListaHallazgos = "/listahallazgos";
     }
 }

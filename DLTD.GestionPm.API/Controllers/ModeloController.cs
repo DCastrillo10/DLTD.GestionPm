@@ -40,6 +40,13 @@ namespace DLTD.GestionPm.API.Controllers
             return response.IsSuccess ? Ok(response) : BadRequest(response);
         }
 
+        [HttpGet("Select")]
+        public async Task<IActionResult> Get()
+        {
+            var response = await _service.ListaSelectAsync();
+            return response.IsSuccess ? Ok(response) : BadRequest(response);
+        }
+
         [HttpGet("{id:int}")]
         public async Task<IActionResult> Get(int id)
         {

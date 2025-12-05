@@ -1,6 +1,5 @@
 ﻿@using DLTD.GestionPm.Dto.Response.Marca
 
-
 @attribute [Route(Routes.ListaMarcas)]
 @layout MainLayout
 @attribute [Authorize(Roles = CatalogRoles.Administrador)]
@@ -18,7 +17,7 @@
             <div class="uk-width-2-3@s">
                 <div class="uk-grid-small uk-flex-middle" uk-grid>                    
                     <div class="uk-width-expand">
-                        <input class="uk-input uk-form-small" placeholder="Buscar por descripción..." @bind="Request.Filter" />
+                        <input class="uk-input uk-form-small" placeholder="Buscar por nombre o descripción..." @bind="Request.Filter" />
                     </div>                    
                     <div>
                         <button class="uk-button uk-button-default uk-button-small" @onclick="Listar">
@@ -52,6 +51,7 @@
         <thead class="table-header">
             <tr>
                 <th>Id</th>
+                <th>Nombre</th>
                 <th>Descripción</th>
                 <th>Status</th>
                 <th>Acciones</th>
@@ -62,6 +62,7 @@
             {
                 <tr>
                     <td>@item.Id</td>
+                    <td>@item.Nombre</td>
                     <td>@item.Descripcion</td>
                     <td>@item.Status</td>
                     <td class="uk-text-center">
@@ -88,11 +89,13 @@
     </BodyTemplate>
 </Modal>
 
+<PagedList Titem="ListaMarcaResponse" Request="Request" Response="Paginacion" OnChange="Listar" />
 <Loading Isloading="isLoading" />
 
 @code {
     public List<ListaMarcaResponse> Listado { get; set; } = new();
     public PaginationRequest Request { get; set; } = new();
+    public PaginationResponse<ListaMarcaResponse> Paginacion { get; set; } = new();
     public Modal ModalMarcas { get; set; } = new();
     public bool isLoading { get; set; }
 
@@ -111,6 +114,7 @@
             var respuesta = await marcaProxy.Listar(Request);
             if(respuesta?.Result != null)
             {
+                Paginacion = respuesta;
                 Listado = respuesta.Result.ToList();
             }
         }
@@ -140,6 +144,7 @@
     public async Task OnShowEditar(ListaMarcaResponse item)
     {
         RequestMarca.Id = item.Id;
+        RequestMarca.Nombre = item.Nombre;
         RequestMarca.Descripcion = item.Descripcion;
         RequestMarca.Status = item.Status;
         await ModalMarcas.ShowAsync();
@@ -152,9 +157,9 @@
         {
             if(RequestMarca.Id == 0)
             {
-                if (Listado.Any(x => string.Equals(x.Descripcion, RequestMarca.Descripcion, StringComparison.OrdinalIgnoreCase)))
+                if (Listado.Any(x => string.Equals(x.Nombre, RequestMarca.Nombre, StringComparison.OrdinalIgnoreCase)))
                 {
-                    toastService.ShowError("Ya existe una marca con esa referencia");
+                    toastService.ShowError("Registro existente, modifiquelo e intentelo de nuevo.");
                     return;
                 }
 
@@ -163,14 +168,14 @@
                 {
                     await Listar();
                     await ModalMarcas.HideAsync();
-                    toastService.ShowSuccess("Marca registrada exitosamente");
+                    toastService.ShowSuccess("Registro realizado exitosamente.");
                 }
             }
             else
             {
-                if (Listado.Any(x => string.Equals(x.Descripcion, RequestMarca.Descripcion, StringComparison.OrdinalIgnoreCase) && x.Id != RequestMarca.Id))
+                if (Listado.Any(x => string.Equals(x.Nombre, RequestMarca.Nombre, StringComparison.OrdinalIgnoreCase) && x.Id != RequestMarca.Id))
                 {
-                    toastService.ShowError("Ya existe un modelo con esa referencia");
+                    toastService.ShowError("Registro existente, modifiquelo e intentelo de nuevo.");
                     return;
                 }
 
@@ -179,7 +184,7 @@
                 {
                     await Listar();
                     await ModalMarcas.HideAsync();
-                    toastService.ShowSuccess("Marca actualizada exitosamente");
+                    toastService.ShowSuccess("Registro actualizado exitosamente.");
                 }
             }
         }
@@ -221,7 +226,7 @@
             if(response != null)
             {
                 await Listar();
-                toastService.ShowSuccess("Registro eliminado correctamente");
+                toastService.ShowSuccess("Registro eliminado correctamente.");
             }
 
         }

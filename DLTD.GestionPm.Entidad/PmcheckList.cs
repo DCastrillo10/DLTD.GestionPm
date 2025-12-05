@@ -1,9 +1,10 @@
-﻿using System;
+﻿using DLTD.GestionPm.Entidad;
+using System;
 using System.Collections.Generic;
 
-namespace DLTD.GestionPm.Entidad;
+namespace DLTD.GestionPm.AccesoDatos.ContextoTemp;
 
-public partial class PmcheckList : EntidadBase
+public partial class PmcheckList: EntidadBase
 {
     
 
@@ -11,7 +12,9 @@ public partial class PmcheckList : EntidadBase
 
     public int IdModelo { get; set; }
 
-    public int IdRuta { get; set; }
+    public string Descripcion { get; set; } = null!;
 
     
+
+    public virtual ICollection<PmcheckListDetalle> PmcheckListDetalles { get; set; } = new List<PmcheckListDetalle>();
 }

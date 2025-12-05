@@ -23,10 +23,11 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
         //CRUD BASE
 
         #region Operaciones de Lectura
-        public async Task<ICollection<TEntity>> ListAsync()
+        public async Task<ICollection<TEntity>> ListAsync() //Este lo usamos para los combos
         {
             return await _contexto.Set<TEntity>()
-                .Where(e => e.Status != "Eliminado")
+                .Where(e => e.Status == "Activo")
+                .OrderBy(e => e.Id)
                 .AsNoTracking()
                 .ToListAsync();
         }

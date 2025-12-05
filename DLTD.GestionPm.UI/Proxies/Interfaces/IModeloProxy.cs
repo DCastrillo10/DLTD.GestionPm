@@ -8,6 +8,7 @@ namespace DLTD.GestionPm.UI.Proxies.Interfaces
     public interface IModeloProxy
     {
         Task<PaginationResponse<ListaModeloResponse>> Listar(PaginationRequest request);
+        Task<BaseResponse<ICollection<ListaModeloResponse>>> ListarCombo();
         Task<BaseResponse<ModeloResponse>> ObtenerPorId(int id);
         Task<BaseResponse> Registrar(ModeloRequest request);
         Task<BaseResponse> Actualizar(int id, ModeloRequest request);

@@ -18,7 +18,7 @@ namespace DLTD.GestionPm.Dto.Request.Modelo
         [Required(ErrorMessage = Constantes.ErrorMessage)]
         public string? Descripcion { get; set; }
 
-        [Required(ErrorMessage = Constantes.ErrorMessage)]
+        [Range(1, int.MaxValue, ErrorMessage = Constantes.ErrorSelect)]
         public int IdMarca { get; set; }
         public string Status { get; set; } = "Activo";
     }

@@ -20,6 +20,12 @@ builder.Services.AddScoped<ITecnicoProxy, TecnicoProxy>();
 builder.Services.AddScoped<IMarcaProxy, MarcaProxy>();
 builder.Services.AddScoped<IModeloProxy, ModeloProxy>();
 builder.Services.AddScoped<IMaquinaProxy, MaquinaProxy>();
+builder.Services.AddScoped<IRutaProxy, RutaProxy>();
+builder.Services.AddScoped<ITareaProxy, TareaProxy>();
+builder.Services.AddScoped<ITipoActividadProxy, TipoActividadProxy>();
+builder.Services.AddScoped<ITipoDemoraProxy, TipoDemoraProxy>();
+builder.Services.AddScoped<ITipoHallazgoProxy, TipoHallazgoProxy>();
+builder.Services.AddScoped<ITipoPmProxy, TipoPmProxy>();
 
 builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddSweetAlert2();

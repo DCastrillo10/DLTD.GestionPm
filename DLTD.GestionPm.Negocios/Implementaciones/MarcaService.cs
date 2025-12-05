@@ -3,6 +3,7 @@ using DLTD.GestionPm.Dto.Request;
 using DLTD.GestionPm.Dto.Request.Marca;
 using DLTD.GestionPm.Dto.Response;
 using DLTD.GestionPm.Dto.Response.Marca;
+using DLTD.GestionPm.Dto.Response.Ruta;
 using DLTD.GestionPm.Entidad;
 using DLTD.GestionPm.Negocios.Interfaces;
 using DLTD.GestionPm.Repositorios.Interfaces;
@@ -98,6 +99,22 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             return response;
         }
 
+        public async Task<BaseResponse<ICollection<ListaMarcaResponse>>> ListaSelectAsync()
+        {
+            var response = new BaseResponse<ICollection<ListaMarcaResponse>>();
+            try
+            {
+                var result = await _repository.ListAsync();
+                response.IsSuccess = true;
+                response.Result = result.Adapt<ICollection<ListaMarcaResponse>>();
+            }
+            catch (Exception ex)
+            {
+                response.Message = "Hubo un error al listar las Rutas.";
+                _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
+            }
+            return response;
+        }
         public async Task<PaginationResponse<ListaMarcaResponse>> ListaAsync(PaginationRequest request)
         {
             var response = new PaginationResponse<ListaMarcaResponse>();
@@ -105,10 +122,11 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             {
                 var result = await _repository.ListAsync(
                         predicate: p => p.Status != "Eliminado" &&
-                        (string.IsNullOrEmpty(request.Filter) || p.Descripcion.Contains(request.Filter) || p.Status.Contains(request.Filter)),
+                        (string.IsNullOrEmpty(request.Filter) || p.Nombre.Contains(request.Filter) || p.Descripcion.Contains(request.Filter) || p.Status.Contains(request.Filter)),
                         selector: p => new ListaMarcaResponse
                         {
                             Id = p.Id,
+                            Nombre = p.Nombre,
                             Descripcion = p.Descripcion,
                             Status = p.Status
                         },

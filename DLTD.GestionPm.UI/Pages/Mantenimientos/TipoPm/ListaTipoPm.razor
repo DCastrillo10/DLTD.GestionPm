@@ -1,0 +1,244 @@
+﻿@using DLTD.GestionPm.Dto.Response.TipoPm
+
+@attribute [Route(Routes.ListaTipoPM)]
+@layout MainLayout
+@attribute [Authorize(Roles = CatalogRoles.Administrador)]
+
+@inject ITipoPmProxy TipoPmProxy;
+@inject IToastService toastService;
+@inject SweetAlertService swal;
+
+<h3 class="uk-text-bold uk-margin-small-bottom">Listado de TipoPms</h3>
+
+<GroupBox Titulo="Buscar TipoPms">
+    <Contenido>
+        <div class="uk-grid-small" uk-grid>
+            <!-- Input + botones -->
+            <div class="uk-width-2-3@s">
+                <div class="uk-grid-small uk-flex-middle" uk-grid>                    
+                    <div class="uk-width-expand">
+                        <input class="uk-input uk-form-small" placeholder="Buscar por nombre o descripción..." @bind="Request.Filter" />
+                    </div>                    
+                    <div>
+                        <button class="uk-button uk-button-default uk-button-small" @onclick="Listar">
+                            <i class="icon-feather-search"></i>
+                        </button>
+                    </div>                    
+                    <div>
+                        <button class="uk-button uk-button-default uk-button-small" @onclick="OnRefrescar">
+                            <i class="icon-feather-rotate-ccw"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="uk-width-1-3@s uk-flex uk-flex-right">
+                <button class="uk-button btn-corporativo uk-button-small" style="padding: 6px 18px;" @onclick="OnNuevo">
+                    <i class="icon-feather-plus uk-margin-small-right"></i>
+                    Nuevo
+                </button>
+            </div>
+
+        </div>
+    </Contenido>
+
+</GroupBox>
+
+<!-- Tabla -->
+<div class="uk-overflow-auto tabla-container">    
+    <table class="uk-table uk-table-striped uk-table-hover uk-table-small uk-table-middle tabla-compacta">
+
+        <thead class="table-header">
+            <tr>
+                <th>Id</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Status</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Listado)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Nombre</td>
+                    <td>@item.Descripcion</td>
+                    <td>@item.Status</td>
+                    <td class="uk-text-center">
+
+                        <button class="uk-icon-button uk-margin-small-right" uk-tooltip="Editar" @onclick="() => OnShowEditar(item)">
+                            <i class="icon-feather-edit"></i>
+                        </button>                        
+                        
+                        <button class="uk-icon-button uk-button-danger" uk-tooltip="Eliminar"  @onclick="() => OnEliminar(item)">
+                            <i class="icon-feather-trash-2"></i>
+                        </button>
+
+                    </td>
+                </tr>
+            }
+            
+        </tbody>
+    </table>
+</div>
+
+<Modal Title="TipoPm" Size="ModalSize.Regular" UseStaticBackdrop=true @ref="ModalTipoPm">
+    <BodyTemplate>        
+        <FrmTipoPm Request="RequestTipoPm" OnGuardarEvent="OnGuardar" OnCancelarEvent="() => ModalTipoPm.HideAsync()" />
+    </BodyTemplate>
+</Modal>
+
+<PagedList Titem="ListaTipoPmResponse" Request="Request" Response="Paginacion" OnChange="Listar" />
+<Loading Isloading="isLoading" />
+
+@code {
+    public List<ListaTipoPmResponse> Listado { get; set; } = new();
+    public PaginationRequest Request { get; set; } = new();
+    public PaginationResponse<ListaTipoPmResponse> Paginacion { get; set; } = new();
+    public Modal ModalTipoPm { get; set; } = new();
+    public bool isLoading { get; set; }
+
+    public TipoPmRequest RequestTipoPm { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Listar();
+    }
+
+    public async Task Listar()
+    {
+        isLoading = true;
+        try
+        {
+            var respuesta = await TipoPmProxy.Listar(Request);
+            if(respuesta?.Result != null)
+            {
+                Paginacion = respuesta;
+                Listado = respuesta.Result.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);            
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task OnRefrescar()
+    {
+        Request = new();
+        await Listar();
+    }
+
+    public async Task OnNuevo()
+    {
+        RequestTipoPm = new();
+        await ModalTipoPm.ShowAsync();
+    }
+
+    public async Task OnShowEditar(ListaTipoPmResponse item)
+    {
+        RequestTipoPm.Id = item.Id;
+        RequestTipoPm.Nombre = item.Nombre;
+        RequestTipoPm.Descripcion = item.Descripcion;
+        RequestTipoPm.Status = item.Status;
+        await ModalTipoPm.ShowAsync();
+    }
+
+    public async Task OnGuardar()
+    {
+        isLoading = true;
+        try
+        {
+            if(RequestTipoPm.Id == 0)
+            {
+                if (Listado.Any(x => string.Equals(x.Descripcion, RequestTipoPm.Descripcion, StringComparison.OrdinalIgnoreCase)))
+                {
+                    toastService.ShowError("Registro existente, modifiquelo e intentelo de nuevo.");
+                    return;
+                }
+
+                var respuesta = await TipoPmProxy.Registrar(RequestTipoPm);
+                if (respuesta != null)
+                {
+                    await Listar();
+                    await ModalTipoPm.HideAsync();
+                    toastService.ShowSuccess("Registro realizado exitosamente.");
+                }
+            }
+            else
+            {
+                if (Listado.Any(x => string.Equals(x.Descripcion, RequestTipoPm.Descripcion, StringComparison.OrdinalIgnoreCase) && x.Id != RequestTipoPm.Id))
+                {
+                    toastService.ShowError("Registro existente, modifiquelo e intentelo de nuevo.");
+                    return;
+                }
+
+                var respuesta = await TipoPmProxy.Actualizar(RequestTipoPm.Id, RequestTipoPm);
+                if (respuesta != null)
+                {
+                    await Listar();
+                    await ModalTipoPm.HideAsync();
+                    toastService.ShowSuccess("Registro actualizado exitosamente.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task OnEliminar(ListaTipoPmResponse item)
+    {
+        var respuesta = await swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "Estas seguro en eliminar este registro?",
+            Text = $"Eliminar {item.Descripcion}.",
+            Icon = SweetAlertIcon.Question,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Si",
+            CancelButtonText = "No"
+        });
+
+        if (respuesta.IsConfirmed)
+        {
+            await Eliminar(item.Id);
+        }
+    }
+
+    public async Task Eliminar(int id)
+    {
+        isLoading = true;
+        try
+        {
+            var response = await TipoPmProxy.Eliminar(id);
+            if(response != null)
+            {
+                await Listar();
+                toastService.ShowSuccess("Registro eliminado correctamente.");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+    
+}

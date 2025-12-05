@@ -15,6 +15,7 @@ namespace DLTD.GestionPm.Negocios.Interfaces
         Task<BaseResponse> AddAsync(ModeloRequest request);
         Task<BaseResponse> UpdateAsync(int id, ModeloRequest request);
         Task<BaseResponse<ModeloResponse>> FindByIdAsync(int id);
+        Task<BaseResponse<ICollection<ListaModeloResponse>>> ListaSelectAsync();
         Task<PaginationResponse<ListaModeloResponse>> ListaAsync(PaginationRequest request);
         Task<BaseResponse<ModeloResponse>> DeleteAsync(int id);
     }

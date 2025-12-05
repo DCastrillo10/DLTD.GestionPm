@@ -19,7 +19,12 @@ namespace DLTD.GestionPm.UI.Proxies.Implementaciones
         public async Task<PaginationResponse<ListaMarcaResponse>> Listar(PaginationRequest request)
         {
             return await _httpClient.GetFromJsonAsync<PaginationResponse<ListaMarcaResponse>>($"api/Marca/Pagination?Filter={request.Filter}&Page={request.Page}&Rows={request.Rows}") ?? new();
-        }        
+        }
+
+        public async Task<BaseResponse<ICollection<ListaMarcaResponse>>> Listarcombo()
+        {
+            return await _httpClient.GetFromJsonAsync<BaseResponse<ICollection<ListaMarcaResponse>>>($"api/Marca/Select") ?? new();
+        }
 
         public async Task<BaseResponse> Registrar(MarcaRequest request)
         {

@@ -9,9 +9,7 @@ public partial class Tarea : EntidadBase
 
     public string Descripcion { get; set; } = null!;
 
-    public int IdRuta { get; set; }
-
-   
+    public int IdRuta { get; set; }   
 
     public string CodigoTarea { get; set; } = null!;
 

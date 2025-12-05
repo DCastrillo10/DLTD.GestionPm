@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DLTD.GestionPm.AccesoDatos.ContextoTemp;
 using DLTD.GestionPm.Entidad;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,6 +29,8 @@ public partial class GestionPmBdContext : DbContext
 
     public virtual DbSet<PmcheckList> PmcheckLists { get; set; }
 
+    public virtual DbSet<PmcheckListDetalle> PmcheckListDetalles { get; set; }
+
     public virtual DbSet<Pmdetalle> Pmdetalles { get; set; }
 
     public virtual DbSet<PmtareaActividad> PmtareaActividads { get; set; }
@@ -53,7 +56,7 @@ public partial class GestionPmBdContext : DbContext
     public virtual DbSet<TipoHallazgo> TipoHallazgos { get; set; }
 
     public virtual DbSet<TipoPm> TipoPms { get; set; }
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Horometro>(entity =>
@@ -114,6 +117,10 @@ public partial class GestionPmBdContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasDefaultValue("0");
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -132,8 +139,7 @@ public partial class GestionPmBdContext : DbContext
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
             entity.Property(e => e.Referencia)
                 .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasColumnName("Referencia");
+                .IsUnicode(false);
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -200,6 +206,9 @@ public partial class GestionPmBdContext : DbContext
 
             entity.ToTable("PMCheckList");
 
+            entity.Property(e => e.Descripcion)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
@@ -207,6 +216,25 @@ public partial class GestionPmBdContext : DbContext
             entity.Property(e => e.UsuarioRegistro)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<PmcheckListDetalle>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PMCheckListDetalles_PK");
+
+            entity.ToTable("PMCheckListDetalles");
+
+            entity.Property(e => e.FechaRegistro).HasPrecision(0);
+            entity.Property(e => e.Status)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.IdPmCheckListNavigation).WithMany(p => p.PmcheckListDetalles)
+                .HasForeignKey(d => d.IdPmCheckList)
+                .HasConstraintName("PMCheckListDetalles_PMCheckList_FK");
         });
 
         modelBuilder.Entity<Pmdetalle>(entity =>
@@ -380,7 +408,7 @@ public partial class GestionPmBdContext : DbContext
             entity.Property(e => e.DuracionAsignacion).HasColumnType("decimal(6, 2)");
             entity.Property(e => e.FechaFinalAsignacion).HasPrecision(0);
             entity.Property(e => e.FechaInicialAsignacion).HasPrecision(0);
-            entity.Property(e => e.FechaRegistro).HasPrecision(0);            
+            entity.Property(e => e.FechaRegistro).HasPrecision(0);
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -441,6 +469,10 @@ public partial class GestionPmBdContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasDefaultValue("0");
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -480,15 +512,28 @@ public partial class GestionPmBdContext : DbContext
             entity.Property(e => e.Apellidos)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasDefaultValue("0");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.Especialidad)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
-            
+            entity.Property(e => e.NoIdentificacion)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasDefaultValue("0");
             entity.Property(e => e.Nombres)
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.Status)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Telefono)
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.TurnoActual)
@@ -497,19 +542,6 @@ public partial class GestionPmBdContext : DbContext
             entity.Property(e => e.UsuarioRegistro)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.NoIdentificacion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.Telefono)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.Codigo)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.Especialidad)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-
         });
 
         modelBuilder.Entity<TipoActividad>(entity =>
@@ -522,6 +554,9 @@ public partial class GestionPmBdContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -538,6 +573,9 @@ public partial class GestionPmBdContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -554,6 +592,9 @@ public partial class GestionPmBdContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -572,6 +613,9 @@ public partial class GestionPmBdContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
                 .IsUnicode(false);

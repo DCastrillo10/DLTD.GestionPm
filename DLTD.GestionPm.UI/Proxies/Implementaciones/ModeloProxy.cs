@@ -20,7 +20,10 @@ namespace DLTD.GestionPm.UI.Proxies.Implementaciones
         {
             return await _httpClient.GetFromJsonAsync<PaginationResponse<ListaModeloResponse>>($"api/Modelo/Pagination?Filter={request.Filter}&Page={request.Page}&Rows={request.Rows}") ?? new();
         }
-
+        public async Task<BaseResponse<ICollection<ListaModeloResponse>>> ListarCombo()
+        {
+            return await _httpClient.GetFromJsonAsync<BaseResponse<ICollection<ListaModeloResponse>>>($"api/Modelo/Select") ?? new();
+        }
         public async Task<BaseResponse<ModeloResponse>> ObtenerPorId(int id)
         {
             return await _httpClient.GetFromJsonAsync<BaseResponse<ModeloResponse>>($"api/Modelo/{id}") ?? new();

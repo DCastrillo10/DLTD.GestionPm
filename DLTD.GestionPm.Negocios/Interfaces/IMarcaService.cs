@@ -2,6 +2,7 @@
 using DLTD.GestionPm.Dto.Request.Marca;
 using DLTD.GestionPm.Dto.Response;
 using DLTD.GestionPm.Dto.Response.Marca;
+using DLTD.GestionPm.Entidad;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace DLTD.GestionPm.Negocios.Interfaces
         Task<BaseResponse> UpdateAsync(int id, MarcaRequest request);
         Task<BaseResponse<MarcaResponse>> FindByIdAsync(int id);
         Task<PaginationResponse<ListaMarcaResponse>> ListaAsync(PaginationRequest request);
+        Task<BaseResponse<ICollection<ListaMarcaResponse>>> ListaSelectAsync();
         Task<BaseResponse<MarcaResponse>> DeleteAsync(int id);
     }
 }

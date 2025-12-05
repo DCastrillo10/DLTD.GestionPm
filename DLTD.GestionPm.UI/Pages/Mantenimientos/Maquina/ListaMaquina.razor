@@ -55,7 +55,7 @@
         <thead class="table-header">
             <tr>
                 <th>Id</th>
-                <th>Codigo</th>
+                <th>Equipo</th>
                 <th>Descripción</th>
                 <th>Modelo</th>
                 <th>Status</th>
@@ -95,11 +95,13 @@
     </BodyTemplate>
 </Modal>
 
+<PagedList Titem="ListaMaquinaResponse" Request="Request" Response="Paginacion" OnChange="Listar" />
 <Loading Isloading="isLoading" />
 
 @code {
     public List<ListaMaquinaResponse> Listado { get; set; } = new();    
     public PaginationRequest Request { get; set; } = new();
+    public PaginationResponse<ListaMaquinaResponse> Paginacion { get; set; } = new();
     public Modal ModalMaquinas { get; set; } = new();
     public bool isLoading { get; set; }
 
@@ -117,9 +119,9 @@
         isLoading = true;
         try
         {
-            var respuesta = await modeloProxy.Listar(Request);
+            var respuesta = await modeloProxy.ListarCombo();
             if (respuesta?.Result != null)
-            {
+            {                
                 ListadoModelos = respuesta.Result.ToList();
             }
         }
@@ -142,6 +144,7 @@
             var respuesta = await maquinaProxy.Listar(Request);
             if(respuesta?.Result != null)
             {
+                Paginacion = respuesta;
                 Listado = respuesta.Result.ToList();
             }
         }
@@ -183,7 +186,7 @@
             {                
                 if (Listado.Any(x => string.Equals(x.Codigo, RequestMaquina.Codigo, StringComparison.OrdinalIgnoreCase)))
                 {
-                    toastService.ShowError("Ya existe un Maquina con esa referencia");
+                    toastService.ShowError("Ya existe un Maquina con ese No Equipo.");
                     return; 
                 }
 
@@ -199,7 +202,7 @@
             {                
                 if (Listado.Any(x => string.Equals(x.Codigo, RequestMaquina.Codigo, StringComparison.OrdinalIgnoreCase) && x.Id != RequestMaquina.Id))
                 {
-                    toastService.ShowError("Ya existe un Maquina con esa referencia");
+                    toastService.ShowError("Ya existe un Maquina con ese No Equipo.");
                     return; 
                 }
 

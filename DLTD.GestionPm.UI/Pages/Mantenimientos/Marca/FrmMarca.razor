@@ -4,6 +4,15 @@
     <DataAnnotationsValidator />
 
     <div class="uk-grid-small" uk-grid>
+        <!-- Campo Nombre -->
+        <div class="uk-width-1-1">
+            <label class="uk-form-label">Nombre</label>
+            <input class="uk-input uk-form-small" type="text" placeholder="Ingrese el nombre" @bind="Request.Nombre"
+                   @onblur="() => Request.Nombre = LetraCapital.ToProper(Request.Nombre)" />
+            <span class="uk-text-danger uk-text-small">
+                <ValidationMessage For="() => Request.Nombre" />
+            </span>
+        </div>
         <!-- Campo Descripción -->
         <div class="uk-width-1-1">
             <label class="uk-form-label">Descripción</label>

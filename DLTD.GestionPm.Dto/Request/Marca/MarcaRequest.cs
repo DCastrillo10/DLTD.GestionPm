@@ -14,6 +14,9 @@ namespace DLTD.GestionPm.Dto.Request.Marca
 
         [Required(ErrorMessage = Constantes.ErrorMessage)]
         public string Descripcion { get; set; } = default!;
+
+        [Required(ErrorMessage = Constantes.ErrorMessage)]
+        public string Nombre { get; set; } = default!;
         public string Status { get; set; } = "Activo";
     }
 }

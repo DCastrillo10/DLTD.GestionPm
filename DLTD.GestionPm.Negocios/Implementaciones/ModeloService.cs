@@ -2,6 +2,7 @@
 using DLTD.GestionPm.Dto.Request;
 using DLTD.GestionPm.Dto.Request.Modelo;
 using DLTD.GestionPm.Dto.Response;
+using DLTD.GestionPm.Dto.Response.Marca;
 using DLTD.GestionPm.Dto.Response.Modelo;
 using DLTD.GestionPm.Entidad;
 using DLTD.GestionPm.Negocios.Interfaces;
@@ -93,6 +94,22 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             return response;
         }
 
+        public async Task<BaseResponse<ICollection<ListaModeloResponse>>> ListaSelectAsync()
+        {
+            var response = new BaseResponse<ICollection<ListaModeloResponse>>();
+            try
+            {
+                var result = await _repository.ListAsync();
+                response.IsSuccess = true;
+                response.Result = result.Adapt<ICollection<ListaModeloResponse>>();
+            }
+            catch (Exception ex)
+            {
+                response.Message = "Hubo un error al listar las Rutas.";
+                _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
+            }
+            return response;
+        }
         public async Task<PaginationResponse<ListaModeloResponse>> ListaAsync(PaginationRequest request)
         {
             var response = new PaginationResponse<ListaModeloResponse>();
@@ -107,7 +124,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                             Id = p.Id,
                             Referencia = p.Referencia,
                             Descripcion = p.Descripcion,
-                            Marca = p.IdMarcaNavigation.Descripcion,
+                            Marca = p.IdMarcaNavigation.Nombre,
                             Status = p.Status
                         },
                         page: request.Page,

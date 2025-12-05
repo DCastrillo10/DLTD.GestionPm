@@ -6,10 +6,10 @@
 
     <div class="uk-grid-small" uk-grid>
 
-        <!-- Campo Codigo -->
+        <!-- Campo Equipo -->
         <div class="uk-width-1-1">
-            <label class="uk-form-label">Codigo</label>
-            <input class="uk-input uk-form-small" type="text" placeholder="Ingrese la referencia." @bind="Request.Codigo"
+            <label class="uk-form-label">Equipo</label>
+            <input class="uk-input uk-form-small" type="text" placeholder="Ingrese el no equipo." @bind="Request.Codigo"
                    @onblur="() => Request.Codigo = LetraCapital.ToUpperSafe(Request.Codigo)" />
             <span class="uk-text-danger uk-text-small">
                 <ValidationMessage For="() => Request.Codigo" />
@@ -28,7 +28,7 @@
         <div class="uk-width-1-1">
             <label class="uk-form-label">Modelo</label>
             <select class="uk-select uk-form-small" @bind="Request.IdModelo" >
-                <option value="0">Seleccione una Marca</option>
+                <option value="0">Seleccione un Modelo</option>
                 @foreach (var item in ListadoModelos)
                 {
                     <option value="@item.Id">@item.Descripcion</option>

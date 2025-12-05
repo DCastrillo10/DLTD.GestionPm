@@ -1,0 +1,304 @@
+﻿@using DLTD.GestionPm.Dto.Response.Ruta
+@using DLTD.GestionPm.Dto.Response.Tarea
+
+@attribute [Route(Routes.ListaTareas)]
+@layout MainLayout
+@attribute [Authorize(Roles = CatalogRoles.Administrador)]
+
+@inject ITareaProxy TareaProxy;
+@inject IRutaProxy RutaProxy;
+@inject IToastService toastService;
+@inject SweetAlertService swal;
+
+<h3 class="uk-text-bold uk-margin-small-bottom">Listado de Tareas</h3>
+
+<GroupBox Titulo="Buscar Tareas">
+    <Contenido>
+        <div class="uk-grid-small" uk-grid>
+            <!-- Input + botones -->
+            <div class="uk-width-2-3@s">
+                <div class="uk-grid-small uk-flex-middle" uk-grid>                    
+                    <div class="uk-width-expand">
+                        <input class="uk-input uk-form-small" placeholder="Buscar por descripción..." @bind="Request.Filter" />
+                    </div>                    
+                    <div>
+                        <button class="uk-button uk-button-default uk-button-small" @onclick="Listar">
+                            <i class="icon-feather-search"></i>
+                        </button>
+                    </div>                    
+                    <div>
+                        <button class="uk-button uk-button-default uk-button-small" @onclick="OnRefrescar">
+                            <i class="icon-feather-rotate-ccw"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="uk-width-1-3@s uk-flex uk-flex-right">
+                <button class="uk-button btn-corporativo uk-button-small" style="padding: 6px 18px;" @onclick="OnNuevo">
+                    <i class="icon-feather-plus uk-margin-small-right"></i>
+                    Nuevo
+                </button>
+            </div>
+
+        </div>
+    </Contenido>
+
+</GroupBox>
+
+<!-- Tabla -->
+<div class="uk-overflow-auto tabla-container">    
+    <table class="uk-table uk-table-striped uk-table-hover uk-table-small uk-table-middle tabla-compacta">
+
+        <thead class="table-header">
+            <tr>
+                <th>Id</th>
+                <th>Codigo</th>
+                <th>Descripción</th>
+                <th>Duracion</th>
+                <th>NoTecnicos</th>
+                <th>Ruta</th>
+                <th>Status</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Listado)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.CodigoTarea</td>
+                    <td>@item.Descripcion</td>
+                    <td>@item.Duracion</td>
+                    <td>@item.NoTecnicos</td>
+                    <td>@item.Ruta</td>
+                    <td>@item.Status</td>
+                    <td class="uk-text-center">
+
+                        <button class="uk-icon-button uk-margin-small-right" uk-tooltip="Editar" @onclick="() => OnShowEditar(item)">
+                            <i class="icon-feather-edit"></i>
+                        </button>                        
+                        
+                        <button class="uk-icon-button uk-button-danger" uk-tooltip="Eliminar"  @onclick="() => OnEliminar(item)">
+                            <i class="icon-feather-trash-2"></i>
+                        </button>
+
+                    </td>
+                </tr>
+            }
+            
+        </tbody>
+    </table>
+</div>
+
+<Modal Title="Tareas" Size="ModalSize.Regular" UseStaticBackdrop=true @ref="ModalTareas">
+    <BodyTemplate>         
+        <FrmTarea Request="RequestTarea" OnGuardarEvent="OnGuardar" OnCancelarEvent="() => ModalTareas.HideAsync()" ListadoRutas="ListadoRutas" />
+    </BodyTemplate>
+</Modal>
+
+<PagedList Titem="ListaTareaResponse" Request="Request" Response="Paginacion" OnChange="Listar" />
+<Loading Isloading="isLoading" />
+
+@code {
+    public List<ListaTareaResponse> Listado { get; set; } = new();    
+    public PaginationRequest Request { get; set; } = new();
+    public PaginationResponse<ListaTareaResponse> Paginacion { get; set; } = new();
+    public Modal ModalTareas { get; set; } = new();
+    public bool isLoading { get; set; }
+
+    public TareaRequest RequestTarea { get; set; } = new();
+    public List<ListaRutaResponse> ListadoRutas { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Listar();
+        await ListarRutas();
+    }
+
+    public async Task ListarRutas()
+    {
+        isLoading = true;
+        try
+        {
+            var respuesta = await RutaProxy.Listarcombo();
+            if (respuesta?.Result != null)
+            {
+                ListadoRutas = respuesta.Result.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task Listar()
+    {
+        isLoading = true;
+        try
+        {
+            var respuesta = await TareaProxy.Listar(Request);
+            if(respuesta?.Result != null)
+            {
+                Paginacion = respuesta;
+                Listado = respuesta.Result.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);            
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task OnRefrescar()
+    {
+        Request = new();
+        await Listar();
+    }
+
+    public async Task OnNuevo()
+    {
+        RequestTarea = new();
+        await ModalTareas.ShowAsync();
+    }
+
+    public async Task OnShowEditar(ListaTareaResponse item)
+    {
+        await ObtenerPorId(item.Id);
+        await ModalTareas.ShowAsync();
+    }
+
+    public async Task OnGuardar()
+    {
+        isLoading = true;
+        try
+        {
+            if(RequestTarea.Id == 0)
+            {                
+                if (Listado.Any(x => string.Equals(x.CodigoTarea, RequestTarea.CodigoTarea, StringComparison.OrdinalIgnoreCase)))
+                {
+                    toastService.ShowError("Ya existe una tarea con este codigo.");
+                    return; 
+                }
+
+                var respuesta = await TareaProxy.Registrar(RequestTarea);
+                if (respuesta != null)
+                {
+                    await Listar();
+                    await ModalTareas.HideAsync();
+                    toastService.ShowSuccess("Tarea registrada exitosamente");
+                }
+            }
+            else
+            {                
+                if (Listado.Any(x => string.Equals(x.CodigoTarea, RequestTarea.CodigoTarea, StringComparison.OrdinalIgnoreCase) && x.Id != RequestTarea.Id))
+                {
+                    toastService.ShowError("Ya existe una tarea con este codigo.");
+                    return; 
+                }
+
+                var respuesta = await TareaProxy.Actualizar(RequestTarea.Id, RequestTarea);
+                if (respuesta != null)
+                {
+                    await Listar();
+                    await ModalTareas.HideAsync();
+                    toastService.ShowSuccess("Tarea actualizada exitosamente");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task OnEliminar(ListaTareaResponse item)
+    {
+        var respuesta = await swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "Estas seguro en eliminar este registro?",
+            Text = $"Eliminar {item.Descripcion}.",
+            Icon = SweetAlertIcon.Question,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Si",
+            CancelButtonText = "No"
+        });
+
+        if (respuesta.IsConfirmed)
+        {
+            await Eliminar(item.Id);
+        }
+    }
+
+    public async Task Eliminar(int id)
+    {
+        isLoading = true;
+        try
+        {
+            var response = await TareaProxy.Eliminar(id);
+            if(response != null)
+            {
+                await Listar();
+                toastService.ShowSuccess("Registro eliminado correctamente");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task ObtenerPorId(int id)
+    {
+        isLoading = true;
+        try
+        {
+            var response = await TareaProxy.ObtenerPorId(id);
+            if (response?.Result != null)
+            {
+                RequestTarea = new()
+                    {
+                        Id = response.Result.Id,
+                        CodigoTarea = response.Result.CodigoTarea,
+                        Descripcion = response.Result.Descripcion,
+                        Duracion = response.Result.Duracion,
+                        NoTecnicos = response.Result.NoTecnicos,
+                        IdRuta = response.Result.IdRuta,
+                        Status = response.Result.Status
+                    };
+            }
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

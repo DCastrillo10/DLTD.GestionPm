@@ -8,6 +8,7 @@ namespace DLTD.GestionPm.UI.Proxies.Interfaces
     public interface IMarcaProxy
     {
         Task<PaginationResponse<ListaMarcaResponse>> Listar(PaginationRequest request);
+        Task<BaseResponse<ICollection<ListaMarcaResponse>>> Listarcombo();
         Task<BaseResponse> Registrar(MarcaRequest request);
         Task<BaseResponse> Actualizar(int id, MarcaRequest request);
         Task<BaseResponse> Eliminar(int id);

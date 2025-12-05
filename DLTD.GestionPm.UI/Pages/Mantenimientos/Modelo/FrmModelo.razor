@@ -19,7 +19,7 @@
         <div class="uk-width-1-1">
             <label class="uk-form-label">Descripción</label>
             <input class="uk-input uk-form-small" type="text" placeholder="Ingrese la descripción..." @bind="Request.Descripcion"
-                   @onblur="() => Request.Descripcion = LetraCapital.ToProper(Request.Descripcion)" />
+                   @onblur="() => Request.Descripcion = LetraCapital.ToProper(Request.Descripcion!)" />
             <span class="uk-text-danger uk-text-small">
                 <ValidationMessage For="() => Request.Descripcion" />
             </span>
@@ -31,7 +31,7 @@
                 <option value="0">Seleccione una Marca</option>
                 @foreach (var item in ListadoMarcas)
                 {
-                    <option value="@item.Id">@item.Descripcion</option>
+                    <option value="@item.Id">@item.Nombre</option>
                 }
             </select>
             <span class="uk-text-danger uk-text-small">
