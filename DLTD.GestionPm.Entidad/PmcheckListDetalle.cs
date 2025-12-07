@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DLTD.GestionPm.AccesoDatos.ContextoTemp;
+namespace DLTD.GestionPm.Entidad;
 
 public partial class PmcheckListDetalle: EntidadBase
 {

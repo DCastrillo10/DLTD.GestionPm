@@ -1,25 +1,27 @@
 ﻿
-@using DLTD.GestionPm.Dto.Response.Ruta
+@using DLTD.GestionPm.Dto.Response.CheckList
+@using DLTD.GestionPm.Dto.Response.Modelo
+@using DLTD.GestionPm.Dto.Response.TipoPm
 
-
-@attribute [Route(Routes.ListaRutas)]
+@attribute [Route(Routes.ListaCheckList)]
 @layout MainLayout
 @attribute [Authorize(Roles = CatalogRoles.Administrador)]
 
-@inject IRutaProxy RutaProxy;
+@inject ICheckListProxy CheckListProxy;
+@inject NavigationManager Navegador;
 @inject IToastService toastService;
 @inject SweetAlertService swal;
 
-<h3 class="uk-text-bold uk-margin-small-bottom">Listado de Rutas</h3>
+<h3 class="uk-text-bold uk-margin-small-bottom">Listado de CheckLists</h3>
 
-<GroupBox Titulo="Buscar Rutas">
+<GroupBox Titulo="Buscar CheckLists">
     <Contenido>
         <div class="uk-grid-small" uk-grid>
             <!-- Input + botones -->
             <div class="uk-width-2-3@s">
                 <div class="uk-grid-small uk-flex-middle" uk-grid>                    
                     <div class="uk-width-expand">
-                        <input class="uk-input uk-form-small" placeholder="Buscar por nombre o descripción..." @bind="Request.Filter" />
+                        <input class="uk-input uk-form-small" placeholder="Buscar por tipoPM, modelo o descripción..." @bind="Request.Filter" />
                     </div>                    
                     <div>
                         <button class="uk-button uk-button-default uk-button-small" @onclick="Listar">
@@ -53,8 +55,9 @@
         <thead class="table-header">
             <tr>
                 <th>Id</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
+                <th>Tipo Pm</th>
+                <th>Modelo</th>
+                <th>Descripción</th>                
                 <th>Status</th>
                 <th>Acciones</th>
             </tr>
@@ -64,12 +67,13 @@
             {
                 <tr>
                     <td>@item.Id</td>
-                    <td>@item.Nombre</td>
-                    <td>@item.Descripcion</td>
+                    <td>@item.TipoPm</td>
+                    <td>@item.Modelo</td>
+                    <td>@item.Descripcion</td>                 
                     <td>@item.Status</td>
                     <td class="uk-text-center">
 
-                        <button class="uk-icon-button uk-margin-small-right" uk-tooltip="Editar" @onclick="() => OnShowEditar(item)">
+                        <button class="uk-icon-button uk-margin-small-right" uk-tooltip="Editar" @onclick="() => OnShowEditar(item.Id)">
                             <i class="icon-feather-edit"></i>
                         </button>                        
                         
@@ -85,35 +89,27 @@
     </table>
 </div>
 
-<Modal Title="Rutas" Size="ModalSize.Regular" UseStaticBackdrop=true @ref="ModalRutas">
-    <BodyTemplate>        
-        <FrmRuta Request="RequestRuta" OnGuardarEvent="OnGuardar" OnCancelarEvent="() => ModalRutas.HideAsync()" />
-    </BodyTemplate>
-</Modal>
 
-<PagedList Titem="ListaRutaResponse" Request="Request" Response="Paginacion" OnChange="Listar" />
+<PagedList Titem="ListaCheckListResponse" Request="Request" Response="Paginacion" OnChange="Listar" />
 <Loading Isloading="isLoading" />
 
 @code {
-    public List<ListaRutaResponse> Listado { get; set; } = new();
+    public List<ListaCheckListResponse> Listado { get; set; } = new();    
     public PaginationRequest Request { get; set; } = new();
-    public PaginationResponse<ListaRutaResponse> Paginacion { get; set; } = new();
-    public Modal ModalRutas { get; set; } = new();
-    public bool isLoading { get; set; }
-
-    public RutaRequest RequestRuta { get; set; } = new();
+    public PaginationResponse<ListaCheckListResponse> Paginacion { get; set; } = new();    
+    public bool isLoading { get; set; }   
 
     protected override async Task OnInitializedAsync()
     {
-        await Listar();
-    }
+        await Listar();        
+    }    
 
     public async Task Listar()
     {
         isLoading = true;
         try
         {
-            var respuesta = await RutaProxy.Listar(Request);
+            var respuesta = await CheckListProxy.Listar(Request);
             if(respuesta?.Result != null)
             {
                 Paginacion = respuesta;
@@ -137,71 +133,18 @@
         await Listar();
     }
 
-    public async Task OnNuevo()
+    public void OnNuevo()
     {
-        RequestRuta = new();
-        await ModalRutas.ShowAsync();
+        Navegador.NavigateTo(Routes.CheckListNuevo);
     }
 
-    public async Task OnShowEditar(ListaRutaResponse item)
+    public void OnShowEditar(int id)
     {
-        RequestRuta.Id = item.Id;
-        RequestRuta.Nombre = item.Nombre;
-        RequestRuta.Descripcion = item.Descripcion;
-        RequestRuta.Status = item.Status;
-        await ModalRutas.ShowAsync();
+        Navegador.NavigateTo($"{Routes.CheckListEditar}/{id}");
     }
+    
 
-    public async Task OnGuardar()
-    {
-        isLoading = true;
-        try
-        {
-            if(RequestRuta.Id == 0)
-            {
-                if (Listado.Any(x => string.Equals(x.Nombre, RequestRuta.Nombre, StringComparison.OrdinalIgnoreCase)))
-                {
-                    toastService.ShowError("Registro existente, modifiquelo e intentelo de nuevo.");
-                    return;
-                }
-
-                var respuesta = await RutaProxy.Registrar(RequestRuta);
-                if (respuesta != null)
-                {
-                    await Listar();
-                    await ModalRutas.HideAsync();
-                    toastService.ShowSuccess("Registro realizado exitosamente.");
-                }
-            }
-            else
-            {
-                if (Listado.Any(x => string.Equals(x.Nombre, RequestRuta.Nombre, StringComparison.OrdinalIgnoreCase) && x.Id != RequestRuta.Id))
-                {
-                    toastService.ShowError("Registro existente, modifiquelo e intentelo de nuevo.");
-                    return;
-                }
-
-                var respuesta = await RutaProxy.Actualizar(RequestRuta.Id, RequestRuta);
-                if (respuesta != null)
-                {
-                    await Listar();
-                    await ModalRutas.HideAsync();
-                    toastService.ShowSuccess("Registro actualizado exitosamente");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            toastService.ShowError(ex.Message);
-        }
-        finally
-        {
-            isLoading = false;
-            StateHasChanged();
-        }
-    }
-
-    public async Task OnEliminar(ListaRutaResponse item)
+    public async Task OnEliminar(ListaCheckListResponse item)
     {
         var respuesta = await swal.FireAsync(new SweetAlertOptions
         {
@@ -224,11 +167,11 @@
         isLoading = true;
         try
         {
-            var response = await RutaProxy.Eliminar(id);
+            var response = await CheckListProxy.Eliminar(id);
             if(response != null)
             {
                 await Listar();
-                toastService.ShowSuccess("Registro eliminado correctamente.");
+                toastService.ShowSuccess("Registro eliminado correctamente");
             }
 
         }
@@ -242,5 +185,6 @@
             StateHasChanged();
         }
     }
+
     
 }

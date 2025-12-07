@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using DLTD.GestionPm.AccesoDatos.ContextoTemp;
 using DLTD.GestionPm.Entidad;
 using Microsoft.EntityFrameworkCore;
 
@@ -56,6 +55,7 @@ public partial class GestionPmBdContext : DbContext
     public virtual DbSet<TipoHallazgo> TipoHallazgos { get; set; }
 
     public virtual DbSet<TipoPm> TipoPms { get; set; }
+
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -216,6 +216,14 @@ public partial class GestionPmBdContext : DbContext
             entity.Property(e => e.UsuarioRegistro)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.IdModeloNavigation).WithMany(p => p.PmcheckLists)
+                .HasForeignKey(d => d.IdModelo)
+                .HasConstraintName("PMCheckList_Modelos_FK");
+
+            entity.HasOne(d => d.IdTipoPmNavigation).WithMany(p => p.PmcheckLists)
+                .HasForeignKey(d => d.IdTipoPm)
+                .HasConstraintName("PMCheckList_TipoPm_FK");
         });
 
         modelBuilder.Entity<PmcheckListDetalle>(entity =>
@@ -489,7 +497,7 @@ public partial class GestionPmBdContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.Descripcion)
-                .HasMaxLength(100)
+                .HasMaxLength(500)
                 .IsUnicode(false);
             entity.Property(e => e.Duracion).HasColumnType("decimal(6, 2)");
             entity.Property(e => e.FechaRegistro).HasPrecision(3);

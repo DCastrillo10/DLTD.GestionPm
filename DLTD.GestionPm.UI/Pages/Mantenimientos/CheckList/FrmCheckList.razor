@@ -1,0 +1,345 @@
+﻿@using DLTD.GestionPm.Dto.Response.Modelo
+@using DLTD.GestionPm.Dto.Response.Ruta
+@using DLTD.GestionPm.Dto.Response.TipoPm
+
+@attribute [Route(Routes.CheckListNuevo)]
+@attribute [Route(Routes.CheckListEditar + "/{id:int}")]
+
+@layout MainLayout
+@attribute [Authorize(Roles = CatalogRoles.Administrador)]
+
+@inject ICheckListProxy checkListProxy;
+@inject ITipoPmProxy tipopmProxy;
+@inject IModeloProxy modeloProxy;
+@inject IRutaProxy rutaProxy;
+@inject IToastService toastService;
+@inject NavigationManager Navegador;
+
+<h3 class="uk-text-bold uk-margin-small-bottom">@(Request.Id == 0 ? "Nuevo" : "Editar") Checklist PM</h3>
+
+<EditForm Model="Request" OnValidSubmit="OnGuardar">
+    <DataAnnotationsValidator />
+
+    <div uk-grid>
+        <div class="uk-width-1-1">
+            <GroupBox Titulo="Parametros Principales">
+                <Contenido>
+
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-3@s">
+                            <div class="uk-margin">
+                                <label class="uk-form-label">Tipo PM</label>
+                                <select class="uk-select" @bind="Request.IdTipoPm">
+                                    <option value="0">Seleccione un Tipo de PM...</option>
+                                    @foreach (var item in ListadoTipoPms)
+                                    {
+                                        <option value="@item.Id">@item.Descripcion</option>
+                                    }
+                                </select>
+                                <ValidationMessage For="@(() => Request.IdTipoPm)" />
+                            </div>
+                        </div>
+
+                        <div class="uk-width-1-3@s">
+                            <div class="uk-margin">
+                                <label class="uk-form-label">Modelo</label>
+                                <select class="uk-select" @bind="Request.IdModelo">
+                                    <option value="0">Seleccione Modelo...</option>
+                                    @foreach (var item in ListadoModelos)
+                                    {
+                                        <option value="@item.Id">@item.Referencia</option>
+                                    }
+                                </select>
+                                <ValidationMessage For="@(() => Request.IdModelo)" />
+                            </div>
+                        </div>
+
+                        <div class="uk-width-1-3@s">
+                            <div class="uk-margin">
+                                <label class="uk-form-label">Status</label>
+                                <select class="uk-select" @bind="Request.Status">
+                                    <option value="Activo">Activo</option>
+                                    <option value="Inactivo">Inactivo</option>
+                                </select>
+                                <ValidationMessage For="@(() => Request.Status)" />
+                            </div>
+                        </div>
+                    </div>                    
+
+                    <div class="uk-margin">
+                        <label class="uk-form-label">Descripción</label>
+                        <input class="uk-input" @bind="Request.Descripcion" placeholder="Descripción del Checklist" />
+                        <ValidationMessage For="@(() => Request.Descripcion)" />
+                    </div>
+                    
+                </Contenido>
+            </GroupBox>
+        </div>        
+    </div>
+
+    <div class="uk-margin">
+        <GroupBox Titulo="Detalles del Checklist (Rutas)">
+            <Contenido>                
+                <div class="uk-grid-small uk-flex-middle" uk-grid>
+
+                    <div class="uk-width-expand">
+                        <label class="uk-form-label">Ruta</label>
+                        <div class="uk-inline uk-width-expand">
+                            <select class="uk-select" @bind="DetalleAuxiliar.IdRuta">
+                                <option value="0">Seleccione una Ruta...</option>
+                                @foreach (var item in ListadoRutas)
+                                {
+                                    <option value="@item.Id">@item.Descripcion</option>
+                                }
+                            </select>                            
+                        </div>
+                    </div>
+
+                    <div class="uk-width-auto">
+                        <button type="button"
+                                class="uk-button btn-corporativo uk-button-small"
+                                @onclick="OnAdicionarDetalle"
+                                style="margin-top: 25px;">
+                            <i class="icon-feather-plus"></i> Adicionar
+                        </button>
+                    </div>
+                </div>                        
+
+                <div class="uk-overflow-auto tabla-container uk-margin-top">
+                    <table class="uk-table uk-table-striped uk-table-hover uk-table-small uk-table-middle tabla-compacta">
+                        <thead class="table-header">
+                            <tr>
+                                <th>Id</th>
+                                <th>Descripción</th>
+                                <th>Status</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var detalle in Request.Detalles)
+                            {
+                                <tr>
+                                    <td>@detalle.IdRuta</td>
+                                    <td>@(GetRutaDesc(detalle.IdRuta))</td>
+                                    <td>@detalle.Status</td>
+                                    <td>
+                                        <button type="button" class="uk-icon-button uk-button-danger" uk-tooltip="Quitar" @onclick="() => OnQuitarDetalle(detalle)">
+                                            <i class="icon-feather-trash-2"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                            @if (!Request.Detalles.Any())
+                            {
+                                <tr><td colspan="4" class="uk-text-center">No hay detalles agregados.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </Contenido>
+        </GroupBox>
+    </div>
+
+    <div class="uk-margin uk-flex uk-flex-right">
+        <button type="submit" class="uk-button btn-corporativo uk-button-small uk-margin-small-right">
+            <i class="icon-feather-save uk-margin-small-right"></i> Guardar
+        </button>
+        <button type="button" class="uk-button uk-button-default uk-button-small" @onclick="OnCancelar">
+            <i class="icon-feather-x uk-margin-small-right"></i> Cancelar
+        </button>
+    </div>
+</EditForm>
+<Loading Isloading="isLoading" />
+
+@code {
+    [Parameter]
+    public int Id { get; set; } // Se usa para editar
+
+    public CheckListRequest Request { get; set; } = new();
+    public CheckListDetallesRequest DetalleAuxiliar { get; set; } = new();
+
+    public List<ListaRutaResponse> ListadoRutas { get; set; } = new();
+    public List<ListaModeloResponse> ListadoModelos { get; set; } = new();
+    public List<ListaTipoPmResponse> ListadoTipoPms { get; set; } = new();
+    
+    public bool isLoading { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCombos();
+        if(Id != 0)
+        {
+            await CargarCheckList(Id); //editamos
+        }
+        else
+        {
+            Request = new() { Detalles = new List<CheckListDetallesRequest>() }; // Inicializar detalles
+            DetalleAuxiliar = new();
+        }
+    }  
+
+    public async Task CargarCombos()
+    {
+        isLoading = true;
+        try
+        {
+            var tiposPm = await tipopmProxy.Listarcombo();
+            if (tiposPm?.Result != null)
+            {
+                ListadoTipoPms = tiposPm.Result.ToList();
+            }
+
+            var tiposModelos = await modeloProxy.ListarCombo();
+            if (tiposModelos?.Result != null)
+            {
+                ListadoModelos = tiposModelos.Result.ToList();
+            }
+
+            var tiposRutas = await rutaProxy.Listarcombo();
+            if (tiposRutas?.Result != null)
+            {
+                ListadoRutas = tiposRutas.Result.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CargarCheckList(int id)
+    {
+        isLoading = true;
+        try
+        {
+            var response = await checkListProxy.ObtenerPorId(id);
+            if(response.IsSuccess && response.Result != null)
+            {
+                // Mapeamos el Response (Cabecera + Detalles) al Request para edición
+                Request.Id = response.Result.Id;
+                Request.Descripcion = response.Result.Descripcion;
+                Request.IdModelo = response.Result.IdModelo;
+                Request.IdTipoPm = response.Result.IdTipoPm;
+                Request.Status = response.Result.Status;
+
+                // Mapeamos la colección de Detalles (Response Detalle -> Request Detalle)
+                Request.Detalles = response.Result.Detalles
+                                        .Select(d => new CheckListDetallesRequest
+                                            {
+                                                Id = d.Id,
+                                                IdRuta = d.IdRuta,
+                                                Status = d.Status
+                                            })
+                                        .Where(d => d.Status != "Eliminado")
+                                        .ToList();
+
+            }
+            else
+            {
+                toastService.ShowError(response.Message!);
+                Navegador.NavigateTo(Routes.ListaCheckList);
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error al cargar Checklist: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetRutaDesc(int idRuta)
+    {
+        return ListadoRutas.FirstOrDefault(r => r.Id == idRuta)?.Nombre ?? "Ruta sin nombre";
+    }
+
+    public void OnAdicionarDetalle()
+    {
+        if(DetalleAuxiliar.IdRuta == 0)
+        {
+            toastService.ShowWarning("Debe seleccionar una Ruta.");
+            return;
+        }
+        if(Request.Detalles.Any(d => d.IdRuta == DetalleAuxiliar.IdRuta))
+        {
+            toastService.ShowWarning("Esta Ruta ya fue agregada.");
+            return;
+        }
+
+        //Creamos el registro u objeto en el detalle
+        var nuevoDetalle = new CheckListDetallesRequest
+            {
+                Id = 0,
+                IdRuta = DetalleAuxiliar.IdRuta,
+                Status = "Activo"
+            };
+        Request.Detalles.Add(nuevoDetalle);
+        DetalleAuxiliar = new();
+    }
+
+    public void OnQuitarDetalle(CheckListDetallesRequest detalle)
+    {
+        if(detalle.Id == 0)
+        {
+            Request.Detalles.Remove(detalle); //Si id=0, nunca se ha guardado en la BD
+        }
+        else
+        {
+            Request.Detalles.Remove(detalle); //Usamos el mismo metodo, porque en el servicio implementamos una comparacion de la lista
+        }
+    }
+
+    public async Task OnGuardar()
+    {
+        if (!Request.Detalles.Any())
+        {
+            toastService.ShowError("Debe agregar al menos una Ruta al Checklist.");
+            return;
+        }
+
+        isLoading = true;
+        try
+        {
+            BaseResponse response;
+            if(Request.Id == 0)
+            {
+                response = await checkListProxy.Registrar(Request);
+            }
+            else
+            {
+                response = await checkListProxy.Actualizar(Request.Id, Request);
+            }
+
+            if (response.IsSuccess)
+            {
+                toastService.ShowSuccess(response.Message!);
+                Navegador.NavigateTo(Routes.ListaCheckList);
+            }
+            else
+            {
+                toastService.ShowError(response.Message!);
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error de comunicación: {ex.Message}");            
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    public void OnCancelar()
+    {
+        Navegador.NavigateTo(Routes.ListaCheckList);
+    }
+}

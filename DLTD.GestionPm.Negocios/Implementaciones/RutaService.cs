@@ -127,6 +127,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                         selector: p => new ListaRutaResponse
                         {
                             Id = p.Id,
+                            Nombre = p.Nombre,
                             Descripcion = p.Descripcion,
                             Status = p.Status
                         },

@@ -183,6 +183,10 @@ body, h1, h2, h3, h4, h5, h6, p, label, span, a {
     color: #000 !important;
 }
 
+.card .card-title {
+    color: #fff !important;
+}
+
 .uk-light, .uk-light * {
     color: #fff !important;
 }
@@ -453,7 +457,8 @@ header .container {
     font-weight: 700;
     font-size: 0.9rem;
     text-transform: none;
-    padding: 12px 0;
+    padding: 14px 6px; /* ← más aire a los costados */
+    white-space: nowrap; /* ← evita que el texto se rompa si la columna tiene poco espacio  */
 }
 
     .table-header th:first-child {
@@ -468,7 +473,7 @@ header .container {
 
 /* Filas compactas genéricas */
 .tabla-compacta td {
-    padding: 4px 0 !important;
+    padding: 6px 6px !important; /* antes era 4px 0 */
     vertical-align: middle;
     color: #000;
 }

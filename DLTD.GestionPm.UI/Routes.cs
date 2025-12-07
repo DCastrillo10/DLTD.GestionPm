@@ -13,9 +13,12 @@
         public const string ListaRutas = "/listarutas";
         public const string ListaTareas = "/listatareas";
         public const string ListaCheckList = "/listachecklist";
+        public const string CheckListNuevo = "/checklist/nuevo";
+        public const string CheckListEditar = "/checklist/editar";
         public const string ListaTipoPM = "/listatipopm";
         public const string ListaActividades = "/listaactividades";
         public const string ListaDemoras = "/listademoras";
         public const string ListaHallazgos = "/listahallazgos";
+        
     }
 }

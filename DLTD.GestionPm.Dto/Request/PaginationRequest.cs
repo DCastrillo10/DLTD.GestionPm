@@ -10,6 +10,6 @@ namespace DLTD.GestionPm.Dto.Request
     {
         public string? Filter { get; set; }
         public int Page { get; set; } = 1;
-        public int Rows { get; set; } = 2;
+        public int Rows { get; set; } = 10;
     }
 }

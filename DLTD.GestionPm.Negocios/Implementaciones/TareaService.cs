@@ -15,9 +15,9 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
     public class TareaService: ITareaService
     {
         private readonly ITareaRepository _repository;
-        private readonly ILogger<Tarea> _logger;
+        private readonly ILogger<TareaService> _logger;
 
-        public TareaService(ITareaRepository repository, ILogger<Tarea> logger)
+        public TareaService(ITareaRepository repository, ILogger<TareaService> logger)
         {
             _repository = repository;
             _logger = logger;
@@ -74,7 +74,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             try
             {
                 var Tarea = await _repository.FindAsync(id);
-                if (Tarea == null) throw new InvalidDataException("Tarea no encontrada");
+                if (Tarea == null) throw new InvalidDataException("Tarea no encontrada.");
 
                 response.IsSuccess = true;
                 response.Result = Tarea.Adapt<TareaResponse>();
@@ -107,7 +107,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                             Id = p.Id,
                             CodigoTarea = p.CodigoTarea,
                             Descripcion = p.Descripcion,
-                            Ruta = p.IdRutaNavigation.Descripcion,
+                            Ruta = p.IdRutaNavigation.Nombre,
                             Duracion = p.Duracion,
                             NoTecnicos = p.NoTecnicos,
                             Status = p.Status
