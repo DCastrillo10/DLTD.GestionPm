@@ -1,0 +1,75 @@
+﻿@* Nuevo componente PaginacionLocal.razor con estilos PagedList *@
+
+@if (TotalElementos > 0 && TotalPaginas > 1)
+{
+    <div class="pagination-container">
+        <div class="pagination-info">
+            Página @PaginaActual de @TotalPaginas — Total: @TotalElementos registros
+        </div>
+
+        <div class="pagination-buttons">
+
+            <button class="pag-btn"
+                    disabled="@(!CanGoPrev)"
+                    @onclick="() => CambiarPagina(1)">
+                ⏮
+            </button>
+
+            <button class="pag-btn"
+                    disabled="@(!CanGoPrev)"
+                    @onclick="() => CambiarPagina(PaginaActual - 1)">
+                ◀
+            </button>
+
+            <span class="pag-text">
+                @PaginaActual / @TotalPaginas
+            </span>
+
+            <button class="pag-btn"
+                    disabled="@(!CanGoNext)"
+                    @onclick="() => CambiarPagina(PaginaActual + 1)">
+                ▶
+            </button>
+
+            <button class="pag-btn"
+                    disabled="@(!CanGoNext)"
+                    @onclick="() => CambiarPagina(TotalPaginas)">
+                ⏭
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    // Parámetros de Entrada
+    [Parameter]
+    public int PaginaActual { get; set; } = 1;
+
+    [Parameter]
+    public int TotalPaginas { get; set; } = 1;
+
+    [Parameter]
+    public int TotalElementos { get; set; } = 0;
+
+    // Aunque no se usa directamente en la UI, es bueno mantenerlo si el padre lo necesita
+    [Parameter]
+    public int ElementosPorPagina { get; set; } = 5;
+
+    // Evento de Salida que indica al padre que cambie la página
+    [Parameter]
+    public EventCallback<int> OnPageChange { get; set; }
+
+    // Propiedades de ayuda para deshabilitar botones
+    bool CanGoPrev => PaginaActual > 1;
+    bool CanGoNext => PaginaActual < TotalPaginas;
+
+    // Método unificado para invocar el cambio de página
+    public async Task CambiarPagina(int nuevaPagina)
+    {
+        // Solo invoca si la página es diferente y está dentro del rango válido
+        if (nuevaPagina != PaginaActual && nuevaPagina >= 1 && nuevaPagina <= TotalPaginas)
+        {
+            await OnPageChange.InvokeAsync(nuevaPagina);
+        }
+    }
+}

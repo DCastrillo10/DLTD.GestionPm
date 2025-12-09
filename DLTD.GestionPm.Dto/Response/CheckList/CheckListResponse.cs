@@ -13,8 +13,8 @@ namespace DLTD.GestionPm.Dto.Response.CheckList
         public int IdTipoPm { get; set; }
 
         public int IdModelo { get; set; }
-
         public string Descripcion { get; set; } = null!;
+        
 
         public string Status { get; set; } = default!;
 

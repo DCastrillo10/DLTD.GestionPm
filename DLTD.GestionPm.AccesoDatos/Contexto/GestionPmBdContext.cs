@@ -56,7 +56,6 @@ public partial class GestionPmBdContext : DbContext
 
     public virtual DbSet<TipoPm> TipoPms { get; set; }
 
-    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Horometro>(entity =>
@@ -243,6 +242,10 @@ public partial class GestionPmBdContext : DbContext
             entity.HasOne(d => d.IdPmCheckListNavigation).WithMany(p => p.PmcheckListDetalles)
                 .HasForeignKey(d => d.IdPmCheckList)
                 .HasConstraintName("PMCheckListDetalles_PMCheckList_FK");
+
+            entity.HasOne(d => d.IdRutaNavigation).WithMany(p => p.PmcheckListDetalles)
+                .HasForeignKey(d => d.IdRuta)
+                .HasConstraintName("PMCheckListDetalles_Rutas_FK");
         });
 
         modelBuilder.Entity<Pmdetalle>(entity =>

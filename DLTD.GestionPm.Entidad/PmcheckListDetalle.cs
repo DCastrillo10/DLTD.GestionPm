@@ -13,4 +13,5 @@ public partial class PmcheckListDetalle: EntidadBase
 
     
     public virtual PmcheckList IdPmCheckListNavigation { get; set; } = null!;
+    public virtual Ruta IdRutaNavigation { get; set; } = null!;
 }

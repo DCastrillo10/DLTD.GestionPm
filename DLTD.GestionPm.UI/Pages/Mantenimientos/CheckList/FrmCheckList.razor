@@ -1,4 +1,5 @@
-﻿@using DLTD.GestionPm.Dto.Response.Modelo
+﻿@using DLTD.GestionPm.Dto.Response.CheckList
+@using DLTD.GestionPm.Dto.Response.Modelo
 @using DLTD.GestionPm.Dto.Response.Ruta
 @using DLTD.GestionPm.Dto.Response.TipoPm
 
@@ -33,7 +34,7 @@
                                     <option value="0">Seleccione un Tipo de PM...</option>
                                     @foreach (var item in ListadoTipoPms)
                                     {
-                                        <option value="@item.Id">@item.Descripcion</option>
+                                        <option value="@item.Id">@item.Nombre</option>
                                     }
                                 </select>
                                 <ValidationMessage For="@(() => Request.IdTipoPm)" />
@@ -80,30 +81,46 @@
     <div class="uk-margin">
         <GroupBox Titulo="Detalles del Checklist (Rutas)">
             <Contenido>                
-                <div class="uk-grid-small uk-flex-middle" uk-grid>
+                <div class="uk-grid-small uk-child-width-1-2@s uk-flex-top uk-margin-small-bottom" uk-grid>
 
-                    <div class="uk-width-expand">
-                        <label class="uk-form-label">Ruta</label>
-                        <div class="uk-inline uk-width-expand">
-                            <select class="uk-select" @bind="DetalleAuxiliar.IdRuta">
-                                <option value="0">Seleccione una Ruta...</option>
-                                @foreach (var item in ListadoRutas)
-                                {
-                                    <option value="@item.Id">@item.Descripcion</option>
-                                }
-                            </select>                            
+                    <div>
+                        <label class="uk-form-label uk-padding-remove-vertical">Ruta a Adicionar</label>
+
+                        <div class="uk-grid-collapse uk-flex-middle" uk-grid>
+
+                            <div class="uk-width-expand">
+                                <select class="uk-select" @bind="DetalleAuxiliar.IdRuta">
+                                    <option value="0">Seleccione una Ruta...</option>
+                                    @foreach (var item in ListadoRutas)
+                                    {
+                                        <option value="@item.Id">@item.Descripcion</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="uk-width-auto">
+                                <button type="button" class="uk-button btn-corporativo" @onclick="OnAdicionarDetalle" style="height: 38px;">
+                                    <i class="icon-feather-plus"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="uk-width-auto">
-                        <button type="button"
-                                class="uk-button btn-corporativo uk-button-small"
-                                @onclick="OnAdicionarDetalle"
-                                style="margin-top: 25px;">
-                            <i class="icon-feather-plus"></i> Adicionar
-                        </button>
+                    <div>
+                        <label class="uk-form-label uk-padding-remove-vertical">Buscar Ruta</label>
+
+                        <div class="uk-grid-collapse uk-flex-middle" uk-grid>
+
+                            <div class="uk-width-expand">
+                                <input class="uk-input" placeholder="Buscar por Descripción..." @bind="FiltroBusqueda">                                      
+                            </div>
+                            <div class="uk-width-auto">
+                                <button type="button" class="uk-button btn-corporativo" @onclick="OnBuscar" style="height: 38px;">
+                                    <i class="icon-feather-search"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>                        
+                </div> 
 
                 <div class="uk-overflow-auto tabla-container uk-margin-top">
                     <table class="uk-table uk-table-striped uk-table-hover uk-table-small uk-table-middle tabla-compacta">
@@ -116,40 +133,67 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var detalle in Request.Detalles)
+                            @if (DetalleVisibles != null && DetalleVisibles.Any())
                             {
-                                <tr>
-                                    <td>@detalle.IdRuta</td>
-                                    <td>@(GetRutaDesc(detalle.IdRuta))</td>
-                                    <td>@detalle.Status</td>
-                                    <td>
-                                        <button type="button" class="uk-icon-button uk-button-danger" uk-tooltip="Quitar" @onclick="() => OnQuitarDetalle(detalle)">
-                                            <i class="icon-feather-trash-2"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            }
-                            @if (!Request.Detalles.Any())
+                                @foreach (var detalle in DetalleVisibles)
+                                {
+                                    <tr>
+                                        <td>@detalle.IdRuta</td>
+                                        <td>@detalle.Nombre</td>
+                                        <td>@detalle.Status</td>
+                                        <td>
+                                            @if (detalle.Id == 0)
+                                            {
+                                                <button @onclick="(() => OnQuitarDetalle(detalle))" class="uk-button uk-button-danger uk-button-small" uk-tooltip="Quitar Detalle">
+                                                    <i class="icon-feather-x-circle"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                @if (detalle.Status == "Activo")
+                                                {
+                                                    <button @onclick="(() => OnChangeDetailStatus(detalle))" class="uk-button uk-button-danger uk-button-small" uk-tooltip="Inactivar Detalle">
+                                                        <i class="icon-feather-lock"></i>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button @onclick="(() => OnChangeDetailStatus(detalle))" class="uk-button uk-button-success uk-button-small" uk-tooltip="Activar Detalle">
+                                                        <i class="icon-feather-unlock"></i>
+                                                    </button>
+                                                }
+                                            }
+                                            
+                                        </td>
+                                    </tr>
+                                }
+                            }                            
+                            else
                             {
                                 <tr><td colspan="4" class="uk-text-center">No hay detalles agregados.</td></tr>
                             }
                         </tbody>
+                        
                     </table>
+                    
                 </div>
-
+                
+                <PaginacionLocal PaginaActual="PaginaActual" TotalPaginas="TotalPaginas" TotalElementos="TotalElementos" ElementosPorPagina="ElementosPorPagina" OnPageChange="HandlePageChange" />
+                                 
             </Contenido>
         </GroupBox>
     </div>
 
     <div class="uk-margin uk-flex uk-flex-right">
+        <button type="button" class="uk-button uk-button-default uk-button-small" @onclick="OnCancelar">             
+            <i class="icon-feather-x-circle uk-margin-small-right"></i> Cancelar
+        </button>
         <button type="submit" class="uk-button btn-corporativo uk-button-small uk-margin-small-right">
             <i class="icon-feather-save uk-margin-small-right"></i> Guardar
-        </button>
-        <button type="button" class="uk-button uk-button-default uk-button-small" @onclick="OnCancelar">
-            <i class="icon-feather-x uk-margin-small-right"></i> Cancelar
-        </button>
+        </button>        
     </div>
 </EditForm>
+
 <Loading Isloading="isLoading" />
 
 @code {
@@ -158,12 +202,18 @@
 
     public CheckListRequest Request { get; set; } = new();
     public CheckListDetallesRequest DetalleAuxiliar { get; set; } = new();
+    public List<CheckListDetallesRequest> DetalleVisibles { get; set; } = new();
 
     public List<ListaRutaResponse> ListadoRutas { get; set; } = new();
     public List<ListaModeloResponse> ListadoModelos { get; set; } = new();
     public List<ListaTipoPmResponse> ListadoTipoPms { get; set; } = new();
-    
+
+    public string FiltroBusqueda { get; set; } = string.Empty;
     public bool isLoading { get; set; }
+    public int PaginaActual { get; set; } = 1;
+    public int ElementosPorPagina { get; set; } = 1; // Valor razonable para una tabla detallada
+    public int TotalPaginas { get; set; } = 1;
+    public int TotalElementos { get; set; } = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -174,9 +224,10 @@
         }
         else
         {
-            Request = new() { Detalles = new List<CheckListDetallesRequest>() }; // Inicializar detalles
-            DetalleAuxiliar = new();
-        }
+            Request = new() { Detalles = new List<CheckListDetallesRequest>() }; // Inicializar detalles            
+        }        
+        // Llamada inicial para mostrar la tabla completa (sin filtro)
+        AplicarFiltro();
     }  
 
     public async Task CargarCombos()
@@ -234,11 +285,10 @@
                                             {
                                                 Id = d.Id,
                                                 IdRuta = d.IdRuta,
+                                                Nombre = d.Nombre,
                                                 Status = d.Status
-                                            })
-                                        .Where(d => d.Status != "Eliminado")
+                                            })                                        
                                         .ToList();
-
             }
             else
             {
@@ -254,48 +304,7 @@
         {
             isLoading = false;
         }
-    }
-
-    private string GetRutaDesc(int idRuta)
-    {
-        return ListadoRutas.FirstOrDefault(r => r.Id == idRuta)?.Nombre ?? "Ruta sin nombre";
-    }
-
-    public void OnAdicionarDetalle()
-    {
-        if(DetalleAuxiliar.IdRuta == 0)
-        {
-            toastService.ShowWarning("Debe seleccionar una Ruta.");
-            return;
-        }
-        if(Request.Detalles.Any(d => d.IdRuta == DetalleAuxiliar.IdRuta))
-        {
-            toastService.ShowWarning("Esta Ruta ya fue agregada.");
-            return;
-        }
-
-        //Creamos el registro u objeto en el detalle
-        var nuevoDetalle = new CheckListDetallesRequest
-            {
-                Id = 0,
-                IdRuta = DetalleAuxiliar.IdRuta,
-                Status = "Activo"
-            };
-        Request.Detalles.Add(nuevoDetalle);
-        DetalleAuxiliar = new();
-    }
-
-    public void OnQuitarDetalle(CheckListDetallesRequest detalle)
-    {
-        if(detalle.Id == 0)
-        {
-            Request.Detalles.Remove(detalle); //Si id=0, nunca se ha guardado en la BD
-        }
-        else
-        {
-            Request.Detalles.Remove(detalle); //Usamos el mismo metodo, porque en el servicio implementamos una comparacion de la lista
-        }
-    }
+    }        
 
     public async Task OnGuardar()
     {
@@ -309,7 +318,7 @@
         try
         {
             BaseResponse response;
-            if(Request.Id == 0)
+            if (Request.Id == 0)
             {
                 response = await checkListProxy.Registrar(Request);
             }
@@ -330,7 +339,7 @@
         }
         catch (Exception ex)
         {
-            toastService.ShowError($"Error de comunicación: {ex.Message}");            
+            toastService.ShowError($"Error de comunicación: {ex.Message}");
         }
         finally
         {
@@ -338,8 +347,106 @@
         }
     }
 
+    public void AplicarFiltro(int paginaSolicitada = -1)
+    {
+        // Si la llamada viene del paginador (y es válida), la usamos.
+        if (paginaSolicitada > 0)
+        {
+            PaginaActual = paginaSolicitada;
+        }
+        // Si viene de OnBuscar o OnAdicionar, se mantiene PaginaActual, que se reajusta abajo.
+
+        IEnumerable<CheckListDetallesRequest> resultados = Request.Detalles;
+        if (!string.IsNullOrWhiteSpace(FiltroBusqueda))
+        {
+            resultados = resultados.Where(d => d.Nombre.Contains(FiltroBusqueda, StringComparison.OrdinalIgnoreCase)).ToList();            
+        }        
+
+        TotalElementos = resultados.Count();
+        TotalPaginas = (int)Math.Ceiling((double)TotalElementos / ElementosPorPagina);
+
+        // Aseguramos que la página actual sea válida
+        PaginaActual = Math.Max(1, Math.Min(paginaSolicitada, TotalPaginas));
+        if (TotalElementos == 0) PaginaActual = 1;
+
+        // 3. PAGINACIÓN LOCAL (Skip y Take)
+        DetalleVisibles = resultados
+            .Skip((PaginaActual - 1) * ElementosPorPagina)
+            .Take(ElementosPorPagina)
+            .ToList();
+
+        StateHasChanged();
+    }
+
+    public void OnAdicionarDetalle()
+    {
+        if(DetalleAuxiliar.IdRuta == 0)
+        {
+            toastService.ShowWarning("Debe seleccionar una Ruta.");
+            return;
+        }
+        if(Request.Detalles.Any(d => d.IdRuta == DetalleAuxiliar.IdRuta))
+        {
+            toastService.ShowWarning("Esta Ruta ya fue agregada.");
+            return;
+        }
+
+        var rutaSeleccionada = ListadoRutas.FirstOrDefault(r => r.Id == DetalleAuxiliar.IdRuta);
+        //Creamos el registro u objeto en el detalle
+        var nuevoDetalle = new CheckListDetallesRequest
+            {
+                Id = 0,
+                IdRuta = DetalleAuxiliar.IdRuta,                
+                Nombre = rutaSeleccionada?.Nombre ?? "Sin Nombre",
+                Status = "Activo"
+            };
+        Request.Detalles.Add(nuevoDetalle);
+        DetalleAuxiliar = new();
+        AplicarFiltro(); //Invoco al metodo para refrescar la tabla
+    }
+
+    public void OnQuitarDetalle(CheckListDetallesRequest detalle)
+    {
+        var detalleAGuardar = Request.Detalles.FirstOrDefault(d => d.IdRuta == detalle.IdRuta);
+        if (detalleAGuardar != null)
+        {
+            if(detalleAGuardar.Id == 0)
+            {
+                Request.Detalles.Remove(detalleAGuardar);
+                //toastService.ShowInfo($"Ruta {detalleAGuardar.IdRuta} removida temporalmente.");
+            }
+            else
+            {
+                toastService.ShowWarning("No puede quitar un detalle ya guardado. Use la acción Activar/Inactivar.");
+            }            
+        }
+        AplicarFiltro();  //Invoco al metodo para refrescar la tabla
+    } 
+
+    public void OnChangeDetailStatus(CheckListDetallesRequest detalle)
+    {        
+        var detalleACambiar = Request.Detalles.FirstOrDefault(d => d.IdRuta == detalle.IdRuta);       
+        if (detalleACambiar != null)
+        {
+            detalleACambiar.Status = detalle.Status == "Activo" ? "Inactivo" : "Activo";
+            detalle.Status = detalleACambiar.Status;
+        }
+        AplicarFiltro();  //Invoco al metodo para refrescar la tabla
+    }
+
+    public void OnBuscar()
+    {
+        AplicarFiltro();  //Invoco al metodo para refrescar la tabla
+    }
+
     public void OnCancelar()
     {
         Navegador.NavigateTo(Routes.ListaCheckList);
+    }
+
+    public void HandlePageChange(int nuevaPagina)
+    {
+        // Llama al método de filtrado/paginación con la nueva página solicitada
+        AplicarFiltro(nuevaPagina);
     }
 }

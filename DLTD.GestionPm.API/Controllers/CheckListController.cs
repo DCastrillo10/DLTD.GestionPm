@@ -46,12 +46,14 @@ namespace DLTD.GestionPm.API.Controllers
             var response = await _service.FindByIdAsync(id);
             return response.IsSuccess ? Ok(response) : BadRequest(response);
         }
-
+        
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var response = await _service.DeleteAsync(id);
             return response.IsSuccess ? Ok(response) : BadRequest(response);
-        }
+        }   
+
+        
     }
 }

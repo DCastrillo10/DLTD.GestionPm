@@ -15,6 +15,9 @@ namespace DLTD.GestionPm.Dto.Request.CheckList
         [Range(1, int.MaxValue, ErrorMessage = Constantes.ErrorSelect)]
         public int IdRuta { get; set; }
 
+        public string Descripcion { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+
         public string Status { get; set; } = "Activo";
     }
 }

@@ -18,11 +18,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
     public class CheckListService : ICheckListService
     {
         private readonly ICheckListRepository _repository;
+        
         private readonly ILogger<CheckListService> _logger;
 
         public CheckListService(ICheckListRepository repository, ILogger<CheckListService> logger)
         {            
-            _repository = repository;
+            _repository = repository;            
             _logger = logger;
         }
 
@@ -33,6 +34,9 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             try
             {
                 var nuevoMasterDetail = request.Adapt<PmcheckList>();
+                nuevoMasterDetail.PmcheckListDetalles = request.Detalles
+                                                        .Select(d => d.Adapt<PmcheckListDetalle>())
+                                                        .ToList();
                 await _repository.AddMasterDetailsAsync(nuevoMasterDetail);
                 response.IsSuccess = true;
                 response.Message = "CheckList registrada exitosamente.";
@@ -53,8 +57,17 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                 var checkList = await _repository.FindByIdWithDetailAsync(id);
                 if (checkList == null) throw new InvalidDataException("Checklist no encontrada.");
 
+                var masterDetails = checkList.Adapt<CheckListResponse>();
+                if(checkList.PmcheckListDetalles != null)
+                {
+                    masterDetails.Detalles = checkList.PmcheckListDetalles
+                                 .Where(d => d.Status != "Eliminado")
+                                 .Select(d => MapearDetalleConRutas(d))
+                                 .ToList();                   
+
+                }
                 response.IsSuccess = true;
-                response.Result = checkList.Adapt<CheckListResponse>();
+                response.Result = masterDetails;
             }
             catch (InvalidDataException ex)
             {
@@ -93,23 +106,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                         page: request.Page,
                         rows: request.Rows,
                         orderBy: p => p.Id
-                    );
-
-                //var result = await _repository.ListAsync(
-                //        predicate: p => p.Status != "Eliminado" &&
-                //                        (string.IsNullOrEmpty(request.Filter) ||
-                //                        p.Descripcion!.Contains(request.Filter) ||                                        
-                //                        p.Status.Contains(request.Filter)),
-                //        selector: p => new ListaCheckListResponse
-                //        {
-                //            Id = p.Id,
-                //            Descripcion = p.Descripcion ?? "",                            
-                //            Status = p.Status ?? ""
-                //        },
-                //        page: request.Page,
-                //        rows: request.Rows,
-                //        orderBy: p => p.Id
-                //    );
+                    );                
 
                 response.IsSuccess = true;
                 response.Result = result.Result;
@@ -151,45 +148,8 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                 _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
             }
             return response;
-        }
+        }        
 
-        private void ActualizarDetalles(PmcheckList masterExistente, List<CheckListDetallesRequest> nuevoDetalles)
-        {
-            //Manejo de Eliminados
-
-            // Lista de IDs de los registros del detalle que el cliente NOS ENVIÓ
-            var idsRequest = nuevoDetalles.Where(d => d.Id>0).Select(d => d.Id).ToList();
-            // Recorrer los registros que actualmente tiene la entidad (los que cargó el FindByIdWithDetailAsync)
-            foreach (var detalleExistente in masterExistente.PmcheckListDetalles.ToList())
-            {
-                // Si el registro del detalle cliente NO está en la lista de IDs del Request, fue eliminado por el usuario.
-                if (!idsRequest.Contains(detalleExistente.Id))
-                {
-                    detalleExistente.Status = "Eliminado";
-                    //masterExistente.PmcheckListDetalles.Remove(detalleExistente);
-                }
-            }
-
-            //Manejo de Agregados y modificados
-            foreach (var detalleRequest in nuevoDetalles)
-            {
-                if (detalleRequest.Id == 0)
-                {
-                    var nuevoDetalle = detalleRequest.Adapt<PmcheckListDetalle>();
-                    //Añadir a la colección rastreada. EF Core le asignará el FK IdPmCheckList y el estado 'Added'.
-                    masterExistente.PmcheckListDetalles.Add(nuevoDetalle); 
-                }
-                else
-                {
-                    var detalleModificar = masterExistente.PmcheckListDetalles.FirstOrDefault(d => d.Id == detalleRequest.Id);
-                    if (detalleModificar != null)
-                    {
-                        detalleRequest.Adapt(detalleModificar);                        
-                    }
-                }
-            }
-
-        }
         public async Task<BaseResponse> DeleteAsync(int id)
         {
             var response = new BaseResponse();
@@ -219,6 +179,57 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                 response.Message = "Hubo un error al eliminar el Checklist.";
                 _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
             }
+            return response;
+        }        
+
+        private void ActualizarDetalles(PmcheckList masterExistente, List<CheckListDetallesRequest> nuevoDetalles)
+        {
+            //Manejo de Eliminados
+
+            // Lista de IDs de los registros del detalle que el cliente NOS ENVIÓ
+            var idsRequest = nuevoDetalles.Where(d => d.Id > 0).Select(d => d.Id).ToList();
+            // Recorrer los registros que actualmente tiene la entidad (los que cargó el FindByIdWithDetailAsync)
+            foreach (var detalleExistente in masterExistente.PmcheckListDetalles.ToList())
+            {
+                // Si el registro del detalle cliente NO está en la lista de IDs del Request, fue eliminado por el usuario.
+                if (!idsRequest.Contains(detalleExistente.Id))
+                {
+                    detalleExistente.Status = "Eliminado";
+                    //masterExistente.PmcheckListDetalles.Remove(detalleExistente);
+                }
+            }
+
+            //Manejo de Agregados y modificados
+            foreach (var detalleRequest in nuevoDetalles)
+            {
+                if (detalleRequest.Id == 0)
+                {
+                    var nuevoDetalle = detalleRequest.Adapt<PmcheckListDetalle>();
+                    //Añadir a la colección rastreada. EF Core le asignará el FK IdPmCheckList y el estado 'Added'.
+                    masterExistente.PmcheckListDetalles.Add(nuevoDetalle);
+                }
+                else
+                {
+                    var detalleModificar = masterExistente.PmcheckListDetalles.FirstOrDefault(d => d.Id == detalleRequest.Id);
+                    if (detalleModificar != null)
+                    {
+                        detalleRequest.Adapt(detalleModificar);
+                    }
+                }
+            }
+
+        }
+
+        private CheckListDetallesResponse MapearDetalleConRutas(PmcheckListDetalle entity)
+        {
+            // 1. Mapeo automático de campos 1:1 con Mapster
+            var response = entity.Adapt<CheckListDetallesResponse>();            
+            if (entity.IdRutaNavigation != null)
+            {                
+                response.Nombre = entity.IdRutaNavigation.Nombre;
+            }
+            //Aqui puedo colocar otras propiedades de navegacion
+            
             return response;
         }
     }

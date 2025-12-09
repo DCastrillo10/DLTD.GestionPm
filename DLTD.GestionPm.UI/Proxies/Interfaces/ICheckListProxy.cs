@@ -11,6 +11,6 @@ namespace DLTD.GestionPm.UI.Proxies.Interfaces
         Task<BaseResponse> Actualizar(int id, CheckListRequest request);        
         Task<BaseResponse<CheckListResponse>> ObtenerPorId(int id);
         Task<PaginationResponse<ListaCheckListResponse>> Listar(PaginationRequest request);        
-        Task<BaseResponse> Eliminar(int id);
+        Task<BaseResponse> Eliminar(int id);        
     }
 }

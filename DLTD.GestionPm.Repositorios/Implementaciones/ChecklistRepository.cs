@@ -20,6 +20,7 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
         {
             var master = await _contexto.PmcheckLists
                                .Include(p => p.PmcheckListDetalles)
+                               .ThenInclude(d => d.IdRutaNavigation)
                                .FirstAsync(p => p.Id == id);
             return master;
         }

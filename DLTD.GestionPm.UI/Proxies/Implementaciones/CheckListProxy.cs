@@ -15,12 +15,11 @@ namespace DLTD.GestionPm.UI.Proxies.Implementaciones
         {
             _httpClient = httpClient;
         }
-
+        
         public async Task<PaginationResponse<ListaCheckListResponse>> Listar(PaginationRequest request)
         {
             return await _httpClient.GetFromJsonAsync<PaginationResponse<ListaCheckListResponse>>($"api/CheckList/Pagination?Filter={request.Filter}&Page={request.Page}&Rows={request.Rows}") ?? new();
         }
-
         public async Task<BaseResponse<CheckListResponse>> ObtenerPorId(int id)
         {
             return await _httpClient.GetFromJsonAsync<BaseResponse<CheckListResponse>>($"api/CheckList/{id}") ?? new();
@@ -50,7 +49,8 @@ namespace DLTD.GestionPm.UI.Proxies.Implementaciones
 
         public async Task<BaseResponse> Eliminar(int id)
         {
-            return await _httpClient.DeleteFromJsonAsync<BaseResponse>($"api/CheckList/{id}") ?? new();
-        }
+            return await _httpClient.DeleteFromJsonAsync<BaseResponse>($"api/CheckList/{id}") ?? new();        }
+
+        
     }
 }

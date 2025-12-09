@@ -14,8 +14,9 @@ namespace DLTD.GestionPm.Negocios.Interfaces
     {
         Task<BaseResponse> AddMasterDetailsAsync(CheckListRequest request);
         Task<BaseResponse> UpdateMasterDetailsAsync(int id, CheckListRequest request);
-        Task<PaginationResponse<ListaCheckListResponse>> ListaAsync(PaginationRequest request);
+        Task<PaginationResponse<ListaCheckListResponse>> ListaAsync(PaginationRequest request);        
         Task<BaseResponse<CheckListResponse>> FindByIdAsync(int id);
         Task<BaseResponse> DeleteAsync(int id);
+        
     }
 }
