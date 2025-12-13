@@ -25,7 +25,7 @@ public partial class Tecnico : EntidadBase
     public string? Especialidad { get; set; }
 
 
-    public virtual ICollection<PmtareaActividad> PmtareaActividads { get; set; } = new List<PmtareaActividad>();
+    
 
     public virtual ICollection<PmtareaDemora> PmtareaDemoras { get; set; } = new List<PmtareaDemora>();
 

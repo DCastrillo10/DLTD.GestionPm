@@ -30,9 +30,7 @@ public partial class GestionPmBdContext : DbContext
 
     public virtual DbSet<PmcheckListDetalle> PmcheckListDetalles { get; set; }
 
-    public virtual DbSet<Pmdetalle> Pmdetalles { get; set; }
-
-    public virtual DbSet<PmtareaActividad> PmtareaActividads { get; set; }
+    public virtual DbSet<Pmdetalle> PmDetalles { get; set; }
 
     public virtual DbSet<PmtareaDemora> PmtareaDemoras { get; set; }
 
@@ -55,7 +53,7 @@ public partial class GestionPmBdContext : DbContext
     public virtual DbSet<TipoHallazgo> TipoHallazgos { get; set; }
 
     public virtual DbSet<TipoPm> TipoPms { get; set; }
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Horometro>(entity =>
@@ -289,7 +287,7 @@ public partial class GestionPmBdContext : DbContext
             entity.Property(e => e.Valor2).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Valor3).HasColumnType("decimal(10, 2)");
 
-            entity.HasOne(d => d.IdPmNavigation).WithMany(p => p.Pmdetalles)
+            entity.HasOne(d => d.IdPmNavigation).WithMany(p => p.PmDetalles)
                 .HasForeignKey(d => d.IdPm)
                 .HasConstraintName("PMDetalles_PM_FK");
 
@@ -297,45 +295,6 @@ public partial class GestionPmBdContext : DbContext
                 .HasForeignKey(d => d.IdTarea)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("PMDetalles_Tareas_FK");
-        });
-
-        modelBuilder.Entity<PmtareaActividad>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PMTareaActividad_PK");
-
-            entity.ToTable("PMTareaActividad");
-
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.DuracionActividad)
-                .HasColumnType("decimal(6, 2)")
-                .HasColumnName("Duracion_Actividad");
-            entity.Property(e => e.FechaFinalActividad)
-                .HasPrecision(0)
-                .HasColumnName("FechaFinal_Actividad");
-            entity.Property(e => e.FechaInicialActividad)
-                .HasPrecision(0)
-                .HasColumnName("FechaInicial_Actividad");
-            entity.Property(e => e.FechaRegistro).HasPrecision(0);
-            entity.Property(e => e.Status)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.IdPmDetalleNavigation).WithMany(p => p.PmtareaActividads)
-                .HasForeignKey(d => d.IdPmDetalle)
-                .HasConstraintName("PMTareaActividad_PMDetalles_FK");
-
-            entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmtareaActividads)
-                .HasForeignKey(d => d.IdTecnico)
-                .HasConstraintName("PMTareaActividad_Tecnicos_FK");
-
-            entity.HasOne(d => d.IdTipoActividadNavigation).WithMany(p => p.PmtareaActividads)
-                .HasForeignKey(d => d.IdTipoActividad)
-                .HasConstraintName("PMTareaActividad_TipoActividad_FK");
         });
 
         modelBuilder.Entity<PmtareaDemora>(entity =>
@@ -416,6 +375,7 @@ public partial class GestionPmBdContext : DbContext
 
             entity.ToTable("PMTareaTecnico");
 
+            entity.Property(e => e.Descripcion).HasMaxLength(1000);
             entity.Property(e => e.DuracionAsignacion).HasColumnType("decimal(6, 2)");
             entity.Property(e => e.FechaFinalAsignacion).HasPrecision(0);
             entity.Property(e => e.FechaInicialAsignacion).HasPrecision(0);
@@ -434,6 +394,10 @@ public partial class GestionPmBdContext : DbContext
             entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmtareaTecnicos)
                 .HasForeignKey(d => d.IdTecnico)
                 .HasConstraintName("PMTareaTecnico_Tecnicos_FK");
+
+            entity.HasOne(d => d.IdTipoActividadNavigation).WithMany(p => p.PmtareaTecnicos)
+                .HasForeignKey(d => d.IdTipoActividad)
+                .HasConstraintName("PMTareaTecnico_TipoActividad_FK");
         });
 
         modelBuilder.Entity<PmtecnicoTurno>(entity =>
@@ -442,6 +406,7 @@ public partial class GestionPmBdContext : DbContext
 
             entity.ToTable("PMTecnicoTurno");
 
+            entity.Property(e => e.Descripcion).HasMaxLength(1000);
             entity.Property(e => e.DuracionTurno)
                 .HasColumnType("decimal(6, 2)")
                 .HasColumnName("Duracion_Turno");
@@ -563,7 +528,8 @@ public partial class GestionPmBdContext : DbContext
 
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(false)
+                .HasComment("Iniciar Turno,\r\nReanudar Turno,\r\nFinalizar Turno");
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
             entity.Property(e => e.Nombre)
                 .HasMaxLength(100)

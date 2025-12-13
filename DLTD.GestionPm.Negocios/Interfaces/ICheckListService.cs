@@ -17,6 +17,8 @@ namespace DLTD.GestionPm.Negocios.Interfaces
         Task<PaginationResponse<ListaCheckListResponse>> ListaAsync(PaginationRequest request);        
         Task<BaseResponse<CheckListResponse>> FindByIdAsync(int id);
         Task<BaseResponse> DeleteAsync(int id);
-        
+        Task<BaseResponse<bool>> ExisteChecklist(int idTipopm, int idModelo);
+
+
     }
 }

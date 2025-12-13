@@ -17,5 +17,7 @@ namespace DLTD.GestionPm.Negocios.Interfaces
         Task<BaseResponse<MaquinaResponse>> FindByIdAsync(int id);
         Task<PaginationResponse<ListaMaquinaResponse>> ListaAsync(PaginationRequest request);
         Task<BaseResponse<MaquinaResponse>> DeleteAsync(int id);
+
+        Task<BaseResponse<MaquinaResponse>> FindMaquinaByNoEquipo(string NoEquipo);
     }
 }

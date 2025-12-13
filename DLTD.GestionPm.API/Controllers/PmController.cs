@@ -1,5 +1,5 @@
 ﻿using DLTD.GestionPm.Dto.Request;
-using DLTD.GestionPm.Dto.Request.Maquina;
+using DLTD.GestionPm.Dto.Request.Pm;
 using DLTD.GestionPm.Negocios.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,26 +10,26 @@ namespace DLTD.GestionPm.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class MaquinaController : ControllerBase
+    public class PmController : ControllerBase
     {
-        private readonly IMaquinaService _service;
+        private readonly IPmService _service;
 
-        public MaquinaController(IMaquinaService service)
+        public PmController(IPmService service)
         {
             _service = service;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] MaquinaRequest request)
+        public async Task<IActionResult> Post([FromBody] PmRequest request)
         {
-            var response = await _service.AddAsync(request);
+            var response = await _service.AddMasterDetailsAsync(request);
             return response.IsSuccess ? Ok(response) : BadRequest(response);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Put(int id, [FromBody] MaquinaRequest request)
+        public async Task<IActionResult> Put(int id, [FromBody] PmRequest request)
         {
-            var response = await _service.UpdateAsync(id,request);
+            var response = await _service.UpdateMasterDetailsAsync(id, request);
             return response.IsSuccess ? Ok(response) : BadRequest(response);
         }
 
@@ -47,18 +47,27 @@ namespace DLTD.GestionPm.API.Controllers
             return response.IsSuccess ? Ok(response) : BadRequest(response);
         }
 
+        [HttpGet("existe")]
+        public async Task<IActionResult> Get([FromQuery] int idTipopm, [FromQuery] int idModelo, [FromQuery] string NoEquipo, [FromQuery] string WorkOrder)
+        {
+            var response = await _service.ExistePm(idTipopm, idModelo, NoEquipo, WorkOrder);
+            return response.IsSuccess ? Ok(response) : BadRequest(response);
+        }
+
+        [HttpGet("tareas")]
+        public async Task<IActionResult> Get(int idTipoPm, int idModelo)
+        {
+            var response = await _service.FindTareas(idTipoPm, idModelo);
+            return response.IsSuccess ? Ok(response) : BadRequest(response);
+        }
+
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var response = await _service.DeleteAsync(id);
             return response.IsSuccess ? Ok(response) : BadRequest(response);
-        }
+        }   
 
-        [HttpGet("NoEquipo")]
-        public async Task<IActionResult> Get(string noEquipo)
-        {
-            var response = await _service.FindMaquinaByNoEquipo(noEquipo);
-            return response.IsSuccess ? Ok(response) : BadRequest(response);
-        }
+        
     }
 }

@@ -13,5 +13,7 @@ namespace DLTD.GestionPm.Repositorios.Interfaces
         Task AddMasterDetailsAsync(PmcheckList master);
 
         Task<PmcheckList?> FindByIdWithDetailAsync(int id);
+
+        Task<bool> FindCheckList(int idTipopm, int idModelo);
     }
 }

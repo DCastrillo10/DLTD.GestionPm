@@ -11,6 +11,7 @@ namespace DLTD.GestionPm.Dto.Response.TipoDemora
         public int Id { get; set; }
         public string Descripcion { get; set; } = default!;
         public string Nombre { get; set; } = default!;
+        public bool? AplicaDetencion { get; set; }
         public string Status { get; set; } = default!;
     }
 }

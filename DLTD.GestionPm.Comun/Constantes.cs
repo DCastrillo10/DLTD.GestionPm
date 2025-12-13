@@ -9,6 +9,6 @@ namespace DLTD.GestionPm.Comun
     public static class Constantes
     {
         public const string ErrorMessage = "El campo {0} es obligatorio";
-        public const string ErrorSelect = "Seleccione un registro valido";
+        public const string ErrorSelect = "Seleccione un {0} valido";
     }
 }

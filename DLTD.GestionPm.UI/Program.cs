@@ -27,6 +27,7 @@ builder.Services.AddScoped<ITipoDemoraProxy, TipoDemoraProxy>();
 builder.Services.AddScoped<ITipoHallazgoProxy, TipoHallazgoProxy>();
 builder.Services.AddScoped<ITipoPmProxy, TipoPmProxy>();
 builder.Services.AddScoped<ICheckListProxy, CheckListProxy>();
+builder.Services.AddScoped<IPmProxy, PmProxy>();
 
 builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddSweetAlert2();

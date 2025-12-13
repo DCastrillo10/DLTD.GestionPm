@@ -49,8 +49,15 @@ namespace DLTD.GestionPm.UI.Proxies.Implementaciones
 
         public async Task<BaseResponse> Eliminar(int id)
         {
-            return await _httpClient.DeleteFromJsonAsync<BaseResponse>($"api/CheckList/{id}") ?? new();        }
+            return await _httpClient.DeleteFromJsonAsync<BaseResponse>($"api/CheckList/{id}") ?? new();        
+        }
 
+        public async Task<BaseResponse<bool>> ExisteCheckListAsync(int idTipoPm, int idModelo)
+        {
+            string url = $"api/CheckList/existe?idTipoPm={idTipoPm}&idModelo={idModelo}";
+
+            return await _httpClient.GetFromJsonAsync<BaseResponse<bool>>(url) ?? new();
         
+        }
     }
 }

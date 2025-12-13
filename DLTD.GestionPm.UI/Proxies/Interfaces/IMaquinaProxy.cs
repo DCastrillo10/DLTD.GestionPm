@@ -12,5 +12,6 @@ namespace DLTD.GestionPm.UI.Proxies.Interfaces
         Task<BaseResponse> Registrar(MaquinaRequest request);
         Task<BaseResponse> Actualizar(int id, MaquinaRequest request);
         Task<BaseResponse> Eliminar(int id);
+        Task<BaseResponse<MaquinaResponse>> ObtenerPorNoEquipo(string noEquipo);
     }
 }

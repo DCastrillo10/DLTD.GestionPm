@@ -34,6 +34,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse();
             try
             {
+                request.AplicaDetencion ??= false;
                 var nuevo = request.Adapt<TipoDemora>();
                 await _repository.AddAsync(nuevo);
                 response.IsSuccess = true;
@@ -128,6 +129,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                             Id = p.Id,
                             Nombre = p.Nombre,
                             Descripcion = p.Descripcion,
+                            AplicaDetencion = p.AplicaDetencion,
                             Status = p.Status
                         },
                         page: request.Page,

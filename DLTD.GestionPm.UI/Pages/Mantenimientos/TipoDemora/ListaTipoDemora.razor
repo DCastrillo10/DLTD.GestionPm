@@ -18,7 +18,7 @@
             <div class="uk-width-2-3@s">
                 <div class="uk-grid-small uk-flex-middle" uk-grid>                    
                     <div class="uk-width-expand">
-                        <input class="uk-input uk-form-small" placeholder="Buscar por nombre o descripción..." @bind="Request.Filter" />
+                        <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="Buscar por nombre o descripción..." @bind="Request.Filter" />
                     </div>                    
                     <div>
                         <button class="uk-button uk-button-default uk-button-small" @onclick="Listar">
@@ -54,6 +54,7 @@
                 <th>Id</th>
                 <th>Nombre</th>
                 <th>Descripción</th>
+                <th>Aplica Detencion</th>
                 <th>Status</th>
                 <th>Acciones</th>
             </tr>
@@ -65,6 +66,7 @@
                     <td>@item.Id</td>
                     <td>@item.Nombre</td>
                     <td>@item.Descripcion</td>
+                    <td>@((item.AplicaDetencion ?? false) ? "Sí" : "No")</td>
                     <td>@item.Status</td>
                     <td class="uk-text-center">
 
@@ -147,6 +149,7 @@
         RequestTipoDemora.Id = item.Id;
         RequestTipoDemora.Nombre = item.Nombre;
         RequestTipoDemora.Descripcion = item.Descripcion;
+        RequestTipoDemora.AplicaDetencion = item.AplicaDetencion;
         RequestTipoDemora.Status = item.Status;
         await ModalTipoDemoras.ShowAsync();
     }

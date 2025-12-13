@@ -23,6 +23,7 @@ public partial class PmtecnicoTurno : EntidadBase
    
 
     public decimal? DuracionTurno { get; set; }
+    public string? Descripcion { get; set; }
 
     public virtual Pm IdPmNavigation { get; set; } = null!;
 

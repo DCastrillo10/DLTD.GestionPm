@@ -53,5 +53,10 @@ namespace DLTD.GestionPm.UI.Proxies.Implementaciones
         {
             return await _httpClient.DeleteFromJsonAsync<BaseResponse>($"api/Maquina/{id}") ?? new();
         }
+
+        public async Task<BaseResponse<MaquinaResponse>> ObtenerPorNoEquipo(string noEquipo)
+        {
+            return await _httpClient.GetFromJsonAsync<BaseResponse<MaquinaResponse>>($"api/Maquina/NoEquipo?noEquipo={noEquipo}") ?? new();
+        }
     }
 }

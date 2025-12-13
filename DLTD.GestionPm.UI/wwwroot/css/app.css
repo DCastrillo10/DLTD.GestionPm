@@ -191,6 +191,27 @@ body, h1, h2, h3, h4, h5, h6, p, label, span, a {
     color: #fff !important;
 }
 
+.uk-input-borde-fijo {
+    border: 1px solid #e5e5e5 !important; /* El gris claro de UIkit */
+}
+
+.pm-checkbox-small {
+    transform: scale(0.6);
+    margin: 0; /* Opcional: Centrarlo o quitar márgenes molestos */
+    display: block;
+}
+
+/* --- tamaños textarea --- */
+.textarea-minima {
+    min-height: 65px !important; /* Ajusta este valor (ej. 35px) */
+    padding-top: 5px !important; /* Ajusta el relleno superior */
+    padding-bottom: 5px !important; /* Ajusta el relleno inferior */
+    box-sizing: border-box;
+    border: 1px solid #e5e5e5 !important; /* Color gris claro de UIkit */
+    border-radius: 5px !important; /* Bordes redondeados */
+    background-color: #fff !important;
+}
+
 /* Fondo gris tenue general para todas las páginas */
 .page-content {
     background-color: #eae9e9; /* Gris muy suave */
@@ -353,9 +374,9 @@ header .container {
 
 /* 🔧 Ajustar formularios de página (como Técnicos) */
 .page-content .uk-width-2-3\@m {
-    width: 90% !important;  antes era 66%, ahora más ancho 
-    max-width: 1200px;  evita que se extienda demasiado en pantallas grandes 
-    margin: 0 auto !important;  centrado horizontal 
+    width: 90% !important;  /*antes era 66%, ahora más ancho */
+    max-width: 1200px;  /*evita que se extienda demasiado en pantallas grandes */
+    margin: 0 auto !important;  /*centrado horizontal */
 }
 
 /* Opcional: reducir el padding interno del card */
@@ -439,9 +460,9 @@ header .container {
 }
 
 .groupbox-container.uk-card-body {
-    padding: 8px 14px !important;
+    padding: 8px 14px 2px 14px !important;
 }
-
+    
 /* --- Tabla compacta (GENÉRICA para todos los mantenimientos) --- */
 .tabla-container {
     margin-top: 18px !important;
@@ -473,9 +494,10 @@ header .container {
 
 /* Filas compactas genéricas */
 .tabla-compacta td {
-    padding: 6px 6px !important; /* antes era 4px 0 */
+    padding: 4px 4px !important; /* Ejemplo: 3px vertical, 5px horizontal */
     vertical-align: middle;
     color: #000;
+    
 }
 
     /* Centrar primera columna en TODAS las tablas reutilizables */

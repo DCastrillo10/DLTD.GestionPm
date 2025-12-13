@@ -46,7 +46,14 @@ namespace DLTD.GestionPm.API.Controllers
             var response = await _service.FindByIdAsync(id);
             return response.IsSuccess ? Ok(response) : BadRequest(response);
         }
-        
+
+        [HttpGet("existe")]
+        public async Task<IActionResult> Get([FromQuery] int idTipopm, [FromQuery] int idModelo)
+        {
+            var response = await _service.ExisteChecklist(idTipopm, idModelo);
+            return response.IsSuccess ? Ok(response) : BadRequest(response);
+        }
+
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

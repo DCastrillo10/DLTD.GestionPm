@@ -17,6 +17,7 @@ namespace DLTD.GestionPm.Dto.Request.TipoDemora
 
         [Required(ErrorMessage = Constantes.ErrorMessage)]
         public string Nombre { get; set; } = default!;
+        public bool? AplicaDetencion { get; set; } = false;
 
         public string Status { get; set; } = "Activo";
     }

@@ -35,7 +35,7 @@ public partial class Pm : EntidadBase
 
     public virtual TipoPm IdTipoPmNavigation { get; set; } = null!;
 
-    public virtual ICollection<Pmdetalle> Pmdetalles { get; set; } = new List<Pmdetalle>();
+    public virtual ICollection<Pmdetalle> PmDetalles { get; set; } = new List<Pmdetalle>();
 
     public virtual ICollection<PmtecnicoTurno> PmtecnicoTurnos { get; set; } = new List<PmtecnicoTurno>();
 }

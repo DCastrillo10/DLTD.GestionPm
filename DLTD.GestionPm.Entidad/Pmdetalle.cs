@@ -53,9 +53,7 @@ public partial class Pmdetalle : EntidadBase
 
     public virtual Pm IdPmNavigation { get; set; } = null!;
 
-    public virtual Tarea IdTareaNavigation { get; set; } = null!;
-
-    public virtual ICollection<PmtareaActividad> PmtareaActividads { get; set; } = new List<PmtareaActividad>();
+    public virtual Tarea IdTareaNavigation { get; set; } = null!;    
 
     public virtual ICollection<PmtareaDemora> PmtareaDemoras { get; set; } = new List<PmtareaDemora>();
 

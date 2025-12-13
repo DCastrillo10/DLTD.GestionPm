@@ -1,12 +1,13 @@
 ﻿using DLTD.GestionPm.Dto.Request;
-using DLTD.GestionPm.Dto.Request.CheckList;
+using DLTD.GestionPm.Dto.Request.Pm;
 using DLTD.GestionPm.Dto.Response;
-using DLTD.GestionPm.Dto.Response.CheckList;
+using DLTD.GestionPm.Dto.Response.Pm;
 using DLTD.GestionPm.Entidad;
 using DLTD.GestionPm.Negocios.Interfaces;
 using DLTD.GestionPm.Repositorios.Interfaces;
 using Mapster;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,52 +16,52 @@ using System.Threading.Tasks;
 
 namespace DLTD.GestionPm.Negocios.Implementaciones
 {
-    public class CheckListService : ICheckListService
+    public class PmService : IPmService
     {
-        private readonly ICheckListRepository _repository;
+        private readonly IPmRepository _repository;
         
-        private readonly ILogger<CheckListService> _logger;
+        private readonly ILogger<PmService> _logger;
 
-        public CheckListService(ICheckListRepository repository, ILogger<CheckListService> logger)
+        public PmService(IPmRepository repository, ILogger<PmService> logger)
         {            
             _repository = repository;            
             _logger = logger;
         }
 
 
-        public async Task<BaseResponse> AddMasterDetailsAsync(CheckListRequest request)
+        public async Task<BaseResponse> AddMasterDetailsAsync(PmRequest request)
         {
             var response = new BaseResponse();
             try
             {
-                var nuevoMasterDetail = request.Adapt<PmcheckList>();
-                nuevoMasterDetail.PmcheckListDetalles = request.Detalles
-                                                        .Select(d => d.Adapt<PmcheckListDetalle>())
+                var nuevoMasterDetail = request.Adapt<Pm>();
+                nuevoMasterDetail.PmDetalles = request.PmDetalles
+                                                        .Select(d => d.Adapt<Pmdetalle>())
                                                         .ToList();
                 await _repository.AddMasterDetailsAsync(nuevoMasterDetail);
                 response.IsSuccess = true;
-                response.Message = "CheckList registrada exitosamente.";
+                response.Message = "Pm registrada exitosamente.";
             }
             catch (Exception ex)
             {
-                response.Message = "Hubo un error al registrar el Checklist";
+                response.Message = "Hubo un error al registrar el Pm";
                 _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
             }
             return response;
         }        
 
-        public async Task<BaseResponse<CheckListResponse>> FindByIdAsync(int id)
+        public async Task<BaseResponse<PmResponse>> FindByIdAsync(int id)
         {
-            var response = new BaseResponse<CheckListResponse>();
+            var response = new BaseResponse<PmResponse>();
             try
             {
-                var checkList = await _repository.FindByIdWithDetailAsync(id);
-                if (checkList == null) throw new InvalidDataException("Checklist no encontrada.");
+                var Pm = await _repository.FindByIdWithDetailAsync(id);
+                if (Pm == null) throw new InvalidDataException("Pm no encontrada.");
 
-                var masterDetails = checkList.Adapt<CheckListResponse>();
-                if(checkList.PmcheckListDetalles != null)
+                var masterDetails = Pm.Adapt<PmResponse>();
+                if(Pm.PmDetalles != null)
                 {
-                    masterDetails.Detalles = checkList.PmcheckListDetalles
+                    masterDetails.PmDetalles = Pm.PmDetalles
                                  .Where(d => d.Status != "Eliminado")
                                  .Select(d => MapearDetalleConRutas(d))
                                  .ToList();                   
@@ -77,30 +78,39 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             }
             catch (Exception ex)
             {
-                response.Message = "Hubo un error al buscar el Checklist.";
+                response.Message = "Hubo un error al buscar el Pm.";
                 _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
             }
             return response;
         }
 
-        public async Task<PaginationResponse<ListaCheckListResponse>> ListaAsync(PaginationRequest request)
+        public async Task<PaginationResponse<ListaPmResponse>> ListaAsync(PaginationRequest request)
         {
-            var response = new PaginationResponse<ListaCheckListResponse>();
+            var response = new PaginationResponse<ListaPmResponse>();
             try
             {
                 var result = await _repository.ListAsync(
                         predicate: p => p.Status != "Eliminado" &&
                                         (string.IsNullOrEmpty(request.Filter) ||
-                                        p.Descripcion!.Contains(request.Filter) ||
+                                        p.NoEquipo!.Contains(request.Filter) ||
+                                        p.WorkOrder!.Contains(request.Filter) ||
                                         p.IdTipoPmNavigation.Nombre.Contains(request.Filter) ||
                                         p.IdModeloNavigation.Referencia.Contains(request.Filter) ||
                                         p.Status.Contains(request.Filter)),
-                        selector: p => new ListaCheckListResponse
+                        selector: p => new ListaPmResponse
                         {
-                            Id = p.Id,
-                            Descripcion = p.Descripcion ?? "",
+                            Id = p.Id,                             
                             TipoPm = p.IdTipoPmNavigation.Nombre ?? "",
                             Modelo = p.IdModeloNavigation.Referencia ?? "",
+                            WorkOrder = p.WorkOrder ?? "",
+                            NoEquipo = p.NoEquipo ?? "",
+                            NoHangar = p.NoHangar ?? "",
+                            Horometro = p.Horometro ?? 0,
+                            FechaInicialPm = p.FechaInicialPm,
+                            FechaFinalPm = p.FechaFinalPm,
+                            Duracion = p.Duracion ?? 0,
+                            StatusPm = p.StatusPm ?? "",
+                            Observacion = p.Observacion ?? "",
                             Status = p.Status ?? ""
                         },
                         page: request.Page,
@@ -115,26 +125,26 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             }
             catch (Exception ex)
             {
-                response.Message = "Hubo un error al listar los checklist.";
+                response.Message = "Hubo un error al listar los Pm.";
                 _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
             }
             return response;
         }
 
-        public async Task<BaseResponse> UpdateMasterDetailsAsync(int id, CheckListRequest request)
+        public async Task<BaseResponse> UpdateMasterDetailsAsync(int id, PmRequest request)
         {
             var response = new BaseResponse();
             try
             {
                 var masterExistente = await _repository.FindByIdWithDetailAsync(id);
-                if (masterExistente == null) throw new InvalidDataException("Checklist no encontrada.");
+                if (masterExistente == null) throw new InvalidDataException("Pm no encontrada.");
 
                 request.Adapt(masterExistente); //Mapear Cabecera: Actualizar las propiedades del Maestro
-                ActualizarDetalles(masterExistente, request.Detalles); //Actualizamos los detalles
+                ActualizarDetalles(masterExistente, request.PmDetalles); //Actualizamos los detalles
                 await _repository.UpdateAsync();
 
                 response.IsSuccess = true;
-                response.Message = "Checklist actualizado exitosamente.";
+                response.Message = "Pm actualizado exitosamente.";
             }
             catch (InvalidDataException ex)
             {
@@ -144,7 +154,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             }
             catch (Exception ex)
             {
-                response.Message = "Hubo un error al buscar el Checklist.";
+                response.Message = "Hubo un error al buscar el Pm.";
                 _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
             }
             return response;
@@ -155,18 +165,18 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse();
             try
             {
-                var checkList = await _repository.FindByIdWithDetailAsync(id);
-                if (checkList == null) throw new InvalidDataException("Checklist no encontrada.");
+                var Pm = await _repository.FindByIdWithDetailAsync(id);
+                if (Pm == null) throw new InvalidDataException("Pm no encontrada.");
 
-                checkList.Status = "Eliminado"; //Eliminar cabecera
-                foreach (var detalle in checkList.PmcheckListDetalles)
+                Pm.Status = "Eliminado"; //Eliminar cabecera
+                foreach (var detalle in Pm.PmDetalles)
                 {
                     detalle.Status = "Eliminado";
                 }
 
                 await _repository.UpdateAsync();
                 response.IsSuccess = true;
-                response.Message = "Checklist eliminado correctamente.";
+                response.Message = "Pm eliminado correctamente.";
             }
             catch (InvalidDataException ex)
             {
@@ -176,29 +186,29 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             }
             catch (Exception ex)
             {
-                response.Message = "Hubo un error al eliminar el Checklist.";
+                response.Message = "Hubo un error al eliminar el Pm.";
                 _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
             }
             return response;
         }
 
-        public async Task<BaseResponse<bool>> ExisteChecklist(int idTipopm, int idModelo)
+        public async Task<BaseResponse<bool>> ExistePm(int idTipopm, int idModelo, string NoEquipo, string WorkOrder)
         {
             var response = new BaseResponse<bool>();
             try
             {
-                var existe = await _repository.FindCheckList(idTipopm, idModelo);
+                var existe = await _repository.FindPm(idTipopm, idModelo, NoEquipo, WorkOrder);
                 if (existe)
                 {
                     response.IsSuccess = true;
                     response.Result = true;
-                    response.Message = "El checklist ya existe.";
+                    response.Message = "El Pm ya existe.";
                 }
                 else
                 {
                     response.IsSuccess = true;
                     response.Result = false;
-                    response.Message = "El checklist no existe.";
+                    response.Message = "El Pm no existe.";
                 }               
                 
             }
@@ -211,26 +221,68 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             catch (Exception ex)
             {
                 response.IsSuccess = false;
-                response.Message = "Hubo un error al verficar el Checklist.";
+                response.Message = "Hubo un error al verficar el Pm.";
                 _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
             }
             return response;
         }
 
-        private void ActualizarDetalles(PmcheckList masterExistente, List<CheckListDetallesRequest> nuevoDetalles)
+        public async Task<BaseResponse<IEnumerable<PmDetallesResponse>>> FindTareas(int idModelo, int idTipoPm)
+        {
+            var response = new BaseResponse<IEnumerable<PmDetallesResponse>>();
+            try
+            {
+                var tareas = await _repository.FindTareas(idModelo, idTipoPm);
+                if(tareas == null || !tareas.Any())
+                {
+                    response.IsSuccess = true;
+                    response.Message = "No hay tareas asociadas al tipo de PM y modelo";
+                    response.Result = Enumerable.Empty<PmDetallesResponse>();
+                    return response;
+                }
+                //Mapeamos las entidades de Dominio a los DTOs de Respuesta
+                response.Result = tareas.Select(t => new PmDetallesResponse
+                {
+                    IdTarea = t.Id,
+                    NomTarea = t.Descripcion,
+                    IdRuta = t.IdRuta,
+                    NomRuta = t.IdRutaNavigation.Nombre,
+                    Duracion =t.Duracion,
+                    NoTecnicos = t.NoTecnicos
+                }).ToList();
+
+                response.IsSuccess = true;
+                response.Message = "Tareas cargadas exitosamente";
+            }
+            catch (InvalidDataException ex)
+            {
+                response.Message = ex.Message;
+                _logger.LogWarning(ex, "{0}: {1}", response.Message, ex.Message);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = "Hubo un error al cargar las tareas.";
+                _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
+            }
+            return response;
+        }
+
+        private void ActualizarDetalles(Pm masterExistente, List<PmDetallesRequest> nuevoDetalles)
         {
             //Manejo de Eliminados
 
             // Lista de IDs de los registros del detalle que el cliente NOS ENVIÓ
             var idsRequest = nuevoDetalles.Where(d => d.Id > 0).Select(d => d.Id).ToList();
             // Recorrer los registros que actualmente tiene la entidad (los que cargó el FindByIdWithDetailAsync)
-            foreach (var detalleExistente in masterExistente.PmcheckListDetalles.ToList())
+            foreach (var detalleExistente in masterExistente.PmDetalles.ToList())
             {
                 // Si el registro del detalle cliente NO está en la lista de IDs del Request, fue eliminado por el usuario.
                 if (!idsRequest.Contains(detalleExistente.Id))
                 {
                     detalleExistente.Status = "Eliminado";
-                    //masterExistente.PmcheckListDetalles.Remove(detalleExistente);
+                    //masterExistente.PmPmDetalles.Remove(detalleExistente);
                 }
             }
 
@@ -239,13 +291,13 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             {
                 if (detalleRequest.Id == 0)
                 {
-                    var nuevoDetalle = detalleRequest.Adapt<PmcheckListDetalle>();
-                    //Añadir a la colección rastreada. EF Core le asignará el FK IdPmCheckList y el estado 'Added'.
-                    masterExistente.PmcheckListDetalles.Add(nuevoDetalle);
+                    var nuevoDetalle = detalleRequest.Adapt<Pmdetalle>();
+                    //Añadir a la colección rastreada. EF Core le asignará el FK IdPmPm y el estado 'Added'.
+                    masterExistente.PmDetalles.Add(nuevoDetalle);
                 }
                 else
                 {
-                    var detalleModificar = masterExistente.PmcheckListDetalles.FirstOrDefault(d => d.Id == detalleRequest.Id);
+                    var detalleModificar = masterExistente.PmDetalles.FirstOrDefault(d => d.Id == detalleRequest.Id);
                     if (detalleModificar != null)
                     {
                         detalleRequest.Adapt(detalleModificar);
@@ -255,17 +307,19 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
 
         }
 
-        private CheckListDetallesResponse MapearDetalleConRutas(PmcheckListDetalle entity)
+        private PmDetallesResponse MapearDetalleConRutas(Pmdetalle entity)
         {
             // 1. Mapeo automático de campos 1:1 con Mapster
-            var response = entity.Adapt<CheckListDetallesResponse>();            
-            if (entity.IdRutaNavigation != null)
+            var response = entity.Adapt<PmDetallesResponse>();            
+            if (entity.IdTareaNavigation != null)
             {                
-                response.Nombre = entity.IdRutaNavigation.Nombre;
+                response.NomTarea = entity.IdTareaNavigation.Descripcion;
+                response.NomRuta = entity.IdTareaNavigation.IdRutaNavigation.Nombre;
             }
             //Aqui puedo colocar otras propiedades de navegacion
             
             return response;
         }
+
     }
 }

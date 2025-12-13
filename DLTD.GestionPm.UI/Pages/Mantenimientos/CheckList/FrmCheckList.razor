@@ -28,9 +28,9 @@
 
                     <div class="uk-grid-small" uk-grid>
                         <div class="uk-width-1-3@s">
-                            <div class="uk-margin">
+                            <div class="uk-margin-remove-bottom">
                                 <label class="uk-form-label">Tipo PM</label>
-                                <select class="uk-select" @bind="Request.IdTipoPm">
+                                <select class="uk-select uk-form-small" @bind="Request.IdTipoPm" @bind:after="OnChecklistExistente" disabled="@(Id != 0)">
                                     <option value="0">Seleccione un Tipo de PM...</option>
                                     @foreach (var item in ListadoTipoPms)
                                     {
@@ -42,9 +42,9 @@
                         </div>
 
                         <div class="uk-width-1-3@s">
-                            <div class="uk-margin">
+                            <div class="uk-margin-remove-bottom">
                                 <label class="uk-form-label">Modelo</label>
-                                <select class="uk-select" @bind="Request.IdModelo">
+                                <select class="uk-select uk-form-small" @bind="Request.IdModelo" @bind:after="OnChecklistExistente" disabled="@(Id != 0)">
                                     <option value="0">Seleccione Modelo...</option>
                                     @foreach (var item in ListadoModelos)
                                     {
@@ -56,20 +56,20 @@
                         </div>
 
                         <div class="uk-width-1-3@s">
-                            <div class="uk-margin">
+                            <div class="uk-margin-remove-bottom">
                                 <label class="uk-form-label">Status</label>
-                                <select class="uk-select" @bind="Request.Status">
+                                <select class="uk-select uk-form-small" @bind="Request.Status">
                                     <option value="Activo">Activo</option>
                                     <option value="Inactivo">Inactivo</option>
                                 </select>
                                 <ValidationMessage For="@(() => Request.Status)" />
                             </div>
                         </div>
-                    </div>                    
-
+                    </div>
+                    
                     <div class="uk-margin">
                         <label class="uk-form-label">Descripción</label>
-                        <input class="uk-input" @bind="Request.Descripcion" placeholder="Descripción del Checklist" />
+                        <textarea class="uk-textarea textarea-minima" @bind="Request.Descripcion" placeholder="Descripción del Checklist"></textarea>
                         <ValidationMessage For="@(() => Request.Descripcion)" />
                     </div>
                     
@@ -89,7 +89,7 @@
                         <div class="uk-grid-collapse uk-flex-middle" uk-grid>
 
                             <div class="uk-width-expand">
-                                <select class="uk-select" @bind="DetalleAuxiliar.IdRuta">
+                                <select class="uk-select uk-form-small" @bind="DetalleAuxiliar.IdRuta">
                                     <option value="0">Seleccione una Ruta...</option>
                                     @foreach (var item in ListadoRutas)
                                     {
@@ -98,7 +98,7 @@
                                 </select>
                             </div>
                             <div class="uk-width-auto">
-                                <button type="button" class="uk-button btn-corporativo" @onclick="OnAdicionarDetalle" style="height: 38px;">
+                                <button type="button" class="uk-button btn-corporativo" @onclick="OnAdicionarDetalle" disabled="@(Id == 0 && EsCheckListExistente)" style="height: 38px;">
                                     <i class="icon-feather-plus"></i>
                                 </button>
                             </div>
@@ -111,7 +111,7 @@
                         <div class="uk-grid-collapse uk-flex-middle" uk-grid>
 
                             <div class="uk-width-expand">
-                                <input class="uk-input" placeholder="Buscar por Descripción..." @bind="FiltroBusqueda">                                      
+                                <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="Buscar por Descripción..." @bind="FiltroBusqueda">
                             </div>
                             <div class="uk-width-auto">
                                 <button type="button" class="uk-button btn-corporativo" @onclick="OnBuscar" style="height: 38px;">
@@ -184,14 +184,15 @@
         </GroupBox>
     </div>
 
-    <div class="uk-margin uk-flex uk-flex-right">
-        <button type="button" class="uk-button uk-button-default uk-button-small" @onclick="OnCancelar">             
+    <div class="uk-width-1-1 uk-flex uk-flex-right uk-margin-small-top">
+        <button type="button" class="uk-button btn-secundario uk-margin-small-right" @onclick="OnCancelar">             
             <i class="icon-feather-x-circle uk-margin-small-right"></i> Cancelar
         </button>
-        <button type="submit" class="uk-button btn-corporativo uk-button-small uk-margin-small-right">
+        <button type="submit" class="uk-button btn-corporativo" disabled="@(Id == 0 && EsCheckListExistente)">
             <i class="icon-feather-save uk-margin-small-right"></i> Guardar
         </button>        
     </div>
+
 </EditForm>
 
 <Loading Isloading="isLoading" />
@@ -208,10 +209,11 @@
     public List<ListaModeloResponse> ListadoModelos { get; set; } = new();
     public List<ListaTipoPmResponse> ListadoTipoPms { get; set; } = new();
 
+    public bool EsCheckListExistente { get; set; } = false;
     public string FiltroBusqueda { get; set; } = string.Empty;
     public bool isLoading { get; set; }
     public int PaginaActual { get; set; } = 1;
-    public int ElementosPorPagina { get; set; } = 1; // Valor razonable para una tabla detallada
+    public int ElementosPorPagina { get; set; } = 7; // Valor razonable para una tabla detallada
     public int TotalPaginas { get; set; } = 1;
     public int TotalElementos { get; set; } = 0;
 
@@ -347,6 +349,52 @@
         }
     }
 
+    public async Task OnChecklistExistente()
+    {
+        if (Id != 0) return;
+        if(Request.IdTipoPm == 0 || Request.IdModelo == 0)
+        {
+            EsCheckListExistente = false;
+            StateHasChanged();
+            return;
+        }
+
+        isLoading = true;
+        try
+        {
+            var response = await checkListProxy.ExisteCheckListAsync(Request.IdTipoPm, Request.IdModelo);
+            if(response.IsSuccess && response.Result == true)
+            {
+                EsCheckListExistente = true;
+                toastService.ShowWarning("!Alerta¡ Ya existe un Checklist activo para la combinación seleccionada. No puede crear otro.");
+            }
+            else if (response.IsSuccess && response.Result == false)
+            {
+                EsCheckListExistente = false;
+            }
+            else
+            {
+                toastService.ShowError(response.Message ?? "Error al verificar existencia del Checklist.");
+                EsCheckListExistente = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error de comunicación al verificar existencia: {ex.Message}");
+            EsCheckListExistente = true;
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public void OnCancelar()
+    {
+        Navegador.NavigateTo(Routes.ListaCheckList);
+    }
+
     public void AplicarFiltro(int paginaSolicitada = -1)
     {
         // Si la llamada viene del paginador (y es válida), la usamos.
@@ -437,12 +485,7 @@
     public void OnBuscar()
     {
         AplicarFiltro();  //Invoco al metodo para refrescar la tabla
-    }
-
-    public void OnCancelar()
-    {
-        Navegador.NavigateTo(Routes.ListaCheckList);
-    }
+    }    
 
     public void HandlePageChange(int nuevaPagina)
     {

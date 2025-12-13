@@ -154,5 +154,30 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             }
             return response;
         }
+
+        public async Task<BaseResponse<MaquinaResponse>> FindMaquinaByNoEquipo(string NoEquipo)
+        {
+            var response = new BaseResponse<MaquinaResponse>();
+            try
+            {
+                var Equipo = await _repository.FindMaquina(NoEquipo);
+                if (Equipo == null) throw new InvalidDataException("Maquina no encontrada");
+
+                response.IsSuccess = true;
+                response.Result = Equipo.Adapt<MaquinaResponse>();
+            }
+            catch (InvalidDataException ex)
+            {
+                response.Message = ex.Message;
+                _logger.LogWarning(ex, "{0}: {1}", response.Message, ex.Message);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = "Hubo un error al buscar el Equipo.";
+                _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
+            }
+            return response;
+        }
     }
 }

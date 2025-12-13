@@ -30,6 +30,11 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
             await _contexto.SaveChangesAsync();
         }
 
-        
+        public async Task<bool> FindCheckList(int idTipopm, int idModelo)
+        {
+            var checkList = await _contexto.PmcheckLists
+                            .AnyAsync(p => p.IdTipoPm == idTipopm && p.IdModelo == idModelo && p.Status == "Activo");
+            return checkList;
+        }
     }
 }

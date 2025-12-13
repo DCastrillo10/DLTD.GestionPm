@@ -1,0 +1,681 @@
+﻿
+@using DLTD.GestionPm.Dto.Request.Pm
+@using DLTD.GestionPm.Dto.Response.Modelo
+@using DLTD.GestionPm.Dto.Response.Ruta
+@using DLTD.GestionPm.Dto.Response.TipoPm
+@using System.Globalization
+
+@attribute [Route(Routes.PmNuevo)]
+@attribute [Route(Routes.PmEditar + "/{id:int}")]
+
+@layout MainLayout
+
+@inject IPmProxy PmProxy;
+@inject ITipoPmProxy tipopmProxy;
+@inject IModeloProxy modeloProxy;
+@inject IRutaProxy rutaProxy;
+@inject IMaquinaProxy maquinaProxy;
+@inject IToastService toastService;
+@inject NavigationManager Navegador;
+
+<h3 class="uk-text-bold uk-margin-small-bottom">@(Request.Id == 0 ? "Nuevo" : "Editar") PM</h3>
+
+<EditForm Model="Request" OnValidSubmit="OnGuardar">
+    <DataAnnotationsValidator />
+
+    <div uk-grid>
+        <div class="uk-width-1-1">
+            <GroupBox Titulo="Parametros Principales" >
+                <Contenido>
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">No Equipo</label>
+                                <div class="uk-width-expand">
+                                    <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="Digite un No Equipo" disabled="@(Id != 0)" @bind="Request.NoEquipo" @onblur="OnNoEquipoChanged">
+                                </div>                                
+                                <ValidationMessage For="@(() => Request.NoEquipo)" />
+                            </div>
+                        </div>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Modelo</label>                                
+                                <select class="uk-select uk-form-small" @bind="Request.IdModelo"  disabled>
+                                    <option value="0">Seleccione un Modelo...</option>
+                                    @foreach (var item in ListadoModelos)
+                                    {
+                                        <option value="@item.Id">@item.Referencia</option>
+                                    }
+                                </select>
+                                <ValidationMessage For="@(() => Request.IdModelo)" />
+                            </div>
+                        </div>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Tipo PM</label>
+                                <select class="uk-select uk-form-small" @bind="Request.IdTipoPm"  disabled="@(Id != 0)">
+                                    <option value="0">Seleccione un Tipo de PM...</option>
+                                    @foreach (var item in ListadoTipoPms)
+                                    {
+                                        <option value="@item.Id">@item.Nombre</option>
+                                    }
+                                </select>
+                                <ValidationMessage For="@(() => Request.IdTipoPm)" />
+                            </div>
+                        </div>                        
+
+                    </div>
+
+                    <div class="uk-grid-small" uk-grid>
+                        
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Work Order</label>
+                                <div class="uk-width-expand">
+                                    <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="Digite una Work Order" disabled="@(Id != 0)" @bind="Request.WorkOrder" @bind:after="OnPmExistente">
+                                </div>
+                                <ValidationMessage For="@(() => Request.WorkOrder)" />
+                            </div>
+                        </div>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">No Hangar</label>
+                                <div class="uk-width-expand">
+                                    <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="Digite el No Hangar" disabled="@(Id != 0)" @bind="Request.NoHangar">
+                                </div>
+                                <ValidationMessage For="@(() => Request.NoHangar)" />
+                            </div>
+                        </div>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Horometro Actual</label>
+                                <div class="uk-width-expand">
+                                    <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="Digite el Horometro Actual" disabled="@(Id != 0)" @bind="Request.Horometro">
+                                </div>
+                                <ValidationMessage For="@(() => Request.Horometro)" />
+                            </div>
+                        </div>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Horometro Previo</label>
+                                <div class="uk-width-expand">
+                                    <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="0" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Fecha y Hora Incial</label>
+                                <div class="uk-width-expand">
+                                    <input type="datetime-local"
+                                           class="uk-input uk-form-small uk-input-borde-fijo" 
+                                           disabled="@(Id != 0)" 
+                                           @bind:culture="@CultureInfo.InvariantCulture" @bind="Request.FechaInicialPm" />
+                                </div>
+                                <ValidationMessage For="@(() => Request.FechaInicialPm)" />
+                            </div>
+                        </div>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Fecha y Hora Final</label>
+                                <div class="uk-width-expand">
+                                    <input type="datetime-local" 
+                                           class="uk-input uk-form-small uk-input-borde-fijo" 
+                                           disabled="@(Id != 0)" 
+                                           @bind:culture="@CultureInfo.InvariantCulture" @bind="Request.FechaFinalPm" @bind:after="CalcularDuracionPM">
+                                </div>
+                                <ValidationMessage For="@(() => Request.FechaFinalPm)" />
+                            </div>
+                        </div>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Duracion</label>
+                                <div class="uk-width-expand">
+                                    <input class="uk-input uk-form-small uk-input-borde-fijo" disabled @bind="Request.Duracion">
+                                </div>
+                                <ValidationMessage For="@(() => Request.Duracion)" />
+                            </div>
+                        </div>                      
+
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Status PM</label>
+                                <select class="uk-select uk-form-small" @bind="Request.StatusPm">
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="Procesando">Procesando</option>
+                                    <option value="Detenido">Detenido</option>
+                                    <option value="Completado">Completado</option>
+                                </select>
+                                <ValidationMessage For="@(() => Request.StatusPm)" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="uk-margin">
+                        <label class="uk-form-label">Observacion</label>
+                        <textarea class="uk-textarea textarea-minima" @bind="Request.Observacion" placeholder="Observacion"></textarea>
+                        <ValidationMessage For="@(() => Request.Observacion)" />
+
+                        <div class="uk-margin uk-flex uk-flex-right ">
+                            <button type="submit" class="uk-button btn-corporativo" @onclick="OnCargarTareas"  disabled="@(Id != 0 || Request.IdModelo == 0 || Request.IdTipoPm == 0)">
+                                <i class="icon-feather-alert-circle uk-margin-small-right"></i> Cargar Tareas
+                            </button>
+                        </div>                        
+                    </div>
+
+                </Contenido>
+            </GroupBox>
+        </div>
+    </div>
+
+    <div class="uk-margin">
+        <GroupBox Titulo="Detalle de Tareas">
+            <Contenido>
+                <div class="uk-grid-small uk-child-width-1-2@s uk-flex-top uk-margin-small-bottom" uk-grid>                    
+
+                    <div>
+                        <label class="uk-form-label uk-padding-remove-vertical">Buscar Tarea</label>
+                        <div class="uk-grid-collapse uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="Buscar por Tareas o Rutas" @bind="FiltroBusqueda">
+                            </div>
+
+                            <div class="uk-width-auto">
+                                <button type="button" class="uk-button btn-corporativo" @onclick="OnBuscar" style="height: 38px;">
+                                    <i class="icon-feather-search"></i>
+                                </button>
+                            </div>
+
+                            <div class="uk-width-auto uk-margin-small-left">
+                                <button type="button" class="uk-button uk-button-default" @onclick="LimpiarFiltro" style="height: 38px;">
+                                    <i class="icon-feather-x"></i>
+                                </button>
+                            </div>
+
+                            <div class="uk-width-expand"></div>
+                            <div class="uk-width-auto">
+                                <button type="button" class="uk-button uk-button-success" @onclick="CompletarTareasSeleccionadas">
+                                    <i class="icon-feather-check-circle uk-margin-small-right"></i> Completar Seleccionadas
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-overflow-auto tabla-container uk-margin-top">
+                    <table class="uk-table uk-table-striped uk-table-hover uk-table-small uk-table-middle tabla-compacta">
+                        <thead class="table-header">
+                            <tr>
+                                <th style="width: 10px;">Sel</th>
+                                <th>Id</th>
+                                <th>Tarea</th>
+                                <th>Ruta</th>
+                                <th>Status</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (DetalleVisibles != null && DetalleVisibles.Any())
+                            {
+                                @foreach (var detalle in DetalleVisibles)
+                                {
+                                    <tr>
+                                        <td><input type="checkbox" class="pm-checkbox-small" @bind="detalle.Seleccion" /></td>
+                                        <td>@detalle.IdTarea</td>
+                                        <td>@detalle.NomTarea</td>
+                                        <td>@detalle.NomRuta</td>
+                                        <td>@detalle.StatusTarea</td>
+                                        <td>
+                                            @if (detalle.Id == 0)
+                                            {
+                                                @* <button @onclick="(() => OnQuitarDetalle(detalle))" class="uk-button uk-button-danger uk-button-small" uk-tooltip="Quitar Detalle">
+                                                    <i class="icon-feather-x-circle"></i>
+                                                </button> *@
+                                            }
+                                            else
+                                            {
+                                                @if (detalle.Status == "Activo")
+                                                {
+                                                    @* <button @onclick="(() => OnChangeDetailStatus(detalle))" class="uk-button uk-button-danger uk-button-small" uk-tooltip="Inactivar Detalle">
+                                                        <i class="icon-feather-lock"></i>
+                                                    </button> *@
+                                                }
+                                                else
+                                                {
+                                                    @* <button @onclick="(() => OnChangeDetailStatus(detalle))" class="uk-button uk-button-success uk-button-small" uk-tooltip="Activar Detalle">
+                                                        <i class="icon-feather-unlock"></i>
+                                                    </button> *@
+                                                }
+                                            }
+
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="4" class="uk-text-center">No hay detalles agregados.</td></tr>
+                            }
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <PaginacionLocal PaginaActual="PaginaActual" TotalPaginas="TotalPaginas" TotalElementos="TotalElementos" ElementosPorPagina="ElementosPorPagina" OnPageChange="HandlePageChange" />
+
+            </Contenido>
+        </GroupBox>
+    </div>
+
+    <div class="uk-width-1-1 uk-flex uk-flex-right uk-margin-small-top">
+        <button type="button" class="uk-button btn-secundario uk-margin-small-right" @onclick="OnCancelar">
+            <i class="icon-feather-x-circle uk-margin-small-right"></i> Cancelar
+        </button>
+        <button type="submit" class="uk-button btn-corporativo" disabled="@(Id == 0 && EsPmExistente)">
+            <i class="icon-feather-save uk-margin-small-right"></i> Guardar
+        </button>
+    </div>
+
+</EditForm>
+
+<Loading Isloading="isLoading" />
+
+@code {
+    [Parameter]
+    public int Id { get; set; } // Se usa para editar
+
+    public PmRequest Request { get; set; } = new();
+    public PmDetallesRequest DetalleAuxiliar { get; set; } = new();
+    public List<PmDetallesRequest> DetalleVisibles { get; set; } = new();
+
+    public List<ListaRutaResponse> ListadoRutas { get; set; } = new();
+    public List<ListaModeloResponse> ListadoModelos { get; set; } = new();
+    public List<ListaTipoPmResponse> ListadoTipoPms { get; set; } = new();
+
+    public bool EsPmExistente { get; set; } = false;
+    public string FiltroBusqueda { get; set; } = string.Empty;
+    public string NombreModeloSel { get; set; } = string.Empty;
+
+    public bool isLoading { get; set; }
+    public int PaginaActual { get; set; } = 1;
+    public int ElementosPorPagina { get; set; } = 5; // Valor razonable para una tabla detallada
+    public int TotalPaginas { get; set; } = 1;
+    public int TotalElementos { get; set; } = 0;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCombos();
+        if (Id != 0)
+        {
+            await CargarPm(Id); //editamos
+        }
+        else
+        {
+            Request = new() { PmDetalles = new List<PmDetallesRequest>() }; // Inicializar detalles
+        }
+        // Llamada inicial para mostrar la tabla completa (sin filtro)
+        AplicarFiltro();
+    }
+
+    public async Task CargarCombos()
+    {
+        isLoading = true;
+        try
+        {
+            var tiposPm = await tipopmProxy.Listarcombo();
+            if (tiposPm?.Result != null)
+            {
+                ListadoTipoPms = tiposPm.Result.ToList();
+            }
+
+            var tiposModelos = await modeloProxy.ListarCombo();
+            if (tiposModelos?.Result != null)
+            {
+                ListadoModelos = tiposModelos.Result.ToList();
+            }
+
+            var tiposRutas = await rutaProxy.Listarcombo();
+            if (tiposRutas?.Result != null)
+            {
+                ListadoRutas = tiposRutas.Result.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CargarPm(int id)
+    {
+        isLoading = true;
+        try
+        {
+            var response = await PmProxy.ObtenerPorId(id);
+            if (response.IsSuccess && response.Result != null)
+            {
+                // Mapeamos el Response (Cabecera + Detalles) al Request para edición
+                Request.Id = response.Result.Id;
+                Request.NoEquipo = response.Result.NoEquipo;
+                Request.IdModelo = response.Result.IdModelo;
+                Request.IdTipoPm = response.Result.IdTipoPm;
+                Request.WorkOrder = response.Result.WorkOrder;
+                Request.NoHangar = response.Result.NoHangar;
+                Request.Horometro = response.Result.Horometro;
+                Request.FechaInicialPm = response.Result.FechaInicialPm;
+                Request.FechaFinalPm = response.Result.FechaFinalPm;
+                Request.StatusPm = response.Result.StatusPm;
+                Request.Status = response.Result.Status;
+
+                // Mapeamos la colección de Detalles (Response Detalle -> Request Detalle)
+                Request.PmDetalles = response.Result.PmDetalles
+                                        .Select(d => new PmDetallesRequest
+                                        {
+                                            Id = d.Id,
+                                            IdRuta = d.IdRuta,
+                                            NomRuta = d.NomRuta!,
+                                            IdTarea = d.IdTarea,
+                                            NomTarea = d.NomTarea!,
+                                            StatusTarea = d.StatusTarea,
+                                            Status = d.Status
+                                        })
+                                        .ToList();
+            }
+            else
+            {
+                toastService.ShowError(response.Message!);
+                Navegador.NavigateTo(Routes.ListaPm);
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error al cargar Pm: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    public async Task OnGuardar()
+    {
+        isLoading = true;
+
+        if (!await OnPmExistente())
+        {
+            isLoading = false;
+            StateHasChanged();
+            return;
+        }
+
+
+        try
+        {
+            BaseResponse response;
+            if (Request.Id == 0)
+            {
+                response = await PmProxy.Registrar(Request);
+            }
+            else
+            {
+                response = await PmProxy.Actualizar(Request.Id, Request);
+            }
+
+            if (response.IsSuccess)
+            {
+                toastService.ShowSuccess(response.Message!);
+                Navegador.NavigateTo(Routes.ListaPm);
+            }
+            else
+            {
+                toastService.ShowError(response.Message!);
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error de comunicación: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    public async Task<bool> OnPmExistente()
+    {
+        if (Id != 0) return true;
+        if (Request.IdTipoPm == 0 || Request.IdModelo == 0 || string.IsNullOrEmpty(Request.NoEquipo) || string.IsNullOrEmpty(Request.WorkOrder))
+        {
+            EsPmExistente = false;
+            StateHasChanged();
+            return true;
+        }
+
+        isLoading = true;
+        try
+        {
+            var response = await PmProxy.ExistePmAsync(Request.IdTipoPm, Request.IdModelo, Request.NoEquipo, Request.WorkOrder);
+            if (response.IsSuccess && response.Result == true)
+            {
+                EsPmExistente = true;
+                toastService.ShowWarning("!Alerta¡ Ya existe un Pm activo para la combinación seleccionada. No puede crear otro.");
+                return false;
+            }
+            else if (response.IsSuccess && response.Result == false)
+            {
+                EsPmExistente = false;
+                return true;
+            }
+            else
+            {
+                toastService.ShowError(response.Message ?? "Error al verificar existencia del Pm.");
+                EsPmExistente = true;
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error de comunicación al verificar existencia: {ex.Message}");
+            EsPmExistente = true;
+            return false;
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task OnNoEquipoChanged()
+    {
+        if (string.IsNullOrWhiteSpace(Request.NoEquipo))
+        {
+            Request.IdModelo = 0;
+            NombreModeloSel = string.Empty;
+            StateHasChanged();
+            return;
+        }
+        isLoading = true;
+        try
+        {
+            var response = await maquinaProxy.ObtenerPorNoEquipo(Request.NoEquipo);
+            if(response.IsSuccess && response.Result != null)
+            {
+                Request.IdModelo = response.Result.IdModelo;
+                var modelo = ListadoModelos.FirstOrDefault(m => m.Id == Request.IdModelo);
+                NombreModeloSel = modelo != null ? modelo.Referencia : "Modelo no encontrado";
+            }
+            else
+            {
+                Request.IdModelo = 0;
+                NombreModeloSel = "No Equipo no existente.";
+                toastService.ShowWarning($"No se encontró un equipo activo con el numero '{Request.NoEquipo}'.");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error al buscar equipo: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public async Task OnCargarTareas()
+    {
+        if(Request.IdModelo == 0)
+        {
+            toastService.ShowWarning("Debe seleccionar un modelo.");
+            return;
+        }
+        if (Request.IdTipoPm == 0)
+        {
+            toastService.ShowWarning("Debe seleccionar un modelo.");
+            return;
+        }
+
+        isLoading = true;
+        try
+        {
+            Request.PmDetalles.Clear();
+            var response = await PmProxy.ObtenerTareasxModeloTipoPm(Request.IdModelo, Request.IdTipoPm);
+            if(response.IsSuccess && response.Result != null && response.Result.Any())
+            {
+                Request.PmDetalles = response.Result.Select(tarea => new PmDetallesRequest
+                {
+                    IdRuta = tarea.IdRuta,
+                    IdTarea = tarea.IdTarea,
+                    NomRuta = tarea.NomRuta!,
+                    NomTarea = tarea.NomTarea!,
+                    StatusTarea = "Pendiente"
+                }).ToList();
+            }
+            else
+            {
+                toastService.ShowWarning(response.Message ?? "No se encontraron tareas para la combinación de Modelo y Tipo PM seleccionada.");
+            }
+            AplicarFiltro();
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error al cargar tareas: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public void OnBuscar()
+    {
+        AplicarFiltro();  //Invoco al metodo para refrescar la tabla
+    }
+
+    public void OnCancelar()
+    {
+        Navegador.NavigateTo(Routes.ListaPm);
+    }
+
+    public void CompletarTareasSeleccionadas()
+    {
+        var fechaActual = DateTime.Now;
+        decimal duracionTareaMinutos = 10;
+
+        var tareasACompletar = Request.PmDetalles.Where(d => d.Seleccion).ToList();
+        if (!tareasACompletar.Any())
+        {
+            toastService.ShowWarning("Debe seleccionar al menos una tarea para completar.");
+            return;
+        }
+
+        foreach (var detalle in tareasACompletar)
+        {
+            detalle.StatusTarea = "Completado";
+            detalle.FechaInicialTarea = fechaActual;
+            detalle.FechaFinalTarea = fechaActual.AddMinutes((double)duracionTareaMinutos);
+            var duracionCalculada = FechasDiff.CalcularDuracionMinutos(detalle.FechaInicialTarea.Value, detalle.FechaFinalTarea.Value);
+            detalle.DuracionTarea = (decimal)duracionCalculada;
+            detalle.Realizado = true;
+            detalle.Observacion = "Completado Masivamente";
+
+            detalle.Seleccion = false;
+        }
+
+        toastService.ShowSuccess($"Se completaron {tareasACompletar.Count} tareas exitosamente.");        
+        AplicarFiltro();
+        StateHasChanged();
+    }
+
+    public void CalcularDuracionPM()
+    {
+        if(Request.FechaInicialPm.HasValue && Request.FechaFinalPm.HasValue)
+        {
+            var duracion = FechasDiff.CalcularDuracionMinutos(Request.FechaInicialPm.Value, Request.FechaFinalPm.Value);
+            Request.Duracion = (decimal)duracion;
+        }
+        else
+        {
+            Request.Duracion = 0;
+        }
+        StateHasChanged();
+    }
+
+    public void AplicarFiltro(int paginaSolicitada = -1)
+    {
+        // Si la llamada viene del paginador (y es válida), la usamos.
+        if (paginaSolicitada > 0)
+        {
+            PaginaActual = paginaSolicitada;
+        }
+        // Si viene de OnBuscar o OnAdicionar, se mantiene PaginaActual, que se reajusta abajo.
+
+        IEnumerable<PmDetallesRequest> resultados = Request.PmDetalles;
+        if (!string.IsNullOrWhiteSpace(FiltroBusqueda))
+        {
+            resultados = resultados.Where(d => d.NomTarea.Contains(FiltroBusqueda, StringComparison.OrdinalIgnoreCase) ||
+                                               d.NomRuta.Contains(FiltroBusqueda, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        TotalElementos = resultados.Count();
+        TotalPaginas = (int)Math.Ceiling((double)TotalElementos / ElementosPorPagina);
+
+        // Aseguramos que la página actual sea válida
+        PaginaActual = Math.Max(1, Math.Min(paginaSolicitada, TotalPaginas));
+        if (TotalElementos == 0) PaginaActual = 1;
+
+        // 3. PAGINACIÓN LOCAL (Skip y Take)
+        DetalleVisibles = resultados
+            .Skip((PaginaActual - 1) * ElementosPorPagina)
+            .Take(ElementosPorPagina)
+            .ToList();
+
+        StateHasChanged();
+    }        
+
+    public void LimpiarFiltro()
+    {
+        FiltroBusqueda = string.Empty;
+        AplicarFiltro();
+        StateHasChanged();
+    }
+
+    public void HandlePageChange(int nuevaPagina)
+    {
+        // Llama al método de filtrado/paginación con la nueva página solicitada
+        AplicarFiltro(nuevaPagina);
+    }
+}

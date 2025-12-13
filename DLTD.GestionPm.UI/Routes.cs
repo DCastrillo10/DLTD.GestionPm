@@ -19,6 +19,9 @@
         public const string ListaActividades = "/listaactividades";
         public const string ListaDemoras = "/listademoras";
         public const string ListaHallazgos = "/listahallazgos";
-        
+        public const string ListaPm = "/listapm";
+        public const string PmNuevo = "/pm/nuevo";
+        public const string PmEditar = "/pm/editar";
+
     }
 }
