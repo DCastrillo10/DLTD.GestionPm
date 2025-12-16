@@ -58,7 +58,7 @@ namespace DLTD.GestionPm.API.Controllers
         public async Task<IActionResult> Get(string noEquipo)
         {
             var response = await _service.FindMaquinaByNoEquipo(noEquipo);
-            return response.IsSuccess ? Ok(response) : BadRequest(response);
+            return Ok(response);
         }
     }
 }

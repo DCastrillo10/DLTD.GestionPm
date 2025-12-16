@@ -168,6 +168,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             }
             catch (InvalidDataException ex)
             {
+                response.IsSuccess = false;
                 response.Message = ex.Message;
                 _logger.LogWarning(ex, "{0}: {1}", response.Message, ex.Message);
                 return response;

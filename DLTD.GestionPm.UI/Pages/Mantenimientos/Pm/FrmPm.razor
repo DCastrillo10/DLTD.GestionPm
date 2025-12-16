@@ -72,7 +72,7 @@
                             <div class="uk-margin-remove-bottom">
                                 <label class="uk-form-label">Work Order</label>
                                 <div class="uk-width-expand">
-                                    <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="Digite una Work Order" disabled="@(Id != 0)" @bind="Request.WorkOrder" @bind:after="OnPmExistente">
+                                    <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="Digite una Work Order" disabled="@(Id != 0)" @bind="Request.WorkOrder">
                                 </div>
                                 <ValidationMessage For="@(() => Request.WorkOrder)" />
                             </div>
@@ -90,16 +90,16 @@
                             <div class="uk-margin-remove-bottom">
                                 <label class="uk-form-label">Horometro Actual</label>
                                 <div class="uk-width-expand">
-                                    <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="Digite el Horometro Actual" disabled="@(Id != 0)" @bind="Request.Horometro">
+                                    <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="Digite el Horometro Actual" disabled="@(Id != 0)" @bind="Request.HorometroActual">
                                 </div>
-                                <ValidationMessage For="@(() => Request.Horometro)" />
+                                <ValidationMessage For="@(() => Request.HorometroActual)" />
                             </div>
                         </div>
                         <div class="uk-width-1-4@s">
                             <div class="uk-margin-remove-bottom">
                                 <label class="uk-form-label">Horometro Previo</label>
                                 <div class="uk-width-expand">
-                                    <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="0" disabled>
+                                    <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="0" disabled @bind="Request.HorometroPrevio">
                                 </div>
                             </div>
                         </div>
@@ -111,8 +111,7 @@
                                 <label class="uk-form-label">Fecha y Hora Incial</label>
                                 <div class="uk-width-expand">
                                     <input type="datetime-local"
-                                           class="uk-input uk-form-small uk-input-borde-fijo" 
-                                           disabled="@(Id != 0)" 
+                                           class="uk-input uk-form-small uk-input-borde-fijo"                                             
                                            @bind:culture="@CultureInfo.InvariantCulture" @bind="Request.FechaInicialPm" />
                                 </div>
                                 <ValidationMessage For="@(() => Request.FechaInicialPm)" />
@@ -123,8 +122,7 @@
                                 <label class="uk-form-label">Fecha y Hora Final</label>
                                 <div class="uk-width-expand">
                                     <input type="datetime-local" 
-                                           class="uk-input uk-form-small uk-input-borde-fijo" 
-                                           disabled="@(Id != 0)" 
+                                           class="uk-input uk-form-small uk-input-borde-fijo"                                             
                                            @bind:culture="@CultureInfo.InvariantCulture" @bind="Request.FechaFinalPm" @bind:after="CalcularDuracionPM">
                                 </div>
                                 <ValidationMessage For="@(() => Request.FechaFinalPm)" />
@@ -160,12 +158,12 @@
                         <ValidationMessage For="@(() => Request.Observacion)" />
 
                         <div class="uk-margin uk-flex uk-flex-right ">
-                            <button type="submit" class="uk-button btn-corporativo" @onclick="OnCargarTareas"  disabled="@(Id != 0 || Request.IdModelo == 0 || Request.IdTipoPm == 0)">
+                            <button type="button" class="uk-button btn-corporativo" @onclick="OnCargarTareas" disabled="@(Id != 0 || Request.IdModelo == 0 || Request.IdTipoPm == 0)">
                                 <i class="icon-feather-alert-circle uk-margin-small-right"></i> Cargar Tareas
                             </button>
                         </div>                        
                     </div>
-
+                  
                 </Contenido>
             </GroupBox>
         </div>
@@ -195,10 +193,10 @@
                                 </button>
                             </div>
 
-                            <div class="uk-width-expand"></div>
+                            
                             <div class="uk-width-auto">
                                 <button type="button" class="uk-button uk-button-success" @onclick="CompletarTareasSeleccionadas">
-                                    <i class="icon-feather-check-circle uk-margin-small-right"></i> Completar Seleccionadas
+                                    <i class="icon-feather-check-circle uk-margin-small-right"></i> Completar Tareas Seleccionadas
                                 </button>
                             </div>
                         </div>
@@ -229,26 +227,20 @@
                                         <td>@detalle.NomRuta</td>
                                         <td>@detalle.StatusTarea</td>
                                         <td>
-                                            @if (detalle.Id == 0)
-                                            {
-                                                @* <button @onclick="(() => OnQuitarDetalle(detalle))" class="uk-button uk-button-danger uk-button-small" uk-tooltip="Quitar Detalle">
-                                                    <i class="icon-feather-x-circle"></i>
-                                                </button> *@
-                                            }
-                                            else
-                                            {
-                                                @if (detalle.Status == "Activo")
-                                                {
-                                                    @* <button @onclick="(() => OnChangeDetailStatus(detalle))" class="uk-button uk-button-danger uk-button-small" uk-tooltip="Inactivar Detalle">
-                                                        <i class="icon-feather-lock"></i>
-                                                    </button> *@
-                                                }
-                                                else
-                                                {
-                                                    @* <button @onclick="(() => OnChangeDetailStatus(detalle))" class="uk-button uk-button-success uk-button-small" uk-tooltip="Activar Detalle">
-                                                        <i class="icon-feather-unlock"></i>
-                                                    </button> *@
-                                                }
+                                            
+                                                @* @onclick="(() => OnQuitarDetalle(detalle))" *@
+                                                <button  class="uk-button uk-button-danger uk-button-small" uk-tooltip="Actividad">
+                                                    <i class="icon-feather-play-circle"></i>
+                                                </button>                                           
+                                                
+                                                <button class="uk-button uk-button-danger uk-button-small" uk-tooltip="Demoras">
+                                                    <i class="icon-feather-clock"></i>
+                                                </button>
+                                                
+                                                <button class="uk-button uk-button-success uk-button-small" uk-tooltip="Hallazgos">
+                                                    <i class="icon-feather-alert-triangle"></i>
+                                                </button>
+                                                
                                             }
 
                                         </td>
@@ -275,7 +267,7 @@
         <button type="button" class="uk-button btn-secundario uk-margin-small-right" @onclick="OnCancelar">
             <i class="icon-feather-x-circle uk-margin-small-right"></i> Cancelar
         </button>
-        <button type="submit" class="uk-button btn-corporativo" disabled="@(Id == 0 && EsPmExistente)">
+        <button type="submit" class="uk-button btn-corporativo"  >
             <i class="icon-feather-save uk-margin-small-right"></i> Guardar
         </button>
     </div>
@@ -372,10 +364,13 @@
                 Request.IdTipoPm = response.Result.IdTipoPm;
                 Request.WorkOrder = response.Result.WorkOrder;
                 Request.NoHangar = response.Result.NoHangar;
-                Request.Horometro = response.Result.Horometro;
+                Request.HorometroActual = response.Result.HorometroActual;
+                Request.HorometroPrevio = response.Result.HorometroPrevio;
                 Request.FechaInicialPm = response.Result.FechaInicialPm;
                 Request.FechaFinalPm = response.Result.FechaFinalPm;
+                Request.Duracion = response.Result.Duracion;
                 Request.StatusPm = response.Result.StatusPm;
+                Request.Observacion = response.Result.Observacion;
                 Request.Status = response.Result.Status;
 
                 // Mapeamos la colección de Detalles (Response Detalle -> Request Detalle)
@@ -410,6 +405,7 @@
 
     public async Task OnGuardar()
     {
+        
         isLoading = true;
 
         if (!await OnPmExistente())
@@ -418,7 +414,6 @@
             StateHasChanged();
             return;
         }
-
 
         try
         {
@@ -535,7 +530,8 @@
     }
 
     public async Task OnCargarTareas()
-    {
+    {        
+
         if(Request.IdModelo == 0)
         {
             toastService.ShowWarning("Debe seleccionar un modelo.");
@@ -548,10 +544,18 @@
         }
 
         isLoading = true;
+
+        if (!await OnPmExistente())
+        {
+            isLoading = false;
+            StateHasChanged();
+            return;
+        }
+
         try
         {
             Request.PmDetalles.Clear();
-            var response = await PmProxy.ObtenerTareasxModeloTipoPm(Request.IdModelo, Request.IdTipoPm);
+            var response = await PmProxy.ObtenerTareasxModeloTipoPm(Request.IdTipoPm, Request.IdModelo);
             if(response.IsSuccess && response.Result != null && response.Result.Any())
             {
                 Request.PmDetalles = response.Result.Select(tarea => new PmDetallesRequest

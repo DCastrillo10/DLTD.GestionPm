@@ -15,6 +15,6 @@ namespace DLTD.GestionPm.Repositorios.Interfaces
         Task<Pm?> FindByIdWithDetailAsync(int id);
 
         Task<bool> FindPm(int idTipopm, int idModelo, string NoEquipo,string WorkOrder);
-        Task<IEnumerable<Tarea>> FindTareas(int idModelo, int idTipoPm);
+        Task<IEnumerable<Tarea>> FindTareas(int idTipoPm, int idModelo);
     }
 }

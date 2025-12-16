@@ -15,6 +15,6 @@ namespace DLTD.GestionPm.UI.Proxies.Interfaces
 
         Task<BaseResponse<bool>> ExistePmAsync(int idTipoPm, int idModelo, string NoEquipo, string WorkOrder);
 
-        Task<BaseResponse<IEnumerable<PmDetallesResponse>>>ObtenerTareasxModeloTipoPm(int IdModelo, int IdTipoPm);
+        Task<BaseResponse<IEnumerable<PmDetallesResponse>>>ObtenerTareasxModeloTipoPm(int idTipoPm, int idModelo);
     }
 }

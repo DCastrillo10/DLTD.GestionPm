@@ -61,7 +61,7 @@ namespace DLTD.GestionPm.UI.Proxies.Implementaciones
         
         }
 
-        public async Task<BaseResponse<IEnumerable<PmDetallesResponse>>> ObtenerTareasxModeloTipoPm(int idModelo, int idTipoPm)
+        public async Task<BaseResponse<IEnumerable<PmDetallesResponse>>> ObtenerTareasxModeloTipoPm(int idTipoPm, int idModelo)
         {
             string url = $"api/Pm/tareas?idModelo={idModelo}&idTipoPm={idTipoPm}";
 

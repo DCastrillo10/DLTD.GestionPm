@@ -17,7 +17,8 @@ public partial class Pm : EntidadBase
 
     public string? NoHangar { get; set; }
 
-    public decimal? Horometro { get; set; }
+    public decimal? HorometroActual { get; set; }
+    public decimal? HorometroPrevio { get; set; }
 
     public DateTime? FechaInicialPm { get; set; }
 

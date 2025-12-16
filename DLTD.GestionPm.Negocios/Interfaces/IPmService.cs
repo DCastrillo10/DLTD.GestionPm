@@ -18,7 +18,7 @@ namespace DLTD.GestionPm.Negocios.Interfaces
         Task<BaseResponse<PmResponse>> FindByIdAsync(int id);
         Task<BaseResponse> DeleteAsync(int id);
         Task<BaseResponse<bool>> ExistePm(int idTipopm, int idModelo, string NoEquipo, string WorkOrder);
-        Task<BaseResponse<IEnumerable<PmDetallesResponse>>> FindTareas(int idModelo, int idTipoPm);
+        Task<BaseResponse<IEnumerable<PmDetallesResponse>>> FindTareas(int idTipoPm, int idModelo);
 
 
     }

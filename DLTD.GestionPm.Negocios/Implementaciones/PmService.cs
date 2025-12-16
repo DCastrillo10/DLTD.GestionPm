@@ -105,7 +105,8 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                             WorkOrder = p.WorkOrder ?? "",
                             NoEquipo = p.NoEquipo ?? "",
                             NoHangar = p.NoHangar ?? "",
-                            Horometro = p.Horometro ?? 0,
+                            HorometroActual = p.HorometroActual ?? 0,
+                            HorometroPrevio = p.HorometroPrevio ?? 0,
                             FechaInicialPm = p.FechaInicialPm,
                             FechaFinalPm = p.FechaFinalPm,
                             Duracion = p.Duracion ?? 0,
@@ -227,12 +228,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             return response;
         }
 
-        public async Task<BaseResponse<IEnumerable<PmDetallesResponse>>> FindTareas(int idModelo, int idTipoPm)
+        public async Task<BaseResponse<IEnumerable<PmDetallesResponse>>> FindTareas(int idTipoPm, int idModelo)
         {
             var response = new BaseResponse<IEnumerable<PmDetallesResponse>>();
             try
             {
-                var tareas = await _repository.FindTareas(idModelo, idTipoPm);
+                var tareas = await _repository.FindTareas(idTipoPm, idModelo);
                 if(tareas == null || !tareas.Any())
                 {
                     response.IsSuccess = true;

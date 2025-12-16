@@ -63,10 +63,10 @@ public partial class GestionPmBdContext : DbContext
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
             entity.Property(e => e.HorometroActual)
                 .HasDefaultValue(0m)
-                .HasColumnType("decimal(10, 2)");
+                .HasColumnType("decimal(12, 2)");
             entity.Property(e => e.HorometroPrevio)
                 .HasDefaultValue(0m)
-                .HasColumnType("decimal(10, 2)");
+                .HasColumnType("decimal(12, 2)");
             entity.Property(e => e.Observacion)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -156,7 +156,7 @@ public partial class GestionPmBdContext : DbContext
 
             entity.ToTable("PM");
 
-            entity.Property(e => e.Duracion).HasColumnType("decimal(6, 2)");
+            entity.Property(e => e.Duracion).HasColumnType("decimal(12, 2)");
             entity.Property(e => e.FechaFinalPm)
                 .HasPrecision(0)
                 .HasColumnName("FechaFinal_Pm");
@@ -164,7 +164,8 @@ public partial class GestionPmBdContext : DbContext
                 .HasPrecision(0)
                 .HasColumnName("FechaInicial_Pm");
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
-            entity.Property(e => e.Horometro).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.HorometroActual).HasColumnType("decimal(12, 2)");
+            entity.Property(e => e.HorometroPrevio).HasColumnType("decimal(12, 2)");
             entity.Property(e => e.NoEquipo)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -254,10 +255,10 @@ public partial class GestionPmBdContext : DbContext
 
             entity.Property(e => e.Duracion)
                 .HasComment("Duracion de la tarea desde el parametro")
-                .HasColumnType("decimal(6, 2)");
+                .HasColumnType("decimal(12, 2)");
             entity.Property(e => e.DuracionTarea)
                 .HasComment("Duracion de la tarea en la ejecucion")
-                .HasColumnType("decimal(6, 2)")
+                .HasColumnType("decimal(12, 2)")
                 .HasColumnName("Duracion_Tarea");
             entity.Property(e => e.FechaActualizacion).HasPrecision(0);
             entity.Property(e => e.FechaFinalTarea)
@@ -307,7 +308,7 @@ public partial class GestionPmBdContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.DuracionDemora)
-                .HasColumnType("decimal(6, 2)")
+                .HasColumnType("decimal(12, 2)")
                 .HasColumnName("Duracion_Demora");
             entity.Property(e => e.FechaFinalDemora)
                 .HasPrecision(0)
@@ -376,7 +377,7 @@ public partial class GestionPmBdContext : DbContext
             entity.ToTable("PMTareaTecnico");
 
             entity.Property(e => e.Descripcion).HasMaxLength(1000);
-            entity.Property(e => e.DuracionAsignacion).HasColumnType("decimal(6, 2)");
+            entity.Property(e => e.DuracionAsignacion).HasColumnType("decimal(12, 2)");
             entity.Property(e => e.FechaFinalAsignacion).HasPrecision(0);
             entity.Property(e => e.FechaInicialAsignacion).HasPrecision(0);
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
@@ -408,7 +409,7 @@ public partial class GestionPmBdContext : DbContext
 
             entity.Property(e => e.Descripcion).HasMaxLength(1000);
             entity.Property(e => e.DuracionTurno)
-                .HasColumnType("decimal(6, 2)")
+                .HasColumnType("decimal(12, 2)")
                 .HasColumnName("Duracion_Turno");
             entity.Property(e => e.FechaFinalTurno)
                 .HasPrecision(0)
@@ -467,7 +468,7 @@ public partial class GestionPmBdContext : DbContext
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
                 .IsUnicode(false);
-            entity.Property(e => e.Duracion).HasColumnType("decimal(6, 2)");
+            entity.Property(e => e.Duracion).HasColumnType("decimal(12, 2)");
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
             entity.Property(e => e.Status)
                 .HasMaxLength(100)

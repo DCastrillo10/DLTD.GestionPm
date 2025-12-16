@@ -75,14 +75,14 @@
     <!-- Tabla de PM Activos -->
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title mb-4">Active PMs</h5>
+            <h5 >Informacion General Equipos</h5>
             <table class="table table-hover">
                 <thead class="table-light">
                     <tr>
-                        <th scope="col">Equipment</th>
-                        <th scope="col">Type</th>
-                        <th scope="col">Technician</th>
-                        <th scope="col">Progress</th>
+                        <th scope="col">Equipo</th>
+                        <th scope="col">Servicio</th>
+                        <th scope="col">Tecnicos</th>
+                        <th scope="col">Progreso</th>
                         <th scope="col">Status</th>
                     </tr>
                 </thead>
@@ -116,7 +116,7 @@
         <div class="col-md-6">
             <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-title mb-4">Tasks Performance</h5>
+                    <h5 >Desempeños de Tareas</h5>
                     <canvas id="donutChart"></canvas>
                 </div>
             </div>
@@ -126,13 +126,13 @@
         <div class="col-md-6">
             <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-title mb-4">Active Technicians</h5>
+                    <h5>Tecnicos Activos</h5>
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th scope="col">Name</th>
-                                <th scope="col">Shift</th>
-                                <th scope="col">Duration</th>
+                                <th scope="col">Nombres</th>
+                                <th scope="col">Turno</th>
+                                <th scope="col">Duracion</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -156,9 +156,9 @@
 @code {
     private List<ActivePM> ActivePMs = new()
     {
-        new ActivePM { Equipment = "CAT D9T", Type = "Short", Technician = "John Doe", Progress = 70, Status = "In Progress", Color = "#198754" },
-        new ActivePM { Equipment = "CAT 980H", Type = "Medium", Technician = "Jane Smith", Progress = 40, Status = "Pending", Color = "#ffc107" },
-        new ActivePM { Equipment = "CAT D10R", Type = "Long", Technician = "Mike Johnson", Progress = 85, Status = "Finalizing", Color = "#0d6efd" }
+        new ActivePM { Equipment = "8041", Type = "A Pm Corto", Technician = "Juan Valera, Pablo Perez", Progress = 70, Status = "En Progreso", Color = "#198754" },
+        new ActivePM { Equipment = "5025", Type = "B Pm Medio", Technician = "Camilo Oñate, Carlos Machuca", Progress = 40, Status = "Pendiente", Color = "#ffc107" },
+        new ActivePM { Equipment = "7025", Type = "C Pm Largo", Technician = "Jose Perez, Ulises Arias", Progress = 85, Status = "Detenido", Color = "#0d6efd" }
     };
 
     public class ActivePM
@@ -173,10 +173,10 @@
 
     private List<Technician> ActiveTechnicians = new()
     {
-        new Technician { Name = "John Doe", Shift = "Day", Duration = "4h 20m" },
-        new Technician { Name = "Jane Smith", Shift = "Day", Duration = "3h 15m" },
-        new Technician { Name = "Mike Johnson", Shift = "Night", Duration = "5h 10m" },
-        new Technician { Name = "Emily Davis", Shift = "Night", Duration = "2h 50m" }
+        new Technician { Name = "Juan Valera", Shift = "Dia", Duration = "4h 20m" },
+        new Technician { Name = "Camilo Oñate", Shift = "Dia", Duration = "3h 15m" },
+        new Technician { Name = "Carlos Machuca", Shift = "Noche", Duration = "5h 10m" },
+        new Technician { Name = "Jose Perez", Shift = "Noche", Duration = "2h 50m" }
     };
 
     public class Technician

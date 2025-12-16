@@ -34,11 +34,11 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
         public async Task<bool> FindPm(int idTipopm, int idModelo, string NoEquipo,string WorkOrder)
         {
             var Pm = await _contexto.Pms
-                            .AnyAsync(p => p.IdTipoPm == idTipopm && p.IdModelo == idModelo && p.NoEquipo == NoEquipo && p.WorkOrder == WorkOrder);
+                            .AnyAsync(p => p.IdTipoPm == idTipopm && p.IdModelo == idModelo && p.NoEquipo == NoEquipo && p.WorkOrder == WorkOrder && p.Status != "Eliminado");
             return Pm;
         }
 
-        public async Task<IEnumerable<Tarea>> FindTareas(int idModelo, int idTipoPm)
+        public async Task<IEnumerable<Tarea>> FindTareas(int idTipoPm, int idModelo)
         {
             var idRutas = await _contexto.PmcheckLists
                                 .Where(p => p.IdTipoPm == idTipoPm && p.IdModelo == idModelo)
