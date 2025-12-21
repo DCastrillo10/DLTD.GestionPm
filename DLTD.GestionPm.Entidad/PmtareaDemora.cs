@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DLTD.GestionPm.Entidad;
 
-public partial class PmtareaDemora : EntidadBase
+public partial class PmTareaDemora : EntidadBase
 {
     
 

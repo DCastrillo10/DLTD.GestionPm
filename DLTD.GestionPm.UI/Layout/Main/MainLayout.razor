@@ -1,5 +1,10 @@
-﻿
-@using System.Security.Claims
+﻿@using System.Security.Claims
+
+
+@inject GrupoTrabajoEstado grupoEstado
+@inject IGrupoTrabajoProxy grupoProxy
+@inject AuthenticationStateProvider auth
+
 @inherits LayoutComponentBase
 <BlazoredToasts Position="ToastPosition.BottomRight" />
 
@@ -130,4 +135,21 @@
         <p>&copy; @DateTime.Now.Year Deimer Castrillo. All Rights Reserved.</p>
     </footer>
 </div>
+
+@code{
+    protected override async Task OnInitializedAsync()
+    {
+        // Solo cargamos si el estado global está vacío
+        if (grupoEstado.IdTecnicoEquipo.Count == 0)
+        {
+            var sesion = await ((AuthService)auth).GetTecnicoSesion();
+            var res = await grupoProxy.Listar(new PaginationRequest { /* tus filtros si aplican */ });
+
+            if (res?.Result != null)
+            {
+                grupoEstado.ActualizarGrupoTrabajo(res.Result.ToList(), sesion.NombresCompletos, sesion.Id);
+            }
+        }
+    }
+}
 

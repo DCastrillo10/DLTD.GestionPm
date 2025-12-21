@@ -1,0 +1,228 @@
+﻿@using DLTD.GestionPm.Dto.Request.Pm
+@using DLTD.GestionPm.Dto.Request.PmTareaTecnico
+@using DLTD.GestionPm.Dto.Response.Pm
+@using DLTD.GestionPm.Dto.Response.PmTareaTecnico
+@using DLTD.GestionPm.Dto.Response.TipoDemora
+
+@attribute [Route(Routes.PmTarea + "/{id:int}")]
+
+@layout MainLayout
+@inject IPmProxy PmProxy;
+@inject ITipoDemoraProxy TipoDemoraProxy;
+@inject IToastService toastService;
+@inject NavigationManager Navegador;
+
+<div class="uk-container uk-container-expand">
+    <div class="uk-grid-small" uk-grid>
+        <div class="uk-width-1-1">
+            <GroupBox Titulo="Detalles de la Tarea">
+                <Contenido>
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-2@s">
+                            <label class="uk-form-label">Tarea</label>
+                            <input class="uk-input uk-form-small uk-input-borde-fijo" value="@Request.NomTarea" disabled>
+                        </div>
+                        <div class="uk-width-1-6@s">
+                            <label class="uk-form-label">Ruta</label>
+                            <input class="uk-input uk-form-small uk-input-borde-fijo" value="@Request.NomRuta" disabled>
+                        </div>                     
+                    </div>
+
+                    <div class="uk-grid-small uk-margin-top" uk-grid>
+                        <div class="uk-width-1-6@s">
+                            <label class="uk-form-label">Fecha Inicial</label>
+                            <input type="date" class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.FechaInicialTarea">
+                        </div>
+                        <div class="uk-width-1-6@s">
+                            <label class="uk-form-label">Hora Inicial</label>
+                            <input type="time" class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.FechaInicialTarea">
+                        </div>
+                        <div class="uk-width-1-6@s">
+                            <label class="uk-form-label">Fecha Final</label>
+                            <input type="date" class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.FechaFinalTarea">
+                        </div>
+                        <div class="uk-width-1-6@s">
+                            <label class="uk-form-label">Hora Final</label>
+                            <input type="time" class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.FechaFinalTarea">
+                        </div>
+                        <div class="uk-width-1-6@s">
+                            <label class="uk-form-label">Duracion</label>
+                            <input class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.Duracion">
+                        </div>
+                    </div>
+
+                    <div class="uk-grid-small uk-margin-top" uk-grid>
+                        <div class="uk-width-1-6@s">
+                            <label class="uk-form-label">Valor 1 Encontrado</label>
+                            <input class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.Valor1">
+                        </div>
+                        <div class="uk-width-1-6@s">
+                            <label class="uk-form-label">Valor 2 Ajustado</label>
+                            <input class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.Valor2">
+                        </div>
+                        <div class="uk-width-1-6@s">
+                            <label class="uk-form-label">Valor 3 Otro</label>
+                            <input class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.Valor3">
+                        </div>
+                        <div class="uk-width-1-4@s">
+                            <label class="uk-form-label">Tipo Demora</label>
+                            <select class="uk-select uk-form-small">
+                                <option value="0">Seleccione un Tipo de Demora</option>
+                                @foreach (var item in ListadoDemoras)
+                                {
+                                    <option value="@item.Id">@item.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="uk-width-1-6@s">
+                            <label class="uk-form-label">Status Actual</label>
+                            <input class="uk-input uk-form-small uk-input-borde-fijo" value="@Request.StatusTarea" disabled>
+                        </div>                        
+                    </div>
+
+                    <div class="uk-margin-top">
+                        <label class="uk-form-label">Observaciones de Trabajo / Motivo Detención</label>
+                        <textarea class="uk-textarea textarea-minima" rows="3" placeholder="Escriba el avance técnico aquí..." @bind="Request.Observacion"></textarea>                                  
+                    </div>
+
+                    <div class="uk-margin-top uk-flex uk-flex-between uk-flex-right">
+                        <div class="uk-flex">                        
+                            <button class="uk-button uk-button-primary uk-margin-small-right" style="background-color: #28a745;" @onclick='() => Procesar(1, "Procesando")'>
+                                <i class="icon-feather-play uk-margin-small-right"></i> Iniciar
+                            </button>                        
+                            <button class="uk-button uk-button-danger uk-margin-small-right" @onclick='() => Procesar(2, "Detenido")'>
+                                <i class="icon-feather-pause uk-margin-small-right"></i> Detener
+                            </button>
+                            <button class="uk-button uk-margin-small-right" style="background-color: #ffc107; color: #000;" @onclick='() => Procesar(3, "Procesando")'>
+                                <i class="icon-feather-rotate-cw uk-margin-small-right"></i> Reanudar
+                            </button>
+                            <button class="uk-button uk-button-primary" style="background-color: #007bff;" @onclick='() => Procesar(4, "Completado")'>
+                                <i class="icon-feather-check uk-margin-small-right"></i> Finalizar
+                            </button>
+                        </div>
+
+                        <div class="uk-flex">
+                            <button type="button" class="uk-button btn-corporativo uk-margin-small-right" @onclick="Volver">
+                                <i class="icon-feather-alert-triangle uk-margin-small-right"></i> Hallazgos
+                            </button>
+                            <button type="button" class="uk-button btn-secundario" @onclick="Volver">
+                                <i class="icon-feather-arrow-left uk-margin-small-right"></i> Volver
+                            </button>
+                        </div>
+                    </div>
+                </Contenido>
+            </GroupBox>
+        </div>
+
+        <div class="uk-width-1-1 uk-margin-top">
+            <GroupBox Titulo="Historial de Actividades (Trazabilidad)">
+                <Contenido>
+                    <table class="uk-table uk-table-divider uk-table-small uk-table-hover">
+                        <thead class="table-header">
+                            <tr>
+                                <th>No</th>
+                                <th>Tipo Actividad</th>                                
+                                <th>Observación</th>                                
+                                <th>Técnico</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var hist in Historial)
+                            {
+                                <tr>
+                                    <td>@hist.Id</td>
+                                    <td>@hist.IdTipoActividad</td>
+                                    <td>@hist.Descripcion</td>
+                                    <td>@hist.UsuarioRegistro</td>
+                                    <td>@hist.FechaRegistro</td>                                                                                                            
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </Contenido>
+            </GroupBox>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    [Parameter] [SupplyParameterFromQuery] public int IdTecnico1 { get; set; }
+    [Parameter] [SupplyParameterFromQuery] public int IdTecnico2 { get; set; }
+    
+    private PmDetallesRequest Request = new();
+    private PmTareaTecnicoRequest ActividadReq = new();
+
+    private PmDetallesResponse DetalleTarea = new();
+    private List<ListaTipoDemoraResponse> ListadoDemoras { get; set; } = new();
+    private List<PmTareaTecnicoResponse> Historial = new();
+
+    public bool isLoading { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Aquí cargaremos el detalle y el historial mediante el Proxy
+        await CargarCombos();
+        await CargarTareaDetalles(Id);
+    }
+
+    public async Task CargarCombos()
+    {
+        isLoading = true;
+        try
+        {
+            var tiposDemoras = await TipoDemoraProxy.Listarcombo();
+            if (tiposDemoras?.Result != null)
+            {
+                ListadoDemoras = tiposDemoras.Result.ToList();
+            }
+
+            
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CargarTareaDetalles(int id)
+    {
+        isLoading = true;
+        try
+        {
+            var response = await PmProxy.ObtenerDetallesxId(id);
+            if(response.IsSuccess && response.Result != null)
+            {
+                Request.Id = response.Result.Id;
+                Request.IdPm = response.Result.IdPm;
+                Request.IdRuta = response.Result.IdRuta;
+                Request.NomRuta = response.Result.NomRuta!;
+                Request.IdTarea = response.Result.IdTarea;
+                Request.NomTarea = response.Result.NomTarea!;
+                Request.StatusTarea = response.Result.StatusTarea;
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error al cargar Pm: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void Volver() => Navegador.NavigateTo($"/pm/editar/{Request.IdPm}");
+
+    private async Task Procesar(int tipo, string nuevoStatus)
+    {
+        // Lógica de guardado
+        await Task.CompletedTask;
+    }
+}

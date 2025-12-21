@@ -26,9 +26,22 @@
         <li>            
             <a href="@Routes.ListaPm"> <i class="uil-list-ui-alt"></i> <span class="tooltips">Lista de PM</span></a>
         </li>
-        <li>
-            @* <a href="Tecnicos"> <img src="/assets/icons/Tecnicos.png" alt="Dltd" width="52" height="52"> <span class="tooltips"> Tecnicos</span></a> *@
+        @* <li>
+            
             <a href="@Routes.Tecnicos"> <i class="uil-constructor"></i> <span class="tooltips">Tecnicos</span></a>
+        </li> *@
+        <li>
+            <a><i class="uil-constructor"></i> <span class="tooltips">Tecnicos</span></a>
+            <div class="side-menu-slide">
+                <div class="side-menu-slide-content">
+                    <ul data-simplebar="">
+                        <li>
+                            <a href="@Routes.Tecnicos"><i class="uil-constructor"></i>Tecnicos</a>
+                            <a href="@Routes.GrupoTrabajo"><i class="uil-clock"></i>Grupos de Trabajo</a>                            
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </li>
 
         <li>

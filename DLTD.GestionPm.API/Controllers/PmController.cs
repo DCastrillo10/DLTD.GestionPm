@@ -61,6 +61,13 @@ namespace DLTD.GestionPm.API.Controllers
             return response.IsSuccess ? Ok(response) : BadRequest(response);
         }
 
+        [HttpGet("tareasdetalles/{id:int}")]
+        public async Task<IActionResult> GetTareaDetalle(int id)
+        {
+            var response = await _service.GetDetalleTareaPmById(id);
+            return response.IsSuccess ? Ok(response) : BadRequest(response);
+        }
+
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

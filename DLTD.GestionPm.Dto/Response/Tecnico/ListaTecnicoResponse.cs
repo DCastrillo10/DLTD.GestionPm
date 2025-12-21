@@ -27,6 +27,7 @@ namespace DLTD.GestionPm.Dto.Response.Tecnico
         public string? Especialidad { get; set; }
         public string Status { get; set; } = default!;
 
-        public string NombresCompletos => $"{Nombres} {Apellidos}";
+        // Usando el operador de coalescencia nula (??) para evitar errores
+        public string NombresCompletos => $"{(Nombres ?? "").Trim()} {(Apellidos ?? "").Trim()}".Trim();
     }
 }

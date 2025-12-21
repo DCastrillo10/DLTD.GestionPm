@@ -29,8 +29,10 @@ public partial class Pm : EntidadBase
     public string? StatusPm { get; set; }
 
     public string? Observacion { get; set; }
-
-   
+    public string? UsuarioRevision { get; set; }
+    public DateTime? FechaRevision { get; set; }     
+    public string? UsuarioAprobacion { get; set; }
+    public DateTime? FechaAprobacion { get; set; }  
 
     public virtual Modelo IdModeloNavigation { get; set; } = null!;
 
@@ -38,5 +40,5 @@ public partial class Pm : EntidadBase
 
     public virtual ICollection<Pmdetalle> PmDetalles { get; set; } = new List<Pmdetalle>();
 
-    public virtual ICollection<PmtecnicoTurno> PmtecnicoTurnos { get; set; } = new List<PmtecnicoTurno>();
+    
 }

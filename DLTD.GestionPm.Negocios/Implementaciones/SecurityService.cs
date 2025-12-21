@@ -74,7 +74,9 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                 new Claim(ClaimTypes.Email, request.Email!),
                 new Claim(ClaimTypes.Expiration, dateExpiration.ToLongDateString()!),
                 new Claim(ClaimTypes.Role, role),
-                new Claim(ClaimTypes.NameIdentifier, request.IdUsuario.ToString()!)
+                new Claim(ClaimTypes.NameIdentifier, request.IdUsuario.ToString()!),
+                new Claim("Codigo", request.Codigo),
+                new Claim("NoIdentificacion", request.UserName!)
             };
 
             var SymmetricKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.SecretKey));

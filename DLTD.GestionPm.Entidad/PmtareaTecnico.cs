@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DLTD.GestionPm.Entidad;
 
-public partial class PmtareaTecnico: EntidadBase
+public partial class PmTareaTecnico: EntidadBase
 {
     
 
@@ -11,15 +11,13 @@ public partial class PmtareaTecnico: EntidadBase
 
     public int IdTecnico { get; set; }
 
-    public DateTime FechaInicialAsignacion { get; set; }
+    public DateTime FechaInicialActividad { get; set; }
 
-    public DateTime? FechaFinalAsignacion { get; set; }
+    public DateTime? FechaFinalActividad { get; set; }
 
-    public decimal? DuracionAsignacion { get; set; }
+    public decimal? DuracionActividad { get; set; }
 
-    public bool? Activo { get; set; }
-
-    
+    public bool? Activo { get; set; }    
 
     public string? Descripcion { get; set; }
 

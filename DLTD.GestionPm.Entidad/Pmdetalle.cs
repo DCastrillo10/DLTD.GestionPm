@@ -49,15 +49,18 @@ public partial class Pmdetalle : EntidadBase
 
     public DateTime? FechaActualizacion { get; set; }
 
-   
+    public string? UsuarioRevision { get; set; }
+    public DateTime? FechaRevision { get; set; }
+    public string? UsuarioAprobacion { get; set; }
+    public DateTime? FechaAprobacion { get; set; }
 
     public virtual Pm IdPmNavigation { get; set; } = null!;
 
     public virtual Tarea IdTareaNavigation { get; set; } = null!;    
 
-    public virtual ICollection<PmtareaDemora> PmtareaDemoras { get; set; } = new List<PmtareaDemora>();
+    public virtual ICollection<PmTareaDemora> PmTareaDemoras { get; set; } = new List<PmTareaDemora>();
 
-    public virtual ICollection<PmtareaHallazgo> PmtareaHallazgos { get; set; } = new List<PmtareaHallazgo>();
+    public virtual ICollection<PmTareaHallazgo> PmTareaHallazgos { get; set; } = new List<PmTareaHallazgo>();
 
-    public virtual ICollection<PmtareaTecnico> PmtareaTecnicos { get; set; } = new List<PmtareaTecnico>();
+    public virtual ICollection<PmTareaTecnico> PmTareaTecnicos { get; set; } = new List<PmTareaTecnico>();
 }

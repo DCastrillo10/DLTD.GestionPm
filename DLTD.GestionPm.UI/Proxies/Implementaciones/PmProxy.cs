@@ -67,5 +67,10 @@ namespace DLTD.GestionPm.UI.Proxies.Implementaciones
 
             return await _httpClient.GetFromJsonAsync<BaseResponse<IEnumerable<PmDetallesResponse>>> (url) ?? new();
         }
+
+        public async Task<BaseResponse<PmDetallesResponse>> ObtenerDetallesxId(int id)
+        {
+            return await _httpClient.GetFromJsonAsync<BaseResponse<PmDetallesResponse>>($"api/pm/tareasdetalles/{id}") ?? new();
+        }
     }
 }

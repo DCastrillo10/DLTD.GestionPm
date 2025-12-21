@@ -1,0 +1,231 @@
+﻿@using DLTD.GestionPm.Dto.Request.GrupoTrabajo
+@using DLTD.GestionPm.Dto.Response.GrupoTrabajo
+@using DLTD.GestionPm.Dto.Response.Tecnico
+@using DLTD.GestionPm.UI.Pages.Mantenimientos.Tecnicos
+
+
+@attribute [Route(Routes.GrupoTrabajo)]
+@layout MainLayout
+
+@inject IGrupoTrabajoProxy grupoTrabajoProxy;
+@inject AuthenticationStateProvider auth;
+@inject GrupoTrabajoEstado grupoEstado;
+@inject IToastService toastService;
+@inject SweetAlertService swal;
+
+<h3 class="uk-text-bold uk-margin-small-bottom">Lista de Tecnicos Vinculados</h3>
+
+<GroupBox Titulo="Tecnico Principal">
+    <Contenido>
+        <div class="uk-grid-small uk-flex-bottom" uk-grid>            
+            <div class="uk-width-1-6@s">
+                <label class="uk-form-label">Identificacion</label>
+                <input class="uk-input uk-form-small uk-input-borde-fijo" value="@tecnicoPrincipal?.NoIdentificacion" disabled>
+            </div>
+            <div class="uk-width-1-6@s">
+                <label class="uk-form-label">Codigo</label>
+                <input class="uk-input uk-form-small uk-input-borde-fijo" value="@tecnicoPrincipal?.Codigo" disabled>
+            </div>
+            <div class="uk-width-1-2@s">
+                <label class="uk-form-label">Nombres</label>
+                <input class="uk-input uk-form-small uk-input-borde-fijo" value="@tecnicoPrincipal?.NombresCompletos" disabled>
+            </div>
+            <div class="uk-width-1-6@s">
+                <button type="button" class="uk-button btn-corporativo uk-button-small" @onclick="OnNuevo">
+                    <i class="icon-feather-link uk-margin-small-right"></i> Vincular
+                </button>
+            </div>
+        </div>
+    </Contenido>
+
+</GroupBox>
+
+<!-- Tabla -->
+<div class="uk-overflow-auto tabla-container">    
+    <table class="uk-table uk-table-striped uk-table-hover uk-table-small uk-table-middle tabla-compacta">
+
+        <thead class="table-header">
+            <tr>
+                <th>Id</th>
+                <th>Codigo</th>
+                <th>Identificacion</th>
+                <th>Nombres Completos</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Listado)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Codigo</td>
+                    <td>@item.NoIdentificacion</td>
+                    <td>@item.NombresCompletos</td>
+                    <td class="uk-text-center">
+
+                        
+                        <button class="uk-icon-button uk-button-danger" uk-tooltip="Eliminar"  @onclick="() => OnEliminar(item)">
+                            <i class="icon-feather-trash-2"></i>
+                        </button>
+
+                    </td>
+                </tr>
+            }
+            
+        </tbody>
+    </table>
+</div>
+
+<Modal Title="Seleccionar Tecnico" Size="ModalSize.ExtraLarge" UseStaticBackdrop=true @ref="ModalTecnicos">
+    <BodyTemplate>         
+        <SelectTecnicos OnSeleccionado="AsignarTecnico2" />
+    </BodyTemplate>
+</Modal>
+
+<PagedList Titem="ListaGrupoTrabajoResponse" Request="Request" Response="Paginacion" OnChange="Listar" />
+<Loading Isloading="isLoading" />
+
+@code {
+
+    public List<ListaGrupoTrabajoResponse> Listado { get; set; } = new();
+    public PaginationRequest Request { get; set; } = new();
+    public PaginationResponse<ListaGrupoTrabajoResponse> Paginacion { get; set; } = new();
+
+    private ListaTecnicoResponse? tecnicoPrincipal;
+    private ListaTecnicoResponse? tecnico2Seleccionado;
+    public GrupoTrabajoRequest RequestGrupoTrabajo { get; set; } = new();
+
+    public Modal ModalTecnicos { get; set; } = new();
+    public bool isLoading { get; set; }   
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        tecnicoPrincipal = await ((AuthService)auth).GetTecnicoSesion();
+        await Listar();
+    }
+
+    public async Task Listar()
+    {
+        isLoading = true;
+        try
+        {
+            var respuesta = await grupoTrabajoProxy.Listar(Request);
+            if(respuesta?.Result != null)
+            {
+                Paginacion = respuesta;
+                Listado = respuesta.Result.ToList();
+
+                if(tecnicoPrincipal != null)
+                {
+                    grupoEstado.ActualizarGrupoTrabajo(Listado, tecnicoPrincipal.NombresCompletos, tecnicoPrincipal.Id);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);            
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }    
+
+    public async Task OnNuevo()
+    {
+        RequestGrupoTrabajo = new();
+        await ModalTecnicos.ShowAsync();
+    }    
+
+    private async Task AsignarTecnico2(ListaTecnicoResponse tecnico)
+    {
+        if (tecnicoPrincipal?.Id == tecnico.Id)
+        {
+            toastService.ShowWarning("No puede vincularse a sí mismo como técnico secundario.");
+            return;
+        }
+
+        if(Listado.Any(x => x.IdTecnicoVinculado == tecnico.Id))
+        {
+            toastService.ShowWarning($"{tecnico.NombresCompletos} Ya se encuentra vinculado a su grupo.");
+            return;
+        }
+
+
+        try
+        {            
+            await ModalTecnicos.HideAsync();
+            isLoading = true;
+
+            var nuevoVinculo = new GrupoTrabajoRequest
+            {
+                IdTecnicoPrincipal = tecnicoPrincipal!.Id,
+                IdTecnicoVinculado = tecnico.Id,
+                FechaVinculacion = DateTime.Now
+            };
+
+            var respuesta = await grupoTrabajoProxy.Registrar(nuevoVinculo);
+            if (respuesta != null)
+            {
+                toastService.ShowSuccess($"{tecnico.NombresCompletos} vinculado correctamente.");
+                await Listar();
+            }            
+            
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError("No se pudo vincular: " + ex.Message);            
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }        
+    }
+    
+    public async Task OnEliminar(ListaGrupoTrabajoResponse item)
+    {
+        var respuesta = await swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "Estas seguro en eliminar este registro?",
+            Text = $"Eliminar {item.NombresCompletos}.",
+            Icon = SweetAlertIcon.Question,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Si",
+            CancelButtonText = "No"
+        });
+
+        if (respuesta.IsConfirmed)
+        {
+            await Eliminar(item.Id);
+        }
+    }
+
+    public async Task Eliminar(int id)
+    {
+        isLoading = true;
+        try
+        {
+            var response = await grupoTrabajoProxy.Eliminar(id);
+            if(response != null)
+            {
+                await Listar();
+                toastService.ShowSuccess("Registro eliminado correctamente.");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+    
+}

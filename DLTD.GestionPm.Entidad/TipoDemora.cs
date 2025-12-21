@@ -15,5 +15,5 @@ public partial class TipoDemora: EntidadBase
 
     public bool? AplicaDetencion { get; set; }
 
-    public virtual ICollection<PmtareaDemora> PmtareaDemoras { get; set; } = new List<PmtareaDemora>();
+    public virtual ICollection<PmTareaDemora> PmTareaDemoras { get; set; } = new List<PmTareaDemora>();
 }

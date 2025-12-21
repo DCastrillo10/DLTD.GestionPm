@@ -59,5 +59,14 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
             return tareas;
            
         }
+        
+        public async Task<Pmdetalle?> GetDetalleTareaPmById(int id)
+        {
+            var detalleTareaPm = await _contexto.PmDetalles
+                                        .Include(t => t.IdTareaNavigation)
+                                            .ThenInclude(t => t.IdRutaNavigation)
+                                        .FirstOrDefaultAsync(p => p.Id == id);
+            return detalleTareaPm;
+        }
     }
 }

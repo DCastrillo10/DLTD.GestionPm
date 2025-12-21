@@ -11,5 +11,5 @@ public partial class TipoHallazgo: EntidadBase
 
     public string Nombre { get; set; } = null!;
 
-    public virtual ICollection<PmtareaHallazgo> PmtareaHallazgos { get; set; } = new List<PmtareaHallazgo>();
+    public virtual ICollection<PmTareaHallazgo> PmTareaHallazgos { get; set; } = new List<PmTareaHallazgo>();
 }

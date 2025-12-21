@@ -1,5 +1,6 @@
 ﻿using Blazored.SessionStorage;
 using DLTD.GestionPm.Dto.Response.Login;
+using DLTD.GestionPm.Dto.Response.Tecnico;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -65,6 +66,20 @@ namespace DLTD.GestionPm.UI.Services
         {
             var handler = new JwtSecurityTokenHandler();
             return handler.ReadJwtToken(Token);
+        }
+
+        public async Task<ListaTecnicoResponse> GetTecnicoSesion()
+        {
+            var state = await GetAuthenticationStateAsync();
+            var user = state.User;
+
+            return new ListaTecnicoResponse
+            {
+                Id = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0"),
+                Nombres = user.FindFirst(ClaimTypes.Name)?.Value ?? "",
+                Codigo = user.FindFirst("Codigo")?.Value ?? "",
+                NoIdentificacion = user.FindFirst("NoIdentificacion")?.Value ?? ""
+            };
         }
     }
 }

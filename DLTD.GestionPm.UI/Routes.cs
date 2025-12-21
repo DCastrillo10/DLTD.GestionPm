@@ -7,6 +7,7 @@
         public const string Tecnicos = "/tecnicos";
         public const string TecnicoNuevo = "/tecnicos/nuevo";
         public const string TecnicoEditar = "/tecnicos/editar";
+        public const string GrupoTrabajo = "/grupotrabajo";
         public const string ListaMarcas = "/listamarcas";
         public const string ListaModelos = "/listamodelos";
         public const string ListaEquipos = "/listaequipos";
@@ -22,6 +23,7 @@
         public const string ListaPm = "/listapm";
         public const string PmNuevo = "/pm/nuevo";
         public const string PmEditar = "/pm/editar";
+        public const string PmTarea = "/pm/tarea";
 
     }
 }

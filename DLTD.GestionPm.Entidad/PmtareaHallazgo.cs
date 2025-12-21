@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DLTD.GestionPm.Entidad;
 
-public partial class PmtareaHallazgo : EntidadBase
+public partial class PmTareaHallazgo : EntidadBase
 {
     
 

@@ -17,6 +17,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 builder.Services.AddScoped<ISecurityProxy, SecurityProxy>();
 builder.Services.AddScoped<ITecnicoProxy, TecnicoProxy>();
+builder.Services.AddScoped<IGrupoTrabajoProxy, GrupoTrabajoProxy>();
 builder.Services.AddScoped<IMarcaProxy, MarcaProxy>();
 builder.Services.AddScoped<IModeloProxy, ModeloProxy>();
 builder.Services.AddScoped<IMaquinaProxy, MaquinaProxy>();
@@ -28,6 +29,7 @@ builder.Services.AddScoped<ITipoHallazgoProxy, TipoHallazgoProxy>();
 builder.Services.AddScoped<ITipoPmProxy, TipoPmProxy>();
 builder.Services.AddScoped<ICheckListProxy, CheckListProxy>();
 builder.Services.AddScoped<IPmProxy, PmProxy>();
+builder.Services.AddScoped<GrupoTrabajoEstado>();
 
 builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddSweetAlert2();

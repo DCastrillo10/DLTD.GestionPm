@@ -17,5 +17,5 @@ public partial class TipoActividad: EntidadBase
     
     public string Nombre { get; set; } = null!;
 
-    public virtual ICollection<PmtareaTecnico> PmtareaTecnicos { get; set; } = new List<PmtareaTecnico>();
+    public virtual ICollection<PmTareaTecnico> PmTareaTecnicos { get; set; } = new List<PmTareaTecnico>();
 }

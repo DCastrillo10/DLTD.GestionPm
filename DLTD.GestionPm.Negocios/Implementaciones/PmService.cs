@@ -270,6 +270,33 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             return response;
         }
 
+        public async Task<BaseResponse<PmDetallesResponse>> GetDetalleTareaPmById(int id)
+        {
+            var response = new BaseResponse<PmDetallesResponse>();
+            try
+            {
+                var detalleTarea = await _repository.GetDetalleTareaPmById(id);
+                if (detalleTarea == null) throw new InvalidDataException("Tarea no encontrada.");
+
+                var details = MapearDetalleConRutas(detalleTarea);
+
+                response.IsSuccess = true;
+                response.Result = details;
+            }
+            catch (InvalidDataException ex)
+            {
+                response.Message = ex.Message;
+                _logger.LogWarning(ex, "{0}: {1}", response.Message, ex.Message);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = "Hubo un error al buscar la tarea.";
+                _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
+            }
+            return response;
+        }
+
         private void ActualizarDetalles(Pm masterExistente, List<PmDetallesRequest> nuevoDetalles)
         {
             //Manejo de Eliminados

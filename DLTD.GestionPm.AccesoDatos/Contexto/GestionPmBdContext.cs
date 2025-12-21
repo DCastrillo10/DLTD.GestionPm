@@ -16,6 +16,8 @@ public partial class GestionPmBdContext : DbContext
     {
     }
 
+    public virtual DbSet<GrupoTrabajo> GrupoTrabajos { get; set; }
+
     public virtual DbSet<Horometro> Horometros { get; set; }
 
     public virtual DbSet<Maquina> Maquinas { get; set; }
@@ -32,13 +34,11 @@ public partial class GestionPmBdContext : DbContext
 
     public virtual DbSet<Pmdetalle> PmDetalles { get; set; }
 
-    public virtual DbSet<PmtareaDemora> PmtareaDemoras { get; set; }
+    public virtual DbSet<PmTareaDemora> PmTareaDemoras { get; set; }
 
-    public virtual DbSet<PmtareaHallazgo> PmtareaHallazgos { get; set; }
+    public virtual DbSet<PmTareaHallazgo> PmTareaHallazgos { get; set; }
 
-    public virtual DbSet<PmtareaTecnico> PmtareaTecnicos { get; set; }
-
-    public virtual DbSet<PmtecnicoTurno> PmtecnicoTurnos { get; set; }
+    public virtual DbSet<PmTareaTecnico> PmTareaTecnicos { get; set; }
 
     public virtual DbSet<Ruta> Rutas { get; set; }
 
@@ -53,9 +53,33 @@ public partial class GestionPmBdContext : DbContext
     public virtual DbSet<TipoHallazgo> TipoHallazgos { get; set; }
 
     public virtual DbSet<TipoPm> TipoPms { get; set; }
+
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<GrupoTrabajo>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("GrupoTrabajo_PK");
+
+            entity.ToTable("GrupoTrabajo");
+
+            entity.Property(e => e.FechaRegistro).HasPrecision(0);
+            entity.Property(e => e.FechaVinculacion).HasPrecision(0);
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
+
+            entity.HasOne(d => d.IdTecnicoPrincipalNavigation).WithMany(p => p.GrupoTrabajoIdTecnicoPrincipalNavigations)
+                .HasForeignKey(d => d.IdTecnicoPrincipal)
+                .HasConstraintName("GrupoTrabajo_Tecnicos_FK");
+
+            entity.HasOne(d => d.IdTecnicoVinculadoNavigation).WithMany(p => p.GrupoTrabajoIdTecnicoVinculadoNavigations)
+                .HasForeignKey(d => d.IdTecnicoVinculado)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("GrupoTrabajo_Tecnicos_FK_1");
+        });
+
         modelBuilder.Entity<Horometro>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("Horometros_PK");
@@ -67,15 +91,11 @@ public partial class GestionPmBdContext : DbContext
             entity.Property(e => e.HorometroPrevio)
                 .HasDefaultValue(0m)
                 .HasColumnType("decimal(12, 2)");
-            entity.Property(e => e.Observacion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Observacion).HasMaxLength(500);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
 
             entity.HasOne(d => d.IdMaquinaNavigation).WithMany(p => p.Horometros)
                 .HasForeignKey(d => d.IdMaquina)
@@ -87,18 +107,14 @@ public partial class GestionPmBdContext : DbContext
             entity.HasKey(e => e.Id).HasName("Maquinas_PK");
 
             entity.Property(e => e.Codigo)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Descripcion).HasMaxLength(500);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
 
             entity.HasOne(d => d.IdModeloNavigation).WithMany(p => p.Maquinas)
                 .HasForeignKey(d => d.IdModelo)
@@ -110,39 +126,26 @@ public partial class GestionPmBdContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("Marcas_PK");
 
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Descripcion).HasMaxLength(500);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasDefaultValue("0");
+            entity.Property(e => e.Nombre).HasMaxLength(50);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
         });
 
         modelBuilder.Entity<Modelo>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("ModeloMaquinas_PK");
 
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Descripcion).HasMaxLength(500);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
-            entity.Property(e => e.Referencia)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Referencia).HasMaxLength(20);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
 
             entity.HasOne(d => d.IdMarcaNavigation).WithMany(p => p.Modelos)
                 .HasForeignKey(d => d.IdMarca)
@@ -157,6 +160,7 @@ public partial class GestionPmBdContext : DbContext
             entity.ToTable("PM");
 
             entity.Property(e => e.Duracion).HasColumnType("decimal(12, 2)");
+            entity.Property(e => e.FechaAprobacion).HasPrecision(0);
             entity.Property(e => e.FechaFinalPm)
                 .HasPrecision(0)
                 .HasColumnName("FechaFinal_Pm");
@@ -164,29 +168,28 @@ public partial class GestionPmBdContext : DbContext
                 .HasPrecision(0)
                 .HasColumnName("FechaInicial_Pm");
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
+            entity.Property(e => e.FechaRevision).HasPrecision(0);
             entity.Property(e => e.HorometroActual).HasColumnType("decimal(12, 2)");
             entity.Property(e => e.HorometroPrevio).HasColumnType("decimal(12, 2)");
             entity.Property(e => e.NoEquipo)
-                .HasMaxLength(100)
+                .HasMaxLength(10)
                 .IsUnicode(false);
             entity.Property(e => e.NoHangar)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.Observacion)
-                .HasMaxLength(100)
+                .HasMaxLength(10)
                 .IsUnicode(false);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasComment("Activo,Inactivo,Eliminado,Revisado,Aprobado");
             entity.Property(e => e.StatusPm)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("Status_Pm");
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioAprobacion).HasMaxLength(20);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
+            entity.Property(e => e.UsuarioRevision).HasMaxLength(20);
             entity.Property(e => e.WorkOrder)
-                .HasMaxLength(100)
+                .HasMaxLength(50)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.IdModeloNavigation).WithMany(p => p.Pms)
@@ -204,16 +207,12 @@ public partial class GestionPmBdContext : DbContext
 
             entity.ToTable("PMCheckList");
 
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Descripcion).HasMaxLength(1000);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
 
             entity.HasOne(d => d.IdModeloNavigation).WithMany(p => p.PmcheckLists)
                 .HasForeignKey(d => d.IdModelo)
@@ -232,11 +231,9 @@ public partial class GestionPmBdContext : DbContext
 
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
 
             entity.HasOne(d => d.IdPmCheckListNavigation).WithMany(p => p.PmcheckListDetalles)
                 .HasForeignKey(d => d.IdPmCheckList)
@@ -260,7 +257,10 @@ public partial class GestionPmBdContext : DbContext
                 .HasComment("Duracion de la tarea en la ejecucion")
                 .HasColumnType("decimal(12, 2)")
                 .HasColumnName("Duracion_Tarea");
-            entity.Property(e => e.FechaActualizacion).HasPrecision(0);
+            entity.Property(e => e.FechaActualizacion)
+                .HasPrecision(0)
+                .HasComment("");
+            entity.Property(e => e.FechaAprobacion).HasPrecision(0);
             entity.Property(e => e.FechaFinalTarea)
                 .HasPrecision(0)
                 .HasColumnName("FechaFinal_Tarea");
@@ -268,22 +268,21 @@ public partial class GestionPmBdContext : DbContext
                 .HasPrecision(0)
                 .HasColumnName("FechaInicial_Tarea");
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
+            entity.Property(e => e.FechaRevision).HasPrecision(0);
             entity.Property(e => e.NoTecnicos).HasComment("Numero Tecnicos desde la parametrizacion");
-            entity.Property(e => e.Observacion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
             entity.Property(e => e.Realizado).HasDefaultValue(false);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasComment("Activo,Inactivo,Eliminado,Revisado,Aprobado");
             entity.Property(e => e.StatusTarea)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasComment("Programado,Enprogreso,Completado")
                 .HasColumnName("Status_Tarea");
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioAprobacion).HasMaxLength(20);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
+            entity.Property(e => e.UsuarioRevision).HasMaxLength(20);
             entity.Property(e => e.Valor1).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Valor2).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Valor3).HasColumnType("decimal(10, 2)");
@@ -298,15 +297,13 @@ public partial class GestionPmBdContext : DbContext
                 .HasConstraintName("PMDetalles_Tareas_FK");
         });
 
-        modelBuilder.Entity<PmtareaDemora>(entity =>
+        modelBuilder.Entity<PmTareaDemora>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PMTareaDemoras_PK");
 
             entity.ToTable("PMTareaDemoras");
 
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Descripcion).HasMaxLength(1000);
             entity.Property(e => e.DuracionDemora)
                 .HasColumnType("decimal(12, 2)")
                 .HasColumnName("Duracion_Demora");
@@ -318,144 +315,94 @@ public partial class GestionPmBdContext : DbContext
                 .HasColumnName("FechaInicial_Demora");
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro).HasPrecision(0);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
 
-            entity.HasOne(d => d.IdPmDetalleNavigation).WithMany(p => p.PmtareaDemoras)
+            entity.HasOne(d => d.IdPmDetalleNavigation).WithMany(p => p.PmTareaDemoras)
                 .HasForeignKey(d => d.IdPmDetalle)
                 .HasConstraintName("PMTareaDemoras_PMDetalles_FK");
 
-            entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmtareaDemoras)
+            entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmTareaDemoras)
                 .HasForeignKey(d => d.IdTecnico)
                 .HasConstraintName("PMTareaDemoras_Tecnicos_FK");
 
-            entity.HasOne(d => d.IdTipoDemoraNavigation).WithMany(p => p.PmtareaDemoras)
+            entity.HasOne(d => d.IdTipoDemoraNavigation).WithMany(p => p.PmTareaDemoras)
                 .HasForeignKey(d => d.IdTipoDemora)
                 .HasConstraintName("PMTareaDemoras_TipoDemoras_FK");
         });
 
-        modelBuilder.Entity<PmtareaHallazgo>(entity =>
+        modelBuilder.Entity<PmTareaHallazgo>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PMTareaHallazgos_PK");
 
             entity.ToTable("PMTareaHallazgos");
 
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Descripcion).HasMaxLength(1000);
             entity.Property(e => e.FechaHallazgo).HasPrecision(0);
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
             entity.Property(e => e.ImagenUrl)
-                .HasMaxLength(100)
+                .HasMaxLength(500)
                 .IsUnicode(false);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.ValidadoPor).HasMaxLength(450);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
+            entity.Property(e => e.ValidadoPor).HasMaxLength(20);
 
-            entity.HasOne(d => d.IdPmDetalleNavigation).WithMany(p => p.PmtareaHallazgos)
+            entity.HasOne(d => d.IdPmDetalleNavigation).WithMany(p => p.PmTareaHallazgos)
                 .HasForeignKey(d => d.IdPmDetalle)
                 .HasConstraintName("PMTareaHallazgos_PMDetalles_FK");
 
-            entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmtareaHallazgos)
+            entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmTareaHallazgos)
                 .HasForeignKey(d => d.IdTecnico)
                 .HasConstraintName("PMTareaHallazgos_Tecnicos_FK");
 
-            entity.HasOne(d => d.IdTipoHallazgoNavigation).WithMany(p => p.PmtareaHallazgos)
+            entity.HasOne(d => d.IdTipoHallazgoNavigation).WithMany(p => p.PmTareaHallazgos)
                 .HasForeignKey(d => d.IdTipoHallazgo)
                 .HasConstraintName("PMTareaHallazgos_TipoHallazgos_FK");
         });
 
-        modelBuilder.Entity<PmtareaTecnico>(entity =>
+        modelBuilder.Entity<PmTareaTecnico>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PMTareaTecnico_PK");
 
             entity.ToTable("PMTareaTecnico");
 
             entity.Property(e => e.Descripcion).HasMaxLength(1000);
-            entity.Property(e => e.DuracionAsignacion).HasColumnType("decimal(12, 2)");
-            entity.Property(e => e.FechaFinalAsignacion).HasPrecision(0);
-            entity.Property(e => e.FechaInicialAsignacion).HasPrecision(0);
+            entity.Property(e => e.DuracionActividad).HasColumnType("decimal(12, 2)");
+            entity.Property(e => e.FechaFinalActividad).HasPrecision(0);
+            entity.Property(e => e.FechaInicialActividad).HasPrecision(0);
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
 
-            entity.HasOne(d => d.IdPmDetalleNavigation).WithMany(p => p.PmtareaTecnicos)
+            entity.HasOne(d => d.IdPmDetalleNavigation).WithMany(p => p.PmTareaTecnicos)
                 .HasForeignKey(d => d.IdPmDetalle)
-                .HasConstraintName("PMTareaTecnico_PMDetalles_FK");
+                .HasConstraintName("PMTareaTecnico_PMDetalles_FK_1");
 
-            entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmtareaTecnicos)
+            entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmTareaTecnicos)
                 .HasForeignKey(d => d.IdTecnico)
-                .HasConstraintName("PMTareaTecnico_Tecnicos_FK");
+                .HasConstraintName("PMTareaTecnico_Tecnicos_FK_1");
 
-            entity.HasOne(d => d.IdTipoActividadNavigation).WithMany(p => p.PmtareaTecnicos)
+            entity.HasOne(d => d.IdTipoActividadNavigation).WithMany(p => p.PmTareaTecnicos)
                 .HasForeignKey(d => d.IdTipoActividad)
-                .HasConstraintName("PMTareaTecnico_TipoActividad_FK");
-        });
-
-        modelBuilder.Entity<PmtecnicoTurno>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PMTecnicoTurno_PK");
-
-            entity.ToTable("PMTecnicoTurno");
-
-            entity.Property(e => e.Descripcion).HasMaxLength(1000);
-            entity.Property(e => e.DuracionTurno)
-                .HasColumnType("decimal(12, 2)")
-                .HasColumnName("Duracion_Turno");
-            entity.Property(e => e.FechaFinalTurno)
-                .HasPrecision(0)
-                .HasColumnName("FechaFinal_Turno");
-            entity.Property(e => e.FechaInicialTurno)
-                .HasPrecision(0)
-                .HasColumnName("FechaInicial_Turno");
-            entity.Property(e => e.FechaRegistro).HasPrecision(0);
-            entity.Property(e => e.Status)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.Turno)
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasComment("Dia o Noche");
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.IdPmNavigation).WithMany(p => p.PmtecnicoTurnos)
-                .HasForeignKey(d => d.IdPm)
-                .HasConstraintName("PMTecnicoTurno_PM_FK");
-
-            entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmtecnicoTurnos)
-                .HasForeignKey(d => d.IdTecnico)
-                .HasConstraintName("PMTecnicoTurno_Tecnicos_FK");
+                .HasConstraintName("PMTareaTecnico_TipoActividad_FK_1");
         });
 
         modelBuilder.Entity<Ruta>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("Rutas_PK");
 
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Descripcion).HasMaxLength(100);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasDefaultValue("0");
+            entity.Property(e => e.Nombre).HasMaxLength(100);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
         });
 
         modelBuilder.Entity<Tarea>(entity =>
@@ -463,19 +410,15 @@ public partial class GestionPmBdContext : DbContext
             entity.HasKey(e => e.Id).HasName("Tareas_PK");
 
             entity.Property(e => e.CodigoTarea)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(500)
-                .IsUnicode(false);
+            entity.Property(e => e.Descripcion).HasMaxLength(2000);
             entity.Property(e => e.Duracion).HasColumnType("decimal(12, 2)");
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
 
             entity.HasOne(d => d.IdRutaNavigation).WithMany(p => p.Tareas)
                 .HasForeignKey(d => d.IdRuta)
@@ -486,39 +429,29 @@ public partial class GestionPmBdContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("Tecnicos_PK");
 
-            entity.Property(e => e.Apellidos)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Apellidos).HasMaxLength(50);
             entity.Property(e => e.Codigo)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasDefaultValue("0");
-            entity.Property(e => e.Email)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.Especialidad)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.Especialidad).HasMaxLength(30);
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
             entity.Property(e => e.NoIdentificacion)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasDefaultValue("0");
-            entity.Property(e => e.Nombres)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Nombres).HasMaxLength(50);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.Telefono)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.TurnoActual)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
         });
 
         modelBuilder.Entity<TipoActividad>(entity =>
@@ -528,57 +461,40 @@ public partial class GestionPmBdContext : DbContext
             entity.ToTable("TipoActividad");
 
             entity.Property(e => e.Descripcion)
-                .HasMaxLength(100)
-                .IsUnicode(false)
+                .HasMaxLength(500)
                 .HasComment("Iniciar Turno,\r\nReanudar Turno,\r\nFinalizar Turno");
             entity.Property(e => e.FechaRegistro).HasPrecision(0);
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Nombre).HasMaxLength(50);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
         });
 
         modelBuilder.Entity<TipoDemora>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("TipoDemoras_PK");
 
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Descripcion).HasMaxLength(500);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Nombre).HasMaxLength(50);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
         });
 
         modelBuilder.Entity<TipoHallazgo>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("TipoHallazgos_PK");
 
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Descripcion).HasMaxLength(500);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Nombre).HasMaxLength(50);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
         });
 
         modelBuilder.Entity<TipoPm>(entity =>
@@ -587,19 +503,13 @@ public partial class GestionPmBdContext : DbContext
 
             entity.ToTable("TipoPm");
 
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Descripcion).HasMaxLength(500);
             entity.Property(e => e.FechaRegistro).HasPrecision(3);
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Nombre).HasMaxLength(50);
             entity.Property(e => e.Status)
-                .HasMaxLength(100)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.UsuarioRegistro)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
         });
 
         OnModelCreatingPartial(modelBuilder);

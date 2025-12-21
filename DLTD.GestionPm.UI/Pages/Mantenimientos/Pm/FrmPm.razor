@@ -1,6 +1,6 @@
 ﻿
-@using DLTD.GestionPm.Dto.Request.Pm
 @using DLTD.GestionPm.Dto.Response.Modelo
+@using DLTD.GestionPm.Dto.Response.Pm
 @using DLTD.GestionPm.Dto.Response.Ruta
 @using DLTD.GestionPm.Dto.Response.TipoPm
 @using System.Globalization
@@ -15,8 +15,10 @@
 @inject IModeloProxy modeloProxy;
 @inject IRutaProxy rutaProxy;
 @inject IMaquinaProxy maquinaProxy;
+@inject GrupoTrabajoEstado grupoEstado;
 @inject IToastService toastService;
 @inject NavigationManager Navegador;
+@implements IDisposable;
 
 <h3 class="uk-text-bold uk-margin-small-bottom">@(Request.Id == 0 ? "Nuevo" : "Editar") PM</h3>
 
@@ -155,13 +157,26 @@
                     <div class="uk-margin">
                         <label class="uk-form-label">Observacion</label>
                         <textarea class="uk-textarea textarea-minima" @bind="Request.Observacion" placeholder="Observacion"></textarea>
-                        <ValidationMessage For="@(() => Request.Observacion)" />
+                        <ValidationMessage For="@(() => Request.Observacion)" />                    
+                    </div>
 
-                        <div class="uk-margin uk-flex uk-flex-right ">
+                    <div class="uk-grid-small uk-flex-middle" uk-grid>
+                        <div class="uk-width-auto@s">
+                            <label class="uk-form-label uk-margin-small-right">Tecnicos Adicionales</label>
+                        </div>
+                        <div class="uk-width-auto@s">
+                            <div class="uk-inline">
+                                <input class="uk-input uk-form-small uk-input-borde-fijo" style="width:260px;" value="@grupoEstado.NombresConcatenados" disabled />                                
+                            </div>                                
+                        </div>                          
+
+                        <div class="uk-width-expand@s"></div>
+
+                        <div class="uk-width-auto@s ">                            
                             <button type="button" class="uk-button btn-corporativo" @onclick="OnCargarTareas" disabled="@(Id != 0 || Request.IdModelo == 0 || Request.IdTipoPm == 0)">
                                 <i class="icon-feather-alert-circle uk-margin-small-right"></i> Cargar Tareas
-                            </button>
-                        </div>                        
+                            </button>                            
+                        </div>
                     </div>
                   
                 </Contenido>
@@ -172,34 +187,35 @@
     <div class="uk-margin">
         <GroupBox Titulo="Detalle de Tareas">
             <Contenido>
-                <div class="uk-grid-small uk-child-width-1-2@s uk-flex-top uk-margin-small-bottom" uk-grid>                    
+                <div class="uk-grid-small uk-flex-middle" uk-grid>
+                    <div class="uk-width-auto@s">
+                        <label class="uk-form-label uk-margin-small-right">Buscar Tarea</label>
+                    </div>
 
-                    <div>
-                        <label class="uk-form-label uk-padding-remove-vertical">Buscar Tarea</label>
-                        <div class="uk-grid-collapse uk-flex-middle" uk-grid>
-                            <div class="uk-width-expand">
-                                <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="Buscar por Tareas o Rutas" @bind="FiltroBusqueda">
-                            </div>
+                    <div class="uk-width-auto@s">
+                        <div class="uk-inline">
+                            <input class="uk-input uk-form-small uk-input-borde-fijo" style="width:260px;" placeholder="Buscar por Tareas o Rutas" @bind="FiltroBusqueda">
+                            <button type="button" class="uk-button btn-corporativo" @onclick="OnBuscar" style="height: 38px;">
+                                <i class="icon-feather-search"></i>
+                            </button>
+                            <button type="button" class="uk-button uk-button-default uk-button-small" @onclick="LimpiarFiltro" style="height: 38px;">
+                                <i class="icon-feather-rotate-ccw"></i>
+                            </button>
+                        </div>                        
+                    </div>
 
-                            <div class="uk-width-auto">
-                                <button type="button" class="uk-button btn-corporativo" @onclick="OnBuscar" style="height: 38px;">
-                                    <i class="icon-feather-search"></i>
-                                </button>
-                            </div>
+                    <div class="uk-width-expand@s"></div>
 
-                            <div class="uk-width-auto uk-margin-small-left">
-                                <button type="button" class="uk-button uk-button-default" @onclick="LimpiarFiltro" style="height: 38px;">
-                                    <i class="icon-feather-x"></i>
-                                </button>
-                            </div>
-
-                            
-                            <div class="uk-width-auto">
-                                <button type="button" class="uk-button uk-button-success" @onclick="CompletarTareasSeleccionadas">
-                                    <i class="icon-feather-check-circle uk-margin-small-right"></i> Completar Tareas Seleccionadas
-                                </button>
-                            </div>
-                        </div>
+                    <div class="uk-width-auto@s">
+                        <button type="button" class="uk-button uk-button-success" @onclick="CompletarTareasSeleccionadas">
+                            <i class="icon-feather-check-circle uk-margin-small-right"></i> Completar Tareas
+                        </button>
+                        <button type="button" class="uk-button uk-button-success" @onclick="CompletarTareasSeleccionadas">
+                            <i class="icon-feather-check-circle uk-margin-small-right"></i> Revisar Tareas
+                        </button>
+                        <button type="button" class="uk-button uk-button-success" @onclick="CompletarTareasSeleccionadas">
+                            <i class="icon-feather-check-circle uk-margin-small-right"></i> Aprobar Tareas
+                        </button>
                     </div>
                 </div>
 
@@ -226,23 +242,10 @@
                                         <td>@detalle.NomTarea</td>
                                         <td>@detalle.NomRuta</td>
                                         <td>@detalle.StatusTarea</td>
-                                        <td>
-                                            
-                                                @* @onclick="(() => OnQuitarDetalle(detalle))" *@
-                                                <button  class="uk-button uk-button-danger uk-button-small" uk-tooltip="Actividad">
-                                                    <i class="icon-feather-play-circle"></i>
-                                                </button>                                           
-                                                
-                                                <button class="uk-button uk-button-danger uk-button-small" uk-tooltip="Demoras">
-                                                    <i class="icon-feather-clock"></i>
-                                                </button>
-                                                
-                                                <button class="uk-button uk-button-success uk-button-small" uk-tooltip="Hallazgos">
-                                                    <i class="icon-feather-alert-triangle"></i>
-                                                </button>
-                                                
-                                            }
-
+                                        <td class="uk-text-center">                                            
+                                            <button type="button" class="uk-button uk-button-danger uk-button-small" uk-tooltip="Actividad" @onclick="() => IrAGestionActividad(detalle)">
+                                                <i class="icon-feather-play-circle"></i>
+                                            </button>                                       
                                         </td>
                                     </tr>
                                 }
@@ -274,30 +277,32 @@
 
 </EditForm>
 
+
+
 <Loading Isloading="isLoading" />
 
 @code {
-    [Parameter]
-    public int Id { get; set; } // Se usa para editar
+    [Parameter] public int Id { get; set; } // Se usa para editar
+
 
     public PmRequest Request { get; set; } = new();
     public PmDetallesRequest DetalleAuxiliar { get; set; } = new();
-    public List<PmDetallesRequest> DetalleVisibles { get; set; } = new();
+    public List<PmDetallesRequest> DetalleVisibles { get; set; } = new();     
 
     public List<ListaRutaResponse> ListadoRutas { get; set; } = new();
     public List<ListaModeloResponse> ListadoModelos { get; set; } = new();
     public List<ListaTipoPmResponse> ListadoTipoPms { get; set; } = new();
 
-    public bool EsPmExistente { get; set; } = false;
-    public string FiltroBusqueda { get; set; } = string.Empty;
-    public string NombreModeloSel { get; set; } = string.Empty;
 
     public bool isLoading { get; set; }
+    public bool EsPmExistente { get; set; } = false;
+    public string FiltroBusqueda { get; set; } = string.Empty;
+    public string NombreModeloSel { get; set; } = string.Empty;    
+
     public int PaginaActual { get; set; } = 1;
     public int ElementosPorPagina { get; set; } = 5; // Valor razonable para una tabla detallada
     public int TotalPaginas { get; set; } = 1;
     public int TotalElementos { get; set; } = 0;
-
 
 
     protected override async Task OnInitializedAsync()
@@ -405,7 +410,7 @@
 
     public async Task OnGuardar()
     {
-        
+
         isLoading = true;
 
         if (!await OnPmExistente())
@@ -682,4 +687,11 @@
         // Llama al método de filtrado/paginación con la nueva página solicitada
         AplicarFiltro(nuevaPagina);
     }
+
+    private void IrAGestionActividad(PmDetallesRequest detalle)
+    {               
+        Navegador.NavigateTo($"{Routes.PmTarea}/{detalle.Id}");
+    }
+
+    public void Dispose() => grupoEstado.OnChange -= StateHasChanged;
 }
