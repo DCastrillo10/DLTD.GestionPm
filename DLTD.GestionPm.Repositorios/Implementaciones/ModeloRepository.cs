@@ -13,7 +13,8 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
     {
         public ModeloRepository(GestionPmBdContext contexto): base(contexto)
         {
-                
+           
         }
+        
     }
 }

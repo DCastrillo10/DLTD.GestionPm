@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DLTD.GestionPm.Repositorios.Implementaciones
 {
-    public class TipoActividadRepository(GestionPmBdContext contexto): BaseRepository<TipoActividad>(contexto), ITipoActividadRepository
+    public class PmTareaDemoraRepository(GestionPmBdContext contexto): BaseRepository<PmTareaDemora>(contexto), IPmTareaDemoraRepository
     {
         
     }

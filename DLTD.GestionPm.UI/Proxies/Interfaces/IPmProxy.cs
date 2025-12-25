@@ -18,5 +18,6 @@ namespace DLTD.GestionPm.UI.Proxies.Interfaces
         Task<BaseResponse<IEnumerable<PmDetallesResponse>>>ObtenerTareasxModeloTipoPm(int idTipoPm, int idModelo);
 
         Task<BaseResponse<PmDetallesResponse>> ObtenerDetallesxId(int id);
+        Task<BaseResponse> ActualizarDetallesxId(int id, PmDetallesRequest request);
     }
 }

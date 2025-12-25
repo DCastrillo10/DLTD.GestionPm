@@ -66,11 +66,18 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
 
             return (result, totalElements);
         }
-
-
+        
         public async Task<TEntity?> FindAsync(int id)
         {
             return await _contexto.Set<TEntity>().FirstOrDefaultAsync(p => p.Status != "Eliminado" && p.Id == id);
+        }
+
+        // Método para obtener entidades puras y trackeadas. Puras=editables en memoria
+        public async Task<ICollection<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _contexto.Set<TEntity>()
+                            .Where(predicate)
+                            .ToListAsync();
         }
         #endregion
 
@@ -79,18 +86,21 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
         public async Task<TEntity> AddAsync(TEntity request)
         {
             var result = await _contexto.Set<TEntity>().AddAsync(request);
-            await _contexto.SaveChangesAsync();
+            
             return result.Entity;
+        }
+
+        public async Task AddRangeAsync(IEnumerable<TEntity> request)
+        {
+            await _contexto.Set<TEntity>().AddRangeAsync(request);
+            
         }
 
         #endregion
 
         #region Operaciones de Actualizacion
 
-        public async Task UpdateAsync()
-        {
-            await _contexto.SaveChangesAsync();
-        }
+       
 
         #endregion
 

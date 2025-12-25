@@ -22,6 +22,7 @@ public partial class PmTareaDemora : EntidadBase
    
 
     public int IdTecnico { get; set; }
+    public bool? Activo { get; set; }
 
     public virtual Pmdetalle IdPmDetalleNavigation { get; set; } = null!;
 

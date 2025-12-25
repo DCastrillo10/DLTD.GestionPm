@@ -28,6 +28,7 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
                 try
                 {
                     var tecnico = await AddAsync(request);
+                    await _contexto.SaveChangesAsync();
 
                         var user = new SecurityEntity()
                         {
@@ -62,7 +63,9 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
                 }
                 
             }
-        }       
+        }
+
+        
 
     }
 }

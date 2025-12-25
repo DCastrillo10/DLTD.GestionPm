@@ -18,13 +18,13 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
 {
     public class PmService : IPmService
     {
-        private readonly IPmRepository _repository;
+        private readonly IUnitOfWork _uow;
         
         private readonly ILogger<PmService> _logger;
 
-        public PmService(IPmRepository repository, ILogger<PmService> logger)
+        public PmService(IUnitOfWork uow, ILogger<PmService> logger)
         {            
-            _repository = repository;            
+            _uow = uow;            
             _logger = logger;
         }
 
@@ -38,7 +38,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                 nuevoMasterDetail.PmDetalles = request.PmDetalles
                                                         .Select(d => d.Adapt<Pmdetalle>())
                                                         .ToList();
-                await _repository.AddMasterDetailsAsync(nuevoMasterDetail);
+                await _uow.PmRepo.AddMasterDetailsAsync(nuevoMasterDetail);
                 response.IsSuccess = true;
                 response.Message = "Pm registrada exitosamente.";
             }
@@ -55,7 +55,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<PmResponse>();
             try
             {
-                var Pm = await _repository.FindByIdWithDetailAsync(id);
+                var Pm = await _uow.PmRepo.FindByIdWithDetailAsync(id);
                 if (Pm == null) throw new InvalidDataException("Pm no encontrada.");
 
                 var masterDetails = Pm.Adapt<PmResponse>();
@@ -89,7 +89,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new PaginationResponse<ListaPmResponse>();
             try
             {
-                var result = await _repository.ListAsync(
+                var result = await _uow.PmRepo.ListAsync(
                         predicate: p => p.Status != "Eliminado" &&
                                         (string.IsNullOrEmpty(request.Filter) ||
                                         p.NoEquipo!.Contains(request.Filter) ||
@@ -137,12 +137,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse();
             try
             {
-                var masterExistente = await _repository.FindByIdWithDetailAsync(id);
+                var masterExistente = await _uow.PmRepo.FindByIdWithDetailAsync(id);
                 if (masterExistente == null) throw new InvalidDataException("Pm no encontrada.");
 
                 request.Adapt(masterExistente); //Mapear Cabecera: Actualizar las propiedades del Maestro
                 ActualizarDetalles(masterExistente, request.PmDetalles); //Actualizamos los detalles
-                await _repository.UpdateAsync();
+                await _uow.SaveAsync();
 
                 response.IsSuccess = true;
                 response.Message = "Pm actualizado exitosamente.";
@@ -166,7 +166,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse();
             try
             {
-                var Pm = await _repository.FindByIdWithDetailAsync(id);
+                var Pm = await _uow.PmRepo.FindByIdWithDetailAsync(id);
                 if (Pm == null) throw new InvalidDataException("Pm no encontrada.");
 
                 Pm.Status = "Eliminado"; //Eliminar cabecera
@@ -175,7 +175,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                     detalle.Status = "Eliminado";
                 }
 
-                await _repository.UpdateAsync();
+                await _uow.SaveAsync();
                 response.IsSuccess = true;
                 response.Message = "Pm eliminado correctamente.";
             }
@@ -198,7 +198,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<bool>();
             try
             {
-                var existe = await _repository.FindPm(idTipopm, idModelo, NoEquipo, WorkOrder);
+                var existe = await _uow.PmRepo.FindPm(idTipopm, idModelo, NoEquipo, WorkOrder);
                 if (existe)
                 {
                     response.IsSuccess = true;
@@ -233,7 +233,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<IEnumerable<PmDetallesResponse>>();
             try
             {
-                var tareas = await _repository.FindTareas(idTipoPm, idModelo);
+                var tareas = await _uow.PmRepo.FindTareas(idTipoPm, idModelo);
                 if(tareas == null || !tareas.Any())
                 {
                     response.IsSuccess = true;
@@ -249,7 +249,10 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                     IdRuta = t.IdRuta,
                     NomRuta = t.IdRutaNavigation.Nombre,
                     Duracion =t.Duracion,
-                    NoTecnicos = t.NoTecnicos
+                    NoTecnicos = t.NoTecnicos,
+                    Valor1 = 0,
+                    Valor2 = 0,
+                    Valor3 = 0
                 }).ToList();
 
                 response.IsSuccess = true;
@@ -270,12 +273,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             return response;
         }
 
-        public async Task<BaseResponse<PmDetallesResponse>> GetDetalleTareaPmById(int id)
+        public async Task<BaseResponse<PmDetallesResponse>> GetDetalleTareaPmById(int id) //Permite buscar los datos de un detail por id. (Sin cabecera)
         {
             var response = new BaseResponse<PmDetallesResponse>();
             try
             {
-                var detalleTarea = await _repository.GetDetalleTareaPmById(id);
+                var detalleTarea = await _uow.PmRepo.GetDetalleTareaPmById(id);
                 if (detalleTarea == null) throw new InvalidDataException("Tarea no encontrada.");
 
                 var details = MapearDetalleConRutas(detalleTarea);
@@ -297,7 +300,29 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             return response;
         }
 
-        private void ActualizarDetalles(Pm masterExistente, List<PmDetallesRequest> nuevoDetalles)
+        public async Task<BaseResponse> UpdateDetailsById(int id, PmDetallesRequest request) //Permite actualizar los datos de un detail por id. (Sin cabecera)
+        {
+            var response = new BaseResponse();
+            try
+            {
+                var detalle = await _uow.PmRepo.GetDetalleTareaPmById(id);
+                if(detalle == null) return new BaseResponse { Message ="Tarea no existe."};
+
+                request.Adapt(detalle);
+                await _uow.SaveAsync();
+                response.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                response.Message = "Hubo un error al actualizar los datos.";
+                _logger.LogError(ex, "{0}: {1}", response.Message, ex.Message);
+            }
+            return response;
+        }
+
+
+        //Metodos Privados
+        private void ActualizarDetalles(Pm masterExistente, List<PmDetallesRequest> nuevoDetalles) //Permite insertar/eliminar los filas o registros de un masterDetails
         {
             //Manejo de Eliminados
 
@@ -333,9 +358,9 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                 }
             }
 
-        }
+        } 
 
-        private PmDetallesResponse MapearDetalleConRutas(Pmdetalle entity)
+        private PmDetallesResponse MapearDetalleConRutas(Pmdetalle entity) //Permite mapear un Detail incluyendo los campos de los FK
         {
             // 1. Mapeo automático de campos 1:1 con Mapster
             var response = entity.Adapt<PmDetallesResponse>();            
@@ -347,7 +372,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             //Aqui puedo colocar otras propiedades de navegacion
             
             return response;
-        }
+        } 
 
     }
 }

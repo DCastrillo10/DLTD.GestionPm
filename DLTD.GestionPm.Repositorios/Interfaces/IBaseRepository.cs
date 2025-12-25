@@ -23,9 +23,12 @@ namespace DLTD.GestionPm.Repositorios.Interfaces
             Expression<Func<TEntity, TKey>> orderBy,
             int page = 1, int rows = 10
         );
+
         Task<TEntity?> FindAsync(int id);
+        Task<ICollection<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>> predicate);
+        
         Task<TEntity> AddAsync(TEntity request);
-        Task UpdateAsync();
+        Task AddRangeAsync(IEnumerable<TEntity> request);        
         Task DeleteAsync(int id);
     }
 }

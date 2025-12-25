@@ -15,6 +15,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.Configuration.GetValue<string>("services:urlBackend")!) });
 
+builder.Services.AddScoped<GrupoTrabajoEstado>();
 builder.Services.AddScoped<ISecurityProxy, SecurityProxy>();
 builder.Services.AddScoped<ITecnicoProxy, TecnicoProxy>();
 builder.Services.AddScoped<IGrupoTrabajoProxy, GrupoTrabajoProxy>();
@@ -29,7 +30,8 @@ builder.Services.AddScoped<ITipoHallazgoProxy, TipoHallazgoProxy>();
 builder.Services.AddScoped<ITipoPmProxy, TipoPmProxy>();
 builder.Services.AddScoped<ICheckListProxy, CheckListProxy>();
 builder.Services.AddScoped<IPmProxy, PmProxy>();
-builder.Services.AddScoped<GrupoTrabajoEstado>();
+builder.Services.AddScoped<IPmTareaTecnicoProxy, PmTareaTecnicoProxy>();
+
 
 builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddSweetAlert2();

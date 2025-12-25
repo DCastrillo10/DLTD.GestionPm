@@ -2,6 +2,7 @@
 using DLTD.GestionPm.Dto.Request.Pm;
 using DLTD.GestionPm.Dto.Response;
 using DLTD.GestionPm.Dto.Response.Pm;
+using DLTD.GestionPm.Entidad;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,7 @@ namespace DLTD.GestionPm.Negocios.Interfaces
         Task<BaseResponse<bool>> ExistePm(int idTipopm, int idModelo, string NoEquipo, string WorkOrder);
         Task<BaseResponse<IEnumerable<PmDetallesResponse>>> FindTareas(int idTipoPm, int idModelo);
         Task<BaseResponse<PmDetallesResponse>> GetDetalleTareaPmById(int id);
+        Task<BaseResponse> UpdateDetailsById(int id, PmDetallesRequest request);
 
     }
 }

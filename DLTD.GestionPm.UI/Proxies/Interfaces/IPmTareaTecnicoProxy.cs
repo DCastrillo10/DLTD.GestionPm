@@ -12,5 +12,8 @@ namespace DLTD.GestionPm.UI.Proxies.Interfaces
         Task<BaseResponse> Registrar(PmTareaTecnicoRequest request);
         Task<BaseResponse> Actualizar(int id, PmTareaTecnicoRequest request);
         Task<BaseResponse> Eliminar(int id);
+
+        Task<BaseResponse<ICollection<PmTareaTecnicoResponse>>> HistorialActividades(int id);
+        Task<BaseResponse> RegistrarAcciones(PmTareaTecnicoRequest request);
     }
 }

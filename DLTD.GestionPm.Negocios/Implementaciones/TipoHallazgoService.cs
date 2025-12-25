@@ -20,12 +20,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
 {
     public class TipoHallazgoService: ITipoHallazgoService
     {
-        private readonly ITipoHallazgoRepository _repository;
+        private readonly IUnitOfWork _uow;
         private readonly ILogger<TipoHallazgo> _logger;
             
-        public TipoHallazgoService(ITipoHallazgoRepository repository, ILogger<TipoHallazgo> logger)
+        public TipoHallazgoService(IUnitOfWork uow, ILogger<TipoHallazgo> logger)
         {
-            _repository = repository;
+            _uow = uow;
             _logger = logger;
         }
 
@@ -35,7 +35,8 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             try
             {
                 var nuevo = request.Adapt<TipoHallazgo>();
-                await _repository.AddAsync(nuevo);
+                await _uow.TipoHallazgoRepo.AddAsync(nuevo);
+
                 response.IsSuccess = true;
                 response.Message = "Registro realizado exitosamente.";
             }
@@ -52,11 +53,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse();
             try
             {
-                var TipoHallazgo = await _repository.FindAsync(id);
+                var TipoHallazgo = await _uow.TipoHallazgoRepo.FindAsync(id);
                 if (TipoHallazgo == null) throw new InvalidDataException("Registro no encontrado.");
 
                 request.Adapt(TipoHallazgo);
-                await _repository.UpdateAsync();
+                await _uow.SaveAsync();
+
                 response.IsSuccess = true;
                 response.Message = "Registro actualizado exitosamente.";
             }
@@ -79,7 +81,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<TipoHallazgoResponse>();
             try
             {
-                var TipoHallazgo = await _repository.FindAsync(id);
+                var TipoHallazgo = await _uow.TipoHallazgoRepo.FindAsync(id);
                 if (TipoHallazgo == null) throw new InvalidDataException("Registro no encontrado.");
 
                 response.IsSuccess = true;
@@ -104,7 +106,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<ICollection<ListaTipoHallazgoResponse>>();
             try
             {
-                var result = await _repository.ListAsync();
+                var result = await _uow.TipoHallazgoRepo.ListAsync();
                 response.IsSuccess = true;
                 response.Result = result.Adapt<ICollection<ListaTipoHallazgoResponse>>();
             }
@@ -120,7 +122,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new PaginationResponse<ListaTipoHallazgoResponse>();
             try
             {
-                var result = await _repository.ListAsync(
+                var result = await _uow.TipoHallazgoRepo.ListAsync(
                         predicate: p => p.Status != "Eliminado" &&
                         (string.IsNullOrEmpty(request.Filter) || p.Nombre.Contains(request.Filter) || p.Descripcion.Contains(request.Filter) || p.Status.Contains(request.Filter)),
                         selector: p => new ListaTipoHallazgoResponse
@@ -153,10 +155,10 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<TipoHallazgoResponse>();
             try
             {
-                var TipoHallazgo = await _repository.FindAsync(id);
+                var TipoHallazgo = await _uow.TipoHallazgoRepo.FindAsync(id);
                 if (TipoHallazgo == null) throw new InvalidDataException("Registro no encontrado.");
 
-                await _repository.DeleteAsync(id);
+                await _uow.TipoHallazgoRepo.DeleteAsync(id);
                 response.IsSuccess = true;
                 response.Message = "Registro eliminado correctamente.";
                 

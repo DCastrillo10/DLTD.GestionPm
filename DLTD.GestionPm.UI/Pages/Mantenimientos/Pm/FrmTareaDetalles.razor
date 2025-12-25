@@ -1,7 +1,7 @@
-﻿@using DLTD.GestionPm.Dto.Request.Pm
-@using DLTD.GestionPm.Dto.Request.PmTareaTecnico
+﻿
 @using DLTD.GestionPm.Dto.Response.Pm
 @using DLTD.GestionPm.Dto.Response.PmTareaTecnico
+@using DLTD.GestionPm.Dto.Response.TipoActividad
 @using DLTD.GestionPm.Dto.Response.TipoDemora
 
 @attribute [Route(Routes.PmTarea + "/{id:int}")]
@@ -9,7 +9,10 @@
 @layout MainLayout
 @inject IPmProxy PmProxy;
 @inject ITipoDemoraProxy TipoDemoraProxy;
+@inject IPmTareaTecnicoProxy PmTareaTecnicoProxy;
+@inject GrupoTrabajoEstado grupoTrabajo;
 @inject IToastService toastService;
+@inject SweetAlertService swal;
 @inject NavigationManager Navegador;
 
 <div class="uk-container uk-container-expand">
@@ -31,23 +34,23 @@
                     <div class="uk-grid-small uk-margin-top" uk-grid>
                         <div class="uk-width-1-6@s">
                             <label class="uk-form-label">Fecha Inicial</label>
-                            <input type="date" class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.FechaInicialTarea">
+                            <input type="date" class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.FechaInicialTarea" disabled>
                         </div>
                         <div class="uk-width-1-6@s">
                             <label class="uk-form-label">Hora Inicial</label>
-                            <input type="time" class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.FechaInicialTarea">
+                            <input type="time" class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.FechaInicialTarea" disabled>
                         </div>
                         <div class="uk-width-1-6@s">
                             <label class="uk-form-label">Fecha Final</label>
-                            <input type="date" class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.FechaFinalTarea">
+                            <input type="date" class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.FechaFinalTarea" disabled>
                         </div>
                         <div class="uk-width-1-6@s">
                             <label class="uk-form-label">Hora Final</label>
-                            <input type="time" class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.FechaFinalTarea">
+                            <input type="time" class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.FechaFinalTarea" disabled>
                         </div>
                         <div class="uk-width-1-6@s">
                             <label class="uk-form-label">Duracion</label>
-                            <input class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.Duracion">
+                            <input class="uk-input uk-form-small uk-input-borde-fijo" @bind="Request.DuracionTarea" disabled>
                         </div>
                     </div>
 
@@ -66,7 +69,7 @@
                         </div>
                         <div class="uk-width-1-4@s">
                             <label class="uk-form-label">Tipo Demora</label>
-                            <select class="uk-select uk-form-small">
+                            <select class="uk-select uk-form-small" @bind="ActividadReq.IdTipoDemora">
                                 <option value="0">Seleccione un Tipo de Demora</option>
                                 @foreach (var item in ListadoDemoras)
                                 {
@@ -87,16 +90,20 @@
 
                     <div class="uk-margin-top uk-flex uk-flex-between uk-flex-right">
                         <div class="uk-flex">                        
-                            <button class="uk-button uk-button-primary uk-margin-small-right" style="background-color: #28a745;" @onclick='() => Procesar(1, "Procesando")'>
+                            <button class="uk-button uk-button-primary uk-margin-small-right" style="background-color: #28a745;" 
+                                    disabled="@(Request.StatusTarea != "Pendiente")" @onclick='() => EjecutarAccion(1, "Iniciada")'>
                                 <i class="icon-feather-play uk-margin-small-right"></i> Iniciar
                             </button>                        
-                            <button class="uk-button uk-button-danger uk-margin-small-right" @onclick='() => Procesar(2, "Detenido")'>
+                            <button class="uk-button uk-button-danger uk-margin-small-right" 
+                                    disabled="@(Request.StatusTarea != "Procesando")" @onclick='() => EjecutarAccion(2, "Detenida")'>
                                 <i class="icon-feather-pause uk-margin-small-right"></i> Detener
                             </button>
-                            <button class="uk-button uk-margin-small-right" style="background-color: #ffc107; color: #000;" @onclick='() => Procesar(3, "Procesando")'>
+                            <button class="uk-button uk-margin-small-right" style="background-color: #ffc107; color: #000;" 
+                                    disabled="@(Request.StatusTarea != "Detenido")" @onclick='() => EjecutarAccion(3, "Reanudada")'>
                                 <i class="icon-feather-rotate-cw uk-margin-small-right"></i> Reanudar
                             </button>
-                            <button class="uk-button uk-button-primary" style="background-color: #007bff;" @onclick='() => Procesar(4, "Completado")'>
+                            <button class="uk-button uk-button-primary" style="background-color: #007bff;" 
+                                    disabled="@(Request.StatusTarea != "Procesando" && Request.StatusTarea != "Detenido")" @onclick='() => EjecutarAccion(4, "Finalizada")'>
                                 <i class="icon-feather-check uk-margin-small-right"></i> Finalizar
                             </button>
                         </div>
@@ -119,27 +126,27 @@
                 <Contenido>
                     <table class="uk-table uk-table-divider uk-table-small uk-table-hover">
                         <thead class="table-header">
-                            <tr>
-                                <th>No</th>
-                                <th>Tipo Actividad</th>                                
-                                <th>Observación</th>                                
-                                <th>Técnico</th>
-                                <th>Fecha</th>
+                            <tr>                                
+                                <th style="width: 20%;">Tipo Actividad</th>                                
+                                <th style ="width: 40%;">Observación</th>
+                                <th style="width: 25%;">Técnicos</th>
+                                <th style="width: 15%;">Fecha</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var hist in Historial)
+                            @foreach (var hist in DetalleVisibles)
                             {
-                                <tr>
-                                    <td>@hist.Id</td>
-                                    <td>@hist.IdTipoActividad</td>
+                                <tr>                                    
+                                    <td>@hist.TipoActividad</td>
                                     <td>@hist.Descripcion</td>
-                                    <td>@hist.UsuarioRegistro</td>
-                                    <td>@hist.FechaRegistro</td>                                                                                                            
+                                    <td>@hist.NombresTecnicos</td>
+                                    <td>@hist.FechaRegistro.ToString("yyyy/MM/dd HH:mm")</td>                                                                                                            
                                 </tr>
                             }
                         </tbody>
                     </table>
+                    <PaginacionLocal PaginaActual="PaginaActual" TotalPaginas="TotalPaginas" TotalElementos="TotalElementos" ElementosPorPagina="ElementosPorPagina" OnPageChange="HandlePageChange" />
+                
                 </Contenido>
             </GroupBox>
         </div>
@@ -148,23 +155,28 @@
 
 @code {
     [Parameter] public int Id { get; set; }
-    [Parameter] [SupplyParameterFromQuery] public int IdTecnico1 { get; set; }
-    [Parameter] [SupplyParameterFromQuery] public int IdTecnico2 { get; set; }
-    
+
     private PmDetallesRequest Request = new();
     private PmTareaTecnicoRequest ActividadReq = new();
+    public List<PmTareaTecnicoResponse> DetalleVisibles { get; set; } = new();
 
     private PmDetallesResponse DetalleTarea = new();
-    private List<ListaTipoDemoraResponse> ListadoDemoras { get; set; } = new();
+    private List<ListaTipoDemoraResponse> ListadoDemoras { get; set; } = new();    
     private List<PmTareaTecnicoResponse> Historial = new();
 
     public bool isLoading { get; set; }
+
+    public int PaginaActual { get; set; } = 1;
+    public int ElementosPorPagina { get; set; } = 5; // Valor razonable para una tabla detallada
+    public int TotalPaginas { get; set; } = 1;
+    public int TotalElementos { get; set; } = 0;
 
     protected override async Task OnInitializedAsync()
     {
         // Aquí cargaremos el detalle y el historial mediante el Proxy
         await CargarCombos();
         await CargarTareaDetalles(Id);
+        await HistorialActividades();
     }
 
     public async Task CargarCombos()
@@ -176,9 +188,7 @@
             if (tiposDemoras?.Result != null)
             {
                 ListadoDemoras = tiposDemoras.Result.ToList();
-            }
-
-            
+            }            
         }
         catch (Exception ex)
         {
@@ -206,6 +216,13 @@
                 Request.IdTarea = response.Result.IdTarea;
                 Request.NomTarea = response.Result.NomTarea!;
                 Request.StatusTarea = response.Result.StatusTarea;
+
+                Request.FechaInicialTarea = response.Result.FechaInicialTarea;
+                Request.FechaFinalTarea = response.Result.FechaFinalTarea;
+                Request.DuracionTarea = response.Result.DuracionTarea;
+                Request.Valor1 = response.Result.Valor1;
+                Request.Valor2 = response.Result.Valor2;
+                Request.Valor3 = response.Result.Valor3;
             }
         }
         catch (Exception ex)
@@ -220,9 +237,114 @@
 
     private void Volver() => Navegador.NavigateTo($"/pm/editar/{Request.IdPm}");
 
-    private async Task Procesar(int tipo, string nuevoStatus)
+    private async Task EjecutarAccion(int idTipoActividad, string nombreAccion)
     {
-        // Lógica de guardado
-        await Task.CompletedTask;
+        isLoading = true;
+        try
+        {
+            string descripcionFinal = !string.IsNullOrWhiteSpace(Request.Observacion) 
+                ? Request.Observacion  
+                : idTipoActividad switch
+                {
+                    1 => "La tarea ha sido iniciada correctamente.",
+                    2 => "La tarea ha sido detenida.",
+                    3 => "La tarea ha sido reanudada.",
+                    4 => "La tarea ha sido finalizada.",
+                    _ => "Actividad Registrada"
+                };
+
+            var requestAccion =  new PmTareaTecnicoRequest
+            {
+                IdPmDetalle = Request.Id,
+                IdTipoActividad = idTipoActividad,
+                IdTecnicos = grupoTrabajo.IdTecnicoEquipo,                
+                Descripcion = descripcionFinal,
+                IdTipoDemora = ActividadReq.IdTipoDemora,
+
+                DatosTarea = new PmDetallesRequest
+                {
+                    Valor1 = Request.Valor1,
+                    Valor2 = Request.Valor2,
+                    Valor3 = Request.Valor3
+                }
+            };
+
+            if(idTipoActividad == 2 && ActividadReq.IdTipoDemora == 0)
+            {
+                await swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Tipo de Demora",
+                    Text = "Debe seleccionar un tipo de demora para detener la tarea.",
+                    Icon = SweetAlertIcon.Warning,
+                    ConfirmButtonText = "Entendido"
+                });
+                return;
+            }
+
+            var respuesta = await PmTareaTecnicoProxy.RegistrarAcciones(requestAccion);
+            if (respuesta.IsSuccess)
+            {
+                toastService.ShowSuccess($"Tarea {nombreAccion} exitosamente.");
+                Request.Observacion = string.Empty;
+                ActividadReq = new PmTareaTecnicoRequest();
+                await HistorialActividades();
+                await CargarTareaDetalles(Id);
+                StateHasChanged();
+            }            
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error: {ex.Message}");
+        }
+    }
+
+    private async Task HistorialActividades()
+    {
+        try
+        {
+            var res = await PmTareaTecnicoProxy.HistorialActividades(Request.Id);
+            if (res.IsSuccess && res.Result != null)
+            {
+                Historial = res.Result.ToList();
+                AplicarFiltro(1);
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error al cargar el historial: {ex.Message}");
+        }
+        
+    }
+
+    public void AplicarFiltro(int paginaSolicitada = -1)
+    {
+        // 1. Usamos la lista 'Historial' que es la que tiene los datos
+        TotalElementos = Historial.Count();
+
+        // 2. Calcular total de páginas (asegurando mínimo 1)
+        TotalPaginas = (int)Math.Ceiling((double)TotalElementos / ElementosPorPagina);
+        if (TotalPaginas <= 0) TotalPaginas = 1;
+
+        // 3. Determinar la página de destino
+        // Si es -1, intentamos quedarnos en la actual; si no, vamos a la solicitada
+        int objetivo = (paginaSolicitada == -1) ? PaginaActual : paginaSolicitada;
+
+        // 4. Validar rangos (Clamp) para evitar desbordamientos
+        PaginaActual = Math.Clamp(objetivo, 1, TotalPaginas);
+
+        // 5. Proyectar datos visibles
+        DetalleVisibles = Historial
+            .Skip((PaginaActual - 1) * ElementosPorPagina)
+            .Take(ElementosPorPagina)
+            .ToList();
+
+        StateHasChanged();
+    }
+
+    public void HandlePageChange(int nuevaPagina)
+    {
+        // Llama al método de filtrado/paginación con la nueva página solicitada
+        AplicarFiltro(nuevaPagina);
     }
 }

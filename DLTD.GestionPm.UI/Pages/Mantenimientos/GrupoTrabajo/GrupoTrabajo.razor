@@ -90,9 +90,7 @@
     public List<ListaGrupoTrabajoResponse> Listado { get; set; } = new();
     public PaginationRequest Request { get; set; } = new();
     public PaginationResponse<ListaGrupoTrabajoResponse> Paginacion { get; set; } = new();
-
     private ListaTecnicoResponse? tecnicoPrincipal;
-    private ListaTecnicoResponse? tecnico2Seleccionado;
     public GrupoTrabajoRequest RequestGrupoTrabajo { get; set; } = new();
 
     public Modal ModalTecnicos { get; set; } = new();

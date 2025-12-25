@@ -20,12 +20,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
 {
     public class MarcaService: IMarcaService
     {
-        private readonly IMarcaRepository _repository;
+        private readonly IUnitOfWork _uow;
         private readonly ILogger<Marca> _logger;
 
-        public MarcaService(IMarcaRepository repository, ILogger<Marca> logger)
+        public MarcaService(IUnitOfWork uow, ILogger<Marca> logger)
         {
-            _repository = repository;
+            _uow = uow;
             _logger = logger;
         }
 
@@ -35,7 +35,9 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             try
             {
                 var nuevo = request.Adapt<Marca>();
-                await _repository.AddAsync(nuevo);
+                await _uow.MarcaRepo.AddAsync(nuevo);
+                await _uow.SaveAsync();
+
                 response.IsSuccess = true;
                 response.Message = "Marca registrada exitosamente.";
             }
@@ -52,11 +54,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse();
             try
             {
-                var marca = await _repository.FindAsync(id);
+                var marca = await _uow.MarcaRepo.FindAsync(id);
                 if (marca == null) throw new InvalidDataException("Marca no encontrada");
 
-                request.Adapt(marca);
-                await _repository.UpdateAsync();
+                request.Adapt(marca);                
+                await _uow.SaveAsync();
+
                 response.IsSuccess = true;
                 response.Message = "Marca actualizado exitosamente.";
             }
@@ -79,7 +82,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<MarcaResponse>();
             try
             {
-                var marca = await _repository.FindAsync(id);
+                var marca = await _uow.MarcaRepo.FindAsync(id);
                 if (marca == null) throw new InvalidDataException("Marca no encontrada");
 
                 response.IsSuccess = true;
@@ -104,7 +107,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<ICollection<ListaMarcaResponse>>();
             try
             {
-                var result = await _repository.ListAsync();
+                var result = await _uow.MarcaRepo.ListAsync();
                 response.IsSuccess = true;
                 response.Result = result.Adapt<ICollection<ListaMarcaResponse>>();
             }
@@ -120,7 +123,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new PaginationResponse<ListaMarcaResponse>();
             try
             {
-                var result = await _repository.ListAsync(
+                var result = await _uow.MarcaRepo.ListAsync(
                         predicate: p => p.Status != "Eliminado" &&
                         (string.IsNullOrEmpty(request.Filter) || p.Nombre.Contains(request.Filter) || p.Descripcion.Contains(request.Filter) || p.Status.Contains(request.Filter)),
                         selector: p => new ListaMarcaResponse
@@ -153,10 +156,10 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<MarcaResponse>();
             try
             {
-                var marca = await _repository.FindAsync(id);
+                var marca = await _uow.MarcaRepo.FindAsync(id);
                 if (marca == null) throw new InvalidDataException("Marca no encontrada");
 
-                await _repository.DeleteAsync(id);
+                await _uow.MarcaRepo.DeleteAsync(id);
                 response.IsSuccess = true;
                 response.Message = "Marca eliminada correctamente.";
                 

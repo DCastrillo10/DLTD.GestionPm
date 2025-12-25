@@ -33,6 +33,13 @@ namespace DLTD.GestionPm.API.Controllers
             return response.IsSuccess ? Ok(response) : BadRequest(response);
         }
 
+        [HttpPut("tareasactualizar/{id:int}")]
+        public async Task<IActionResult> Put(int id, [FromBody] PmDetallesRequest request)
+        {
+            var response = await _service.UpdateDetailsById(id, request);
+            return response.IsSuccess ? Ok(response) : BadRequest(response);
+        }
+
         [HttpGet("Pagination")]
         public async Task<IActionResult> Get([FromQuery] PaginationRequest request)
         {
@@ -65,8 +72,9 @@ namespace DLTD.GestionPm.API.Controllers
         public async Task<IActionResult> GetTareaDetalle(int id)
         {
             var response = await _service.GetDetalleTareaPmById(id);
-            return response.IsSuccess ? Ok(response) : BadRequest(response);
-        }
+            return response.IsSuccess ? Ok(response) : BadRequest(response);       }
+
+        
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)

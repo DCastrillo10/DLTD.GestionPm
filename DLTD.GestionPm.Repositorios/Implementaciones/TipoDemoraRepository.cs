@@ -11,6 +11,6 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
 {
     public class TipoDemoraRepository(GestionPmBdContext contexto): BaseRepository<TipoDemora>(contexto), ITipoDemoraRepository
     {
-
+        
     }
 }

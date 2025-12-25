@@ -21,14 +21,29 @@ namespace DLTD.GestionPm.UI.Proxies.Implementaciones
         {
             return await _httpClient.GetFromJsonAsync<PaginationResponse<ListaPmTareaTecnicoResponse>>($"api/PmTareaTecnico/Pagination?Filter={request.Filter}&Page={request.Page}&Rows={request.Rows}") ?? new();
         }
-
         public async Task<BaseResponse<PmTareaTecnicoResponse>> ObtenerPorId(int id)
         {
             return await _httpClient.GetFromJsonAsync<BaseResponse<PmTareaTecnicoResponse>>($"api/PmTareaTecnico/{id}") ?? new();
         }
+        public async Task<BaseResponse<ICollection<PmTareaTecnicoResponse>>> HistorialActividades(int id)
+        {
+            return await _httpClient.GetFromJsonAsync<BaseResponse<ICollection<PmTareaTecnicoResponse>>>($"api/PmTareaTecnico/historialactividades/{id}") ?? new();
+        }
         public async Task<BaseResponse> Registrar(PmTareaTecnicoRequest request)
         {
             var post = await _httpClient.PostAsJsonAsync("api/PmTareaTecnico", request);
+            var response = await post.Content.ReadFromJsonAsync<BaseResponse>();
+
+            if (!post.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException($"Hubo un error al procesar la peticion: {response!.Message}");
+            }
+            return response ?? new();
+        }
+
+        public async Task<BaseResponse> RegistrarAcciones(PmTareaTecnicoRequest request)
+        {
+            var post = await _httpClient.PostAsJsonAsync("api/PmTareaTecnico/registrar-acciones", request);
             var response = await post.Content.ReadFromJsonAsync<BaseResponse>();
 
             if (!post.IsSuccessStatusCode)

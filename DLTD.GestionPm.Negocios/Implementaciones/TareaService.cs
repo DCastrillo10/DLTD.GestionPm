@@ -14,12 +14,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
 {
     public class TareaService: ITareaService
     {
-        private readonly ITareaRepository _repository;
+        private readonly IUnitOfWork _uow;
         private readonly ILogger<TareaService> _logger;
 
-        public TareaService(ITareaRepository repository, ILogger<TareaService> logger)
+        public TareaService(IUnitOfWork uow, ILogger<TareaService> logger)
         {
-            _repository = repository;
+            _uow = uow;
             _logger = logger;
         }
 
@@ -29,7 +29,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             try
             {
                 var nuevo = request.Adapt<Tarea>();
-                await _repository.AddAsync(nuevo);
+                await _uow.TareaRepo.AddAsync(nuevo);
                 response.IsSuccess = true;
                 response.Message = "Tarea registrada exitosamente.";
             }
@@ -46,11 +46,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse();
             try
             {
-                var Tarea = await _repository.FindAsync(id);
+                var Tarea = await _uow.TareaRepo.FindAsync(id);
                 if (Tarea == null) throw new InvalidDataException("Tarea no encontrada");
 
                 request.Adapt(Tarea);
-                await _repository.UpdateAsync();
+                await _uow.SaveAsync();
+
                 response.IsSuccess = true;
                 response.Message = "Tarea actualizado exitosamente.";
             }
@@ -73,7 +74,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<TareaResponse>();
             try
             {
-                var Tarea = await _repository.FindAsync(id);
+                var Tarea = await _uow.TareaRepo.FindAsync(id);
                 if (Tarea == null) throw new InvalidDataException("Tarea no encontrada.");
 
                 response.IsSuccess = true;
@@ -98,7 +99,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new PaginationResponse<ListaTareaResponse>();
             try
             {
-                var result = await _repository.ListAsync(
+                var result = await _uow.TareaRepo.ListAsync(
                         predicate: p => p.Status != "Eliminado" &&
                         (string.IsNullOrEmpty(request.Filter) || p.CodigoTarea.Contains(request.Filter) || p.Descripcion!.Contains(request.Filter) ||
                                                                  p.IdRutaNavigation.Descripcion.Contains(request.Filter) || p.Status.Contains(request.Filter)),
@@ -135,10 +136,10 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<TareaResponse>();
             try
             {
-                var Tarea = await _repository.FindAsync(id);
+                var Tarea = await _uow.TareaRepo.FindAsync(id);
                 if (Tarea == null) throw new InvalidDataException("Tarea no encontrada");
 
-                await _repository.DeleteAsync(id);
+                await _uow.TareaRepo.DeleteAsync(id);
                 response.IsSuccess = true;
                 response.Message = "Tarea eliminada correctamente.";
                 

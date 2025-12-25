@@ -16,8 +16,11 @@ namespace DLTD.GestionPm.Negocios.Interfaces
         Task<BaseResponse> AddAsync(PmTareaTecnicoRequest request);
         Task<BaseResponse> UpdateAsync(int id, PmTareaTecnicoRequest request);
         Task<BaseResponse<PmTareaTecnicoResponse>> FindByIdAsync(int id);
-        Task<PaginationResponse<ListaPmTareaTecnicoResponse>> ListaAsync(PaginationRequest request);
-        
+        Task<PaginationResponse<ListaPmTareaTecnicoResponse>> ListaAsync(PaginationRequest request);        
         Task<BaseResponse<PmTareaTecnicoResponse>> DeleteAsync(int id);
+
+
+        Task<BaseResponse<ICollection<ListaPmTareaTecnicoResponse>>> ListarHistoricoxIdPmDetalle(int idPmDetalle);
+        Task<BaseResponse> RegistrarAcciones(PmTareaTecnicoRequest request);
     }
 }

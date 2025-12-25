@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DLTD.GestionPm.Repositorios.Interfaces
 {
-    public interface IPmTareaTecnicoRepository: IBaseRepository<PmTareaTecnico>
+    public interface IPmTareaDemoraRepository: IBaseRepository<PmTareaDemora>
     {
         
     }

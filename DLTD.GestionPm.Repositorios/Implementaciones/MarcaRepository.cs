@@ -11,6 +11,6 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
 {
     public class MarcaRepository(GestionPmBdContext contexto): BaseRepository<Marca>(contexto), IMarcaRepository
     {
-
+        
     }
 }

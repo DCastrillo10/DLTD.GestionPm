@@ -1,72 +1,57 @@
-﻿@* Nuevo componente PaginacionLocal.razor con estilos PagedList *@
+﻿@* PaginacionLocal.razor refactorizado *@
 
-@if (TotalElementos > 0 && TotalPaginas > 1)
+@if (TotalElementos > 0)
 {
     <div class="pagination-container">
         <div class="pagination-info">
-            Página @PaginaActual de @TotalPaginas — Total: @TotalElementos registros
+            @* Siempre mostramos info, aunque solo sea una página *@
+            Mostrando <b>@CalcularRangoInicio()</b> a <b>@CalcularRangoFin()</b> de <b>@TotalElementos</b> registros
         </div>
 
-        <div class="pagination-buttons">
+        @* Solo mostramos los controles de navegación si realmente hay más de una página *@
+        @if (TotalPaginas > 1)
+        {
+            <div class="pagination-buttons">
+                <button class="pag-btn" disabled="@(!CanGoPrev)" @onclick="() => CambiarPagina(1)" title="Primera">
+                    <i class="fas fa-angle-double-left"></i> ⏮
+                </button>
 
-            <button class="pag-btn"
-                    disabled="@(!CanGoPrev)"
-                    @onclick="() => CambiarPagina(1)">
-                ⏮
-            </button>
+                <button class="pag-btn" disabled="@(!CanGoPrev)" @onclick="() => CambiarPagina(PaginaActual - 1)" title="Anterior">
+                    <i class="fas fa-angle-left"></i> ◀
+                </button>
 
-            <button class="pag-btn"
-                    disabled="@(!CanGoPrev)"
-                    @onclick="() => CambiarPagina(PaginaActual - 1)">
-                ◀
-            </button>
+                <span class="pag-text">
+                    Página <b>@PaginaActual</b> de <b>@TotalPaginas</b>
+                </span>
 
-            <span class="pag-text">
-                @PaginaActual / @TotalPaginas
-            </span>
+                <button class="pag-btn" disabled="@(!CanGoNext)" @onclick="() => CambiarPagina(PaginaActual + 1)" title="Siguiente">
+                    <i class="fas fa-angle-right"></i> ▶
+                </button>
 
-            <button class="pag-btn"
-                    disabled="@(!CanGoNext)"
-                    @onclick="() => CambiarPagina(PaginaActual + 1)">
-                ▶
-            </button>
-
-            <button class="pag-btn"
-                    disabled="@(!CanGoNext)"
-                    @onclick="() => CambiarPagina(TotalPaginas)">
-                ⏭
-            </button>
-        </div>
+                <button class="pag-btn" disabled="@(!CanGoNext)" @onclick="() => CambiarPagina(TotalPaginas)" title="Última">
+                    <i class="fas fa-angle-double-right"></i> ⏭
+                </button>
+            </div>
+        }
     </div>
 }
 
 @code {
-    // Parámetros de Entrada
-    [Parameter]
-    public int PaginaActual { get; set; } = 1;
+    [Parameter] public int PaginaActual { get; set; } = 1;
+    [Parameter] public int TotalPaginas { get; set; } = 1;
+    [Parameter] public int TotalElementos { get; set; } = 0;
+    [Parameter] public int ElementosPorPagina { get; set; } = 5;
+    [Parameter] public EventCallback<int> OnPageChange { get; set; }
 
-    [Parameter]
-    public int TotalPaginas { get; set; } = 1;
-
-    [Parameter]
-    public int TotalElementos { get; set; } = 0;
-
-    // Aunque no se usa directamente en la UI, es bueno mantenerlo si el padre lo necesita
-    [Parameter]
-    public int ElementosPorPagina { get; set; } = 5;
-
-    // Evento de Salida que indica al padre que cambie la página
-    [Parameter]
-    public EventCallback<int> OnPageChange { get; set; }
-
-    // Propiedades de ayuda para deshabilitar botones
     bool CanGoPrev => PaginaActual > 1;
     bool CanGoNext => PaginaActual < TotalPaginas;
 
-    // Método unificado para invocar el cambio de página
+    // Lógica para mostrar "Mostrando 1 a 4 de 4"
+    private int CalcularRangoInicio() => ((PaginaActual - 1) * ElementosPorPagina) + 1;
+    private int CalcularRangoFin() => Math.Min(PaginaActual * ElementosPorPagina, TotalElementos);
+
     public async Task CambiarPagina(int nuevaPagina)
     {
-        // Solo invoca si la página es diferente y está dentro del rango válido
         if (nuevaPagina != PaginaActual && nuevaPagina >= 1 && nuevaPagina <= TotalPaginas)
         {
             await OnPageChange.InvokeAsync(nuevaPagina);

@@ -21,12 +21,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
 {
     public class RutaService: IRutaService
     {
-        private readonly IRutaRepository _repository;
+        private readonly IUnitOfWork _uow;
         private readonly ILogger<Ruta> _logger;
 
-        public RutaService(IRutaRepository repository, ILogger<Ruta> logger)
+        public RutaService(IUnitOfWork uow, ILogger<Ruta> logger)
         {
-            _repository = repository;
+            _uow = uow;
             _logger = logger;
         }
 
@@ -36,7 +36,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             try
             {
                 var nuevo = request.Adapt<Ruta>();
-                await _repository.AddAsync(nuevo);
+                await _uow.RutaRepo.AddAsync(nuevo);
                 response.IsSuccess = true;
                 response.Message = "Ruta registrada exitosamente.";
             }
@@ -53,11 +53,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse();
             try
             {
-                var Ruta = await _repository.FindAsync(id);
+                var Ruta = await _uow.RutaRepo.FindAsync(id);
                 if (Ruta == null) throw new InvalidDataException("Ruta no encontrada");
 
                 request.Adapt(Ruta);
-                await _repository.UpdateAsync();
+                await _uow.SaveAsync();
+
                 response.IsSuccess = true;
                 response.Message = "Ruta actualizado exitosamente.";
             }
@@ -80,7 +81,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<RutaResponse>();
             try
             {
-                var Ruta = await _repository.FindAsync(id);
+                var Ruta = await _uow.RutaRepo.FindAsync(id);
                 if (Ruta == null) throw new InvalidDataException("Ruta no encontrada");
 
                 response.IsSuccess = true;
@@ -105,7 +106,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<ICollection<ListaRutaResponse>>();
             try
             {
-                var result = await _repository.ListAsync();
+                var result = await _uow.RutaRepo.ListAsync();
                 response.IsSuccess = true;
                 response.Result = result.Adapt<ICollection<ListaRutaResponse>>();
             }
@@ -121,7 +122,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new PaginationResponse<ListaRutaResponse>();
             try
             {
-                var result = await _repository.ListAsync(
+                var result = await _uow.RutaRepo.ListAsync(
                         predicate: p => p.Status != "Eliminado" &&
                         (string.IsNullOrEmpty(request.Filter) || p.Nombre.Contains(request.Filter) || p.Descripcion.Contains(request.Filter) || p.Status.Contains(request.Filter)),
                         selector: p => new ListaRutaResponse
@@ -154,10 +155,10 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<RutaResponse>();
             try
             {
-                var Ruta = await _repository.FindAsync(id);
+                var Ruta = await _uow.RutaRepo.FindAsync(id);
                 if (Ruta == null) throw new InvalidDataException("Ruta no encontrada");
 
-                await _repository.DeleteAsync(id);
+                await _uow.RutaRepo.DeleteAsync(id);
                 response.IsSuccess = true;
                 response.Message = "Ruta eliminada correctamente.";
                 

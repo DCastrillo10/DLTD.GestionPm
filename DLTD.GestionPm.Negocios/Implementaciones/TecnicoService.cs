@@ -24,17 +24,15 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
 {
     public class TecnicoService: ITecnicoService
     {
-        private readonly GestionPmBdContext _contexto;
         private readonly UserManager<SecurityEntity> _userManager;
-        private readonly ITecnicoRepository _repository;
+        private readonly IUnitOfWork _uow;
         private readonly IEmailService _email;
         private readonly ILogger<TecnicoService> _logger;
 
-        public TecnicoService(GestionPmBdContext contexto, UserManager<SecurityEntity> userManager,ITecnicoRepository repository, IEmailService email, ILogger<TecnicoService> logger)
-        {
-            _contexto = contexto;
+        public TecnicoService(UserManager<SecurityEntity> userManager, IUnitOfWork uow, IEmailService email, ILogger<TecnicoService> logger)
+        {            
+            _uow = uow;
             _userManager = userManager;
-            _repository = repository;
             _email = email;
             _logger = logger;
         }
@@ -45,7 +43,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             try
             {
                 var tecnicoEntity = request.Adapt<Tecnico>();
-                var (tecnico, identityResult) = await _repository.CreateAsync(tecnicoEntity, request.NoIdentificacion, request.Clave);
+                var (tecnico, identityResult) = await _uow.TecnicoRepo.CreateAsync(tecnicoEntity, request.NoIdentificacion, request.Clave);
                 
                 if (!identityResult.Succeeded)
                 {
@@ -88,40 +86,35 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
         public async Task<BaseResponse> UpdateAsync(int id, TecnicoRequest request)
         {
             var response = new BaseResponse();
-            using var transaction = await _contexto.Database.BeginTransactionAsync();
+            
 
             try
             {
-                var tecnico = await _repository.FindAsync(id);
+                var tecnico = await _uow.TecnicoRepo.FindAsync(id);
                 if (tecnico == null) throw new InvalidDataException("Tecnico no encontrado.");
 
                 request.Adapt(tecnico);
-                await _repository.UpdateAsync();
+                
 
+                // Actualizamos el usuario de Identity
                 var user = await _userManager.Users.FirstOrDefaultAsync(p => p.IdUsuario == id);
-                if (user == null)
+                if (user != null)
                 {
-                    await transaction.RollbackAsync();
-                    response.IsSuccess = false;
-                    response.Message = "Usuario Identity no encontrado.";
-                    return response;
+                    user.Email = tecnico.Email;
+                    user.UserName = tecnico.NoIdentificacion;
+                    user.NombresCompletos = $"{tecnico.Nombres} {tecnico.Apellidos}";
+                    user.Codigo = tecnico.Codigo;
+
+                    var identityResult = await _userManager.UpdateAsync(user);
+                    if (!identityResult.Succeeded)
+                    {
+                        response.Message = string.Join(" | ", identityResult.Errors.Select(e => e.Description));
+                        return response;
+                    }
                 }
 
-                user.Email = tecnico.Email;
-                user.UserName = tecnico.NoIdentificacion;
-                user.NombresCompletos = $"{tecnico.Nombres} {tecnico.Apellidos}";
-                user.Codigo = tecnico.Codigo;
-
-                var identityResult = await _userManager.UpdateAsync(user);
-                if (!identityResult.Succeeded)
-                {
-                    await transaction.RollbackAsync();
-                    response.IsSuccess = false;
-                    response.Message = string.Join(" | ", identityResult.Errors.Select(e => e.Description));
-                    return response;
-                }
-
-                await transaction.CommitAsync();
+                // Si todo Identity salió bien, guardamos los cambios de la tabla Técnico
+                await _uow.SaveAsync();
                 response.IsSuccess = true;
                 response.Message = "Tecnico actualizado exitosamente.";
             }
@@ -144,7 +137,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<TecnicoResponse>();
             try
             {
-                var tecnico = await _repository.FindAsync(id);
+                var tecnico = await _uow.TecnicoRepo.FindAsync(id);
                 if (tecnico == null) throw new InvalidDataException("Tecnico no encontrado.");
 
                 response.IsSuccess = true;
@@ -169,7 +162,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new PaginationResponse<ListaTecnicoResponse>();
             try
             {
-                var result = await _repository.ListAsync(
+                var result = await _uow.TecnicoRepo.ListAsync(
                         predicate: p => p.Status != "Eliminado" &&
                                         (string.IsNullOrEmpty(request.Filter) || p.NoIdentificacion.Contains(request.Filter) || p.Codigo.Contains(request.Filter) ||
                                         p.Nombres.Contains(request.Filter) || p.Apellidos.Contains(request.Filter) || p.Status.Contains(request.Filter)),
@@ -211,10 +204,10 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<TecnicoResponse>();
             try
             {
-                var tecnico = await _repository.FindAsync(id);
+                var tecnico = await _uow.TecnicoRepo.FindAsync(id);
                 if (tecnico == null) throw new InvalidDataException("Tecnico no encontrado.");
 
-                await _repository.DeleteAsync(id);
+                await _uow.TecnicoRepo.DeleteAsync(id);
                 response.IsSuccess = true;
                 response.Message = "Tecnico eliminado correctamente.";
 

@@ -14,12 +14,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
 {
     public class MaquinaService: IMaquinaService
     {
-        private readonly IMaquinaRepository _repository;
+        private readonly IUnitOfWork _uow;
         private readonly ILogger<Maquina> _logger;
 
-        public MaquinaService(IMaquinaRepository repository, ILogger<Maquina> logger)
+        public MaquinaService(IUnitOfWork uow, ILogger<Maquina> logger)
         {
-            _repository = repository;
+            _uow = uow;
             _logger = logger;
         }
 
@@ -29,7 +29,8 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             try
             {
                 var nuevo = request.Adapt<Maquina>();
-                await _repository.AddAsync(nuevo);
+                await _uow.MaquinaRepo.AddAsync(nuevo);
+
                 response.IsSuccess = true;
                 response.Message = "Maquina registrada exitosamente.";
             }
@@ -46,11 +47,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse();
             try
             {
-                var Maquina = await _repository.FindAsync(id);
+                var Maquina = await _uow.MaquinaRepo.FindAsync(id);
                 if (Maquina == null) throw new InvalidDataException("Maquina no encontrada");
 
                 request.Adapt(Maquina);
-                await _repository.UpdateAsync();
+                await _uow.SaveAsync();
+
                 response.IsSuccess = true;
                 response.Message = "Maquina actualizado exitosamente.";
             }
@@ -73,7 +75,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<MaquinaResponse>();
             try
             {
-                var Maquina = await _repository.FindAsync(id);
+                var Maquina = await _uow.MaquinaRepo.FindAsync(id);
                 if (Maquina == null) throw new InvalidDataException("Maquina no encontrada");
 
                 response.IsSuccess = true;
@@ -98,7 +100,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new PaginationResponse<ListaMaquinaResponse>();
             try
             {
-                var result = await _repository.ListAsync(
+                var result = await _uow.MaquinaRepo.ListAsync(
                         predicate: p => p.Status != "Eliminado" &&
                         (string.IsNullOrEmpty(request.Filter) || p.Codigo.Contains(request.Filter) || p.Descripcion!.Contains(request.Filter) ||
                                                                  p.IdModeloNavigation.Descripcion!.Contains(request.Filter) || p.Status.Contains(request.Filter)),
@@ -133,10 +135,10 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<MaquinaResponse>();
             try
             {
-                var Maquina = await _repository.FindAsync(id);
+                var Maquina = await _uow.MaquinaRepo.FindAsync(id);
                 if (Maquina == null) throw new InvalidDataException("Maquina no encontrada");
 
-                await _repository.DeleteAsync(id);
+                await _uow.MaquinaRepo.DeleteAsync(id);
                 response.IsSuccess = true;
                 response.Message = "Maquina eliminada correctamente.";
                 
@@ -160,7 +162,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<MaquinaResponse>();
             try
             {
-                var Equipo = await _repository.FindMaquina(NoEquipo);
+                var Equipo = await _uow.MaquinaRepo.FindMaquina(NoEquipo);
                 if (Equipo == null) throw new InvalidDataException("Maquina no encontrada");
 
                 response.IsSuccess = true;

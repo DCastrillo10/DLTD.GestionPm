@@ -18,6 +18,7 @@ namespace DLTD.GestionPm.Repositorios.Interfaces
         Task<IEnumerable<Tarea>> FindTareas(int idTipoPm, int idModelo);
 
         Task<Pmdetalle?> GetDetalleTareaPmById(int id);
+        Task<Pmdetalle> UpdateDetalle(Pmdetalle pmdetalle);
 
     }
 }

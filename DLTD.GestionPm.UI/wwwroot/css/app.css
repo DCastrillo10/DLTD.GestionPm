@@ -309,7 +309,12 @@ body, h1, h2, h3, h4, h5, h6, p, label, span, a {
         background-color: #8e1212;
     }
 
-
+.uk-button:disabled {
+    background-color: #e5e5e5 !important;
+    color: #a0a0a0 !important;
+    border-color: #dae0e5 !important;
+    cursor: not-allowed;
+}
 
 /* === Logo personalizado DLTD === */
 

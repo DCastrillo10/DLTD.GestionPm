@@ -59,7 +59,9 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
             return tareas;
            
         }
-        
+
+
+        //Estos metodos son para la entidad detalle como tal, lo hago aqui para evitar crear mas archivos de repositorios. Si crece el projecto, entonces lo hago.
         public async Task<Pmdetalle?> GetDetalleTareaPmById(int id)
         {
             var detalleTareaPm = await _contexto.PmDetalles
@@ -67,6 +69,13 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
                                             .ThenInclude(t => t.IdRutaNavigation)
                                         .FirstOrDefaultAsync(p => p.Id == id);
             return detalleTareaPm;
+        }
+
+        public async Task<Pmdetalle> UpdateDetalle(Pmdetalle pmdetalle)
+        {
+            _contexto.PmDetalles.Update(pmdetalle);
+            await _contexto.SaveChangesAsync();
+            return pmdetalle;
         }
     }
 }

@@ -11,6 +11,6 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
 {
     public class PmTareaTecnicoRepository(GestionPmBdContext contexto): BaseRepository<PmTareaTecnico>(contexto), IPmTareaTecnicoRepository
     {
-
+        
     }
 }

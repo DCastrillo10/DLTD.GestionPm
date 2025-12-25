@@ -9,5 +9,6 @@ namespace DLTD.GestionPm.Repositorios.Interfaces
 {
     public interface IModeloRepository: IBaseRepository<Modelo>
     {
+        
     }
 }

@@ -20,12 +20,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
 {
     public class GrupoTrabajoService: IGrupoTrabajoService
     {
-        private readonly IGrupoTrabajoRepository _repository;
+        private readonly IUnitOfWork _uow;
         private readonly ILogger<GrupoTrabajo> _logger;
 
-        public GrupoTrabajoService(IGrupoTrabajoRepository repository, ILogger<GrupoTrabajo> logger)
+        public GrupoTrabajoService(IUnitOfWork uow, ILogger<GrupoTrabajo> logger)
         {
-            _repository = repository;
+            _uow = uow;
             _logger = logger;
         }
 
@@ -35,7 +35,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             try
             {
                 var nuevo = request.Adapt<GrupoTrabajo>();
-                await _repository.AddAsync(nuevo);
+                await _uow.GrupoTrabajoRepo.AddAsync(nuevo);
                 response.IsSuccess = true;
                 response.Message = "Tecnico vinculado exitosamente.";
             }
@@ -52,7 +52,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new PaginationResponse<ListaGrupoTrabajoResponse>();
             try
             {
-                var result = await _repository.ListAsync(
+                var result = await _uow.GrupoTrabajoRepo.ListAsync(
                         predicate: p => p.Status != "Eliminado" &&
                         (string.IsNullOrEmpty(request.Filter) || p.IdTecnicoVinculadoNavigation.Nombres.Contains(request.Filter)  ||
                          p.IdTecnicoVinculadoNavigation.Apellidos.Contains(request.Filter)),
@@ -90,10 +90,10 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<GrupoTrabajoResponse>();
             try
             {
-                var GrupoTrabajo = await _repository.FindAsync(id);
+                var GrupoTrabajo = await _uow.GrupoTrabajoRepo.FindAsync(id);
                 if (GrupoTrabajo == null) throw new InvalidDataException("GrupoTrabajo no encontrada");
 
-                await _repository.DeleteAsync(id);
+                await _uow.GrupoTrabajoRepo.DeleteAsync(id);
                 response.IsSuccess = true;
                 response.Message = "GrupoTrabajo eliminada correctamente.";
                 

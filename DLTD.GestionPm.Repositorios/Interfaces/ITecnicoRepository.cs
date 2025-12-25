@@ -11,5 +11,6 @@ namespace DLTD.GestionPm.Repositorios.Interfaces
     public interface ITecnicoRepository: IBaseRepository<Tecnico>
     {
         Task<(Tecnico? tecnico, IdentityResult identityresult)> CreateAsync(Tecnico request, string usuario, string clave);
+        
     }
 }

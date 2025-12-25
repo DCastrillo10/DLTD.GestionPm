@@ -15,12 +15,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
 {
     public class ModeloService: IModeloService
     {
-        private readonly IModeloRepository _repository;
+        private readonly IUnitOfWork _uow;
         private readonly ILogger<Modelo> _logger;
 
-        public ModeloService(IModeloRepository repository, ILogger<Modelo> logger)
+        public ModeloService(IUnitOfWork uow, ILogger<Modelo> logger)
         {
-            _repository = repository;
+            _uow = uow;
             _logger = logger;
         }
 
@@ -30,7 +30,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             try
             {
                 var nuevo = request.Adapt<Modelo>();
-                await _repository.AddAsync(nuevo);
+                await _uow.ModeloRepo.AddAsync(nuevo);
                 response.IsSuccess = true;
                 response.Message = "Modelo registrada exitosamente.";
             }
@@ -47,11 +47,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse();
             try
             {
-                var modelo = await _repository.FindAsync(id);
+                var modelo = await _uow.ModeloRepo.FindAsync(id);
                 if (modelo == null) throw new InvalidDataException("Modelo no encontrada");
 
                 request.Adapt(modelo);
-                await _repository.UpdateAsync();
+                await _uow.SaveAsync();
+
                 response.IsSuccess = true;
                 response.Message = "Modelo actualizado exitosamente.";
             }
@@ -74,7 +75,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<ModeloResponse>();
             try
             {
-                var modelo = await _repository.FindAsync(id);
+                var modelo = await _uow.ModeloRepo.FindAsync(id);
                 if (modelo == null) throw new InvalidDataException("Modelo no encontrada");
 
                 response.IsSuccess = true;
@@ -99,7 +100,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<ICollection<ListaModeloResponse>>();
             try
             {
-                var result = await _repository.ListAsync();
+                var result = await _uow.ModeloRepo.ListAsync();
                 response.IsSuccess = true;
                 response.Result = result.Adapt<ICollection<ListaModeloResponse>>();
             }
@@ -115,7 +116,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new PaginationResponse<ListaModeloResponse>();
             try
             {
-                var result = await _repository.ListAsync(
+                var result = await _uow.ModeloRepo.ListAsync(
                         predicate: p => p.Status != "Eliminado" &&
                         (string.IsNullOrEmpty(request.Filter) || p.Referencia.Contains(request.Filter) || p.Descripcion!.Contains(request.Filter) ||
                                                                  p.IdMarcaNavigation.Descripcion.Contains(request.Filter) || p.Status.Contains(request.Filter)),
@@ -150,10 +151,10 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<ModeloResponse>();
             try
             {
-                var modelo = await _repository.FindAsync(id);
+                var modelo = await _uow.ModeloRepo.FindAsync(id);
                 if (modelo == null) throw new InvalidDataException("Modelo no encontrada");
 
-                await _repository.DeleteAsync(id);
+                await _uow.ModeloRepo.DeleteAsync(id);
                 response.IsSuccess = true;
                 response.Message = "Modelo eliminada correctamente.";
                 

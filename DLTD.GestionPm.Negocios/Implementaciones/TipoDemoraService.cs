@@ -20,12 +20,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
 {
     public class TipoDemoraService: ITipoDemoraService
     {
-        private readonly ITipoDemoraRepository _repository;
+        private readonly IUnitOfWork _uow;
         private readonly ILogger<TipoDemora> _logger;
             
-        public TipoDemoraService(ITipoDemoraRepository repository, ILogger<TipoDemora> logger)
+        public TipoDemoraService(IUnitOfWork uow, ILogger<TipoDemora> logger)
         {
-            _repository = repository;
+            _uow = uow;
             _logger = logger;
         }
 
@@ -36,7 +36,8 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             {
                 request.AplicaDetencion ??= false;
                 var nuevo = request.Adapt<TipoDemora>();
-                await _repository.AddAsync(nuevo);
+                await _uow.TipoDemoraRepo.AddAsync(nuevo);
+
                 response.IsSuccess = true;
                 response.Message = "Registro realizado exitosamente.";
             }
@@ -53,11 +54,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse();
             try
             {
-                var TipoDemora = await _repository.FindAsync(id);
+                var TipoDemora = await _uow.TipoDemoraRepo.FindAsync(id);
                 if (TipoDemora == null) throw new InvalidDataException("Registro no encontrado.");
 
                 request.Adapt(TipoDemora);
-                await _repository.UpdateAsync();
+                await _uow.SaveAsync();
+
                 response.IsSuccess = true;
                 response.Message = "Registro actualizado exitosamente.";
             }
@@ -80,7 +82,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<TipoDemoraResponse>();
             try
             {
-                var TipoDemora = await _repository.FindAsync(id);
+                var TipoDemora = await _uow.TipoDemoraRepo.FindAsync(id);
                 if (TipoDemora == null) throw new InvalidDataException("Registro no encontrado.");
 
                 response.IsSuccess = true;
@@ -105,7 +107,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<ICollection<ListaTipoDemoraResponse>>();
             try
             {
-                var result = await _repository.ListAsync();
+                var result = await _uow.TipoDemoraRepo.ListAsync();
                 response.IsSuccess = true;
                 response.Result = result.Adapt<ICollection<ListaTipoDemoraResponse>>();
             }
@@ -121,7 +123,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new PaginationResponse<ListaTipoDemoraResponse>();
             try
             {
-                var result = await _repository.ListAsync(
+                var result = await _uow.TipoDemoraRepo.ListAsync(
                         predicate: p => p.Status != "Eliminado" &&
                         (string.IsNullOrEmpty(request.Filter) || p.Nombre.Contains(request.Filter) || p.Descripcion.Contains(request.Filter) || p.Status.Contains(request.Filter)),
                         selector: p => new ListaTipoDemoraResponse
@@ -155,10 +157,10 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<TipoDemoraResponse>();
             try
             {
-                var TipoDemora = await _repository.FindAsync(id);
+                var TipoDemora = await _uow.TipoDemoraRepo.FindAsync(id);
                 if (TipoDemora == null) throw new InvalidDataException("Registro no encontrado.");
 
-                await _repository.DeleteAsync(id);
+                await _uow.TipoDemoraRepo.DeleteAsync(id);
                 response.IsSuccess = true;
                 response.Message = "Registro eliminado correctamente.";
                 

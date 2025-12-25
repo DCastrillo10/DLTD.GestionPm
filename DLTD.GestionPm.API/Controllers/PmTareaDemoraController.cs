@@ -1,5 +1,5 @@
 ﻿using DLTD.GestionPm.Dto.Request;
-using DLTD.GestionPm.Dto.Request.PmTareaTecnico;
+using DLTD.GestionPm.Dto.Request.PmTareaDemora;
 using DLTD.GestionPm.Negocios.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,31 +10,24 @@ namespace DLTD.GestionPm.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class PmTareaTecnicoController : ControllerBase
+    public class PmTareaDemoraController : ControllerBase
     {
-        private readonly IPmTareaTecnicoService _service;
+        private readonly IPmTareaDemoraService _service;
 
-        public PmTareaTecnicoController(IPmTareaTecnicoService service)
+        public PmTareaDemoraController(IPmTareaDemoraService service)
         {
             _service = service;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] PmTareaTecnicoRequest request)
+        public async Task<IActionResult> Post([FromBody] PmTareaDemoraRequest request)
         {
             var response = await _service.AddAsync(request);
             return response.IsSuccess ? Ok(response) : BadRequest(response);
-        }
-
-        [HttpPost("registrar-acciones")]
-        public async Task<IActionResult> RegistrarAcciones([FromBody] PmTareaTecnicoRequest request)
-        {
-            var response = await _service.RegistrarAcciones(request);
-            return response.IsSuccess ? Ok(response) : BadRequest(response);
-        }
+        }        
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Put(int id, [FromBody] PmTareaTecnicoRequest request)
+        public async Task<IActionResult> Put(int id, [FromBody] PmTareaDemoraRequest request)
         {
             var response = await _service.UpdateAsync(id,request);
             return response.IsSuccess ? Ok(response) : BadRequest(response);

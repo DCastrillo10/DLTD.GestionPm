@@ -9,5 +9,6 @@ namespace DLTD.GestionPm.Repositorios.Interfaces
 {
     public interface IMarcaRepository: IBaseRepository<Marca>
     {
+        
     }
 }

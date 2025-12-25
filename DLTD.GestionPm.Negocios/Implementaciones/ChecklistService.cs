@@ -17,13 +17,13 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
 {
     public class CheckListService : ICheckListService
     {
-        private readonly ICheckListRepository _repository;
+        private readonly IUnitOfWork _uow;
         
-        private readonly ILogger<CheckListService> _logger;
+        private readonly ILogger<PmcheckList> _logger;
 
-        public CheckListService(ICheckListRepository repository, ILogger<CheckListService> logger)
+        public CheckListService(IUnitOfWork uow, ILogger<PmcheckList> logger)
         {            
-            _repository = repository;            
+            _uow = uow;            
             _logger = logger;
         }
 
@@ -37,7 +37,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                 nuevoMasterDetail.PmcheckListDetalles = request.Detalles
                                                         .Select(d => d.Adapt<PmcheckListDetalle>())
                                                         .ToList();
-                await _repository.AddMasterDetailsAsync(nuevoMasterDetail);
+                await _uow.CheckListRepo.AddMasterDetailsAsync(nuevoMasterDetail);
                 response.IsSuccess = true;
                 response.Message = "CheckList registrada exitosamente.";
             }
@@ -54,7 +54,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<CheckListResponse>();
             try
             {
-                var checkList = await _repository.FindByIdWithDetailAsync(id);
+                var checkList = await _uow.CheckListRepo.FindByIdWithDetailAsync(id);
                 if (checkList == null) throw new InvalidDataException("Checklist no encontrada.");
 
                 var masterDetails = checkList.Adapt<CheckListResponse>();
@@ -88,7 +88,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new PaginationResponse<ListaCheckListResponse>();
             try
             {
-                var result = await _repository.ListAsync(
+                var result = await _uow.CheckListRepo.ListAsync(
                         predicate: p => p.Status != "Eliminado" &&
                                         (string.IsNullOrEmpty(request.Filter) ||
                                         p.Descripcion!.Contains(request.Filter) ||
@@ -126,12 +126,12 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse();
             try
             {
-                var masterExistente = await _repository.FindByIdWithDetailAsync(id);
+                var masterExistente = await _uow.CheckListRepo.FindByIdWithDetailAsync(id);
                 if (masterExistente == null) throw new InvalidDataException("Checklist no encontrada.");
 
                 request.Adapt(masterExistente); //Mapear Cabecera: Actualizar las propiedades del Maestro
                 ActualizarDetalles(masterExistente, request.Detalles); //Actualizamos los detalles
-                await _repository.UpdateAsync();
+                await _uow.SaveAsync();
 
                 response.IsSuccess = true;
                 response.Message = "Checklist actualizado exitosamente.";
@@ -155,7 +155,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse();
             try
             {
-                var checkList = await _repository.FindByIdWithDetailAsync(id);
+                var checkList = await _uow.CheckListRepo.FindByIdWithDetailAsync(id);
                 if (checkList == null) throw new InvalidDataException("Checklist no encontrada.");
 
                 checkList.Status = "Eliminado"; //Eliminar cabecera
@@ -164,7 +164,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                     detalle.Status = "Eliminado";
                 }
 
-                await _repository.UpdateAsync();
+                await _uow.SaveAsync();
                 response.IsSuccess = true;
                 response.Message = "Checklist eliminado correctamente.";
             }
@@ -187,7 +187,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             var response = new BaseResponse<bool>();
             try
             {
-                var existe = await _repository.FindCheckList(idTipopm, idModelo);
+                var existe = await _uow.CheckListRepo.FindCheckList(idTipopm, idModelo);
                 if (existe)
                 {
                     response.IsSuccess = true;

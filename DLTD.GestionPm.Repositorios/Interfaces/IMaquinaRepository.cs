@@ -9,6 +9,7 @@ namespace DLTD.GestionPm.Repositorios.Interfaces
 {
     public interface IMaquinaRepository : IBaseRepository<Maquina>
     {
+        
         Task<Maquina?> FindMaquina(string NoEquipo);
     }
 }

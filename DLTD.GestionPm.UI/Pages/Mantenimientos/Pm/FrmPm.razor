@@ -108,39 +108,57 @@
                     </div>
 
                     <div class="uk-grid-small" uk-grid>
-                        <div class="uk-width-1-4@s">
+                        <div class="uk-width-1-6@s">
                             <div class="uk-margin-remove-bottom">
-                                <label class="uk-form-label">Fecha y Hora Incial</label>
+                                <label class="uk-form-label">Fecha Inicial</label>
                                 <div class="uk-width-expand">
-                                    <input type="datetime-local"
-                                           class="uk-input uk-form-small uk-input-borde-fijo"                                             
-                                           @bind:culture="@CultureInfo.InvariantCulture" @bind="Request.FechaInicialPm" />
+                                    <input type="date" class="uk-input uk-form-small uk-input-borde-fijo"                                                                                        
+                                           @bind:culture="CultureInfo.InvariantCulture" @bind="Request.FechaInicialPm" format="yyyy-MM-dd" />
                                 </div>
                                 <ValidationMessage For="@(() => Request.FechaInicialPm)" />
                             </div>
                         </div>
-                        <div class="uk-width-1-4@s">
+                        <div class="uk-width-1-6@s">
                             <div class="uk-margin-remove-bottom">
-                                <label class="uk-form-label">Fecha y Hora Final</label>
+                                <label class="uk-form-label">Hora Incial</label>
                                 <div class="uk-width-expand">
-                                    <input type="datetime-local" 
-                                           class="uk-input uk-form-small uk-input-borde-fijo"                                             
-                                           @bind:culture="@CultureInfo.InvariantCulture" @bind="Request.FechaFinalPm" @bind:after="CalcularDuracionPM">
+                                    <input type="time" class="uk-input uk-form-small uk-input-borde-fijo"                                           
+                                           @bind:culture="CultureInfo.InvariantCulture" @bind="Request.FechaInicialPm" format="HH:mm" />
+                                </div>
+                                <ValidationMessage For="@(() => Request.FechaInicialPm)" />
+                            </div>
+                        </div>
+                        <div class="uk-width-1-6@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Fecha Final</label>
+                                <div class="uk-width-expand">
+                                    <input type="date" class="uk-input uk-form-small uk-input-borde-fijo"                                                                                        
+                                           @bind:culture="CultureInfo.InvariantCulture" @bind="Request.FechaFinalPm" format="yyyy-MM-dd" />
                                 </div>
                                 <ValidationMessage For="@(() => Request.FechaFinalPm)" />
                             </div>
                         </div>
-                        <div class="uk-width-1-4@s">
+                        <div class="uk-width-1-6@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Hora Final</label>
+                                <div class="uk-width-expand">
+                                    <input type="time" class="uk-input uk-form-small uk-input-borde-fijo" 
+                                           @bind:culture="CultureInfo.InvariantCulture" @bind="Request.FechaFinalPm" format="HH:mm" @bind:after="CalcularDuracionPM" />
+                                </div>
+                                <ValidationMessage For="@(() => Request.FechaFinalPm)" />
+                            </div>
+                        </div>
+                        <div class="uk-width-1-6@s">
                             <div class="uk-margin-remove-bottom">
                                 <label class="uk-form-label">Duracion</label>
                                 <div class="uk-width-expand">
-                                    <input class="uk-input uk-form-small uk-input-borde-fijo" disabled @bind="Request.Duracion">
+                                    <input class="uk-input uk-form-small uk-input-borde-fijo" disabled @bind="Request.Duracion" />
                                 </div>
                                 <ValidationMessage For="@(() => Request.Duracion)" />
                             </div>
                         </div>                      
 
-                        <div class="uk-width-1-4@s">
+                        <div class="uk-width-1-6@s">
                             <div class="uk-margin-remove-bottom">
                                 <label class="uk-form-label">Status PM</label>
                                 <select class="uk-select uk-form-small" @bind="Request.StatusPm">
@@ -278,12 +296,10 @@
 </EditForm>
 
 
-
 <Loading Isloading="isLoading" />
 
 @code {
     [Parameter] public int Id { get; set; } // Se usa para editar
-
 
     public PmRequest Request { get; set; } = new();
     public PmDetallesRequest DetalleAuxiliar { get; set; } = new();
@@ -300,7 +316,7 @@
     public string NombreModeloSel { get; set; } = string.Empty;    
 
     public int PaginaActual { get; set; } = 1;
-    public int ElementosPorPagina { get; set; } = 5; // Valor razonable para una tabla detallada
+    public int ElementosPorPagina { get; set; } = 8; // Valor razonable para una tabla detallada
     public int TotalPaginas { get; set; } = 1;
     public int TotalElementos { get; set; } = 0;
 
@@ -568,8 +584,14 @@
                     IdRuta = tarea.IdRuta,
                     IdTarea = tarea.IdTarea,
                     NomRuta = tarea.NomRuta!,
-                    NomTarea = tarea.NomTarea!,
-                    StatusTarea = "Pendiente"
+                    NomTarea = tarea.NomTarea!,                    
+                    Duracion = tarea.Duracion,
+                    NoTecnicos = tarea.NoTecnicos,
+                    Valor1 = tarea.Valor1,
+                    Valor2 = tarea.Valor2,
+                    Valor3 = tarea.Valor3,
+                    StatusTarea = "Pendiente",
+                    Realizado = false
                 }).ToList();
             }
             else
