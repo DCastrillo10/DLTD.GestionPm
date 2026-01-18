@@ -19,7 +19,10 @@
         public const string ListaTipoPM = "/listatipopm";
         public const string ListaActividades = "/listaactividades";
         public const string ListaDemoras = "/listademoras";
+        public const string ListaTipoHallazgos = "/listatipohallazgos";
         public const string ListaHallazgos = "/listahallazgos";
+        public const string HallazgoNuevo = "/hallazgo/nuevo";
+        public const string HallazgoEditar = "/hallazgo/editar";
         public const string ListaPm = "/listapm";
         public const string PmNuevo = "/pm/nuevo";
         public const string PmEditar = "/pm/editar";

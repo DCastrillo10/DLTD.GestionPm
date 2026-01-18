@@ -31,6 +31,8 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             {
                 var nuevo = request.Adapt<Modelo>();
                 await _uow.ModeloRepo.AddAsync(nuevo);
+                await _uow.SaveAsync();
+
                 response.IsSuccess = true;
                 response.Message = "Modelo registrada exitosamente.";
             }

@@ -42,5 +42,10 @@ namespace DLTD.GestionPm.Dto.Response.Pm
         public DateTime? FechaActualizacion { get; set; }
 
         public string Status { get; set; } = default!;
+
+        public string? UsuarioRevision { get; set; }
+        public DateTime? FechaRevision { get; set; }
+        public string? UsuarioAprobacion { get; set; }
+        public DateTime? FechaAprobacion { get; set; }
     }
 }

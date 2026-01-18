@@ -1,62 +1,59 @@
-﻿
-@using DLTD.GestionPm.Dto.Response.Tecnico
+﻿@using DLTD.GestionPm.Dto.Response.PmTareaHallazgo
 
 
-@attribute [Route(Routes.Tecnicos)]
+@attribute [Route(Routes.ListaHallazgos)]
 @layout MainLayout
-@attribute [Authorize(Roles = CatalogRoles.Administrador)]
 
-@inject ITecnicoProxy tecnicoProxy;
+@inject IPmTareaHallazgoProxy hallazgoProxy;
 @inject IToastService toastService;
-@inject SweetAlertService swal;
 @inject NavigationManager Navegador;
+@inject SweetAlertService swal;
 
-<h3 class="uk-text-bold uk-margin-small-bottom">Listado de Tecnicos</h3>
+<h3 class="uk-text-bold uk-margin-small-bottom">Listado de Hallazgos</h3>
 
-<GroupBox Titulo="Buscar Tecnicos">
+<GroupBox Titulo="Buscar Hallazgos">
     <Contenido>
         <div class="uk-grid-small" uk-grid>
             <!-- Input + botones -->
             <div class="uk-width-2-3@s">
-                <div class="uk-grid-small uk-flex-middle" uk-grid>                    
+                <div class="uk-grid-small uk-flex-middle" uk-grid>
                     <div class="uk-width-expand">
-                        <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="Buscar por descripción..." @bind="Request.Filter" />
-                    </div>                    
+                        <input class="uk-input uk-form-small uk-input-borde-fijo" placeholder="Buscar por descripción..." @bind="RequestPagination.Filter" />
+                    </div>
                     <div>
                         <button class="uk-button uk-button-default uk-button-small" @onclick="Listar">
                             <i class="icon-feather-search"></i>
                         </button>
-                    </div>                    
+                    </div>
                     <div>
                         <button class="uk-button uk-button-default uk-button-small" @onclick="OnRefrescar">
                             <i class="icon-feather-rotate-ccw"></i>
                         </button>
                     </div>
                 </div>
-            </div>            
-            
-            <div class="uk-width-1-3@s uk-flex uk-flex-right">
+            </div>
+
+           @*  <div class="uk-width-1-3@s uk-flex uk-flex-right">
                 <button class="uk-button btn-corporativo uk-button-small" style="padding: 6px 18px;" @onclick="Nuevo">
                     <i class="icon-feather-plus uk-margin-small-right"></i>
                     Nuevo
                 </button>
-            </div>
+            </div> *@
         </div>
     </Contenido>
 
 </GroupBox>
 
 <!-- Tabla -->
-<div class="uk-overflow-auto tabla-container">    
+<div class="uk-overflow-auto tabla-container">
     <table class="uk-table uk-table-striped uk-table-hover uk-table-small uk-table-middle tabla-compacta">
 
         <thead class="table-header">
             <tr>
                 <th>Id</th>
-                <th>Identificacion</th>
-                <th>Codigo</th>
-                <th>Nombres Completos</th>
-                <th>Turno Actual</th>
+                <th>No Equipo</th>
+                <th>Descripcion</th>
+                <th>Tipo de Hallazgos</th>                
                 <th>Status</th>
                 <th>Acciones</th>
             </tr>
@@ -66,39 +63,38 @@
             {
                 <tr>
                     <td>@item.Id</td>
-                    <td>@item.NoIdentificacion</td>
-                    <td>@item.Codigo</td>
-                    <td>@item.NombresCompletos</td>
-                    <td>@item.TurnoActual</td>                    
+                    <td>@item.NoEquipo</td>
+                    <td>@item.Descripcion</td>
+                    <td>@item.TipoHallazgo</td>                                        
                     <td>@item.Status</td>
                     <td class="uk-text-center">
 
-                        <button class="uk-icon-button uk-margin-small-right" uk-tooltip="Editar" @onclick="() => Editar(item.Id)" >
+                        <button class="uk-icon-button uk-margin-small-right" uk-tooltip="Editar" @onclick="() => Editar(item.Id)">
                             <i class="icon-feather-edit"></i>
                         </button>
 
-                        <button class="uk-icon-button uk-button-danger" uk-tooltip="Eliminar"  @onclick="() => OnEliminar(item)">
+                        <button class="uk-icon-button uk-button-danger" uk-tooltip="Eliminar" @onclick="() => OnEliminar(item)">
                             <i class="icon-feather-trash-2"></i>
                         </button>
 
                     </td>
                 </tr>
             }
-            
+
         </tbody>
     </table>
 </div>
 
-<PagedList Titem="ListaTecnicoResponse" Request="Request" Response="Paginacion" OnChange="Listar" />        
+<PagedList Titem="ListaPmTareaHallazgoResponse" Request="RequestPagination" Response="Paginacion" OnChange="Listar" />
 <Loading Isloading="isLoading" />
 
 @code {
-    public List<ListaTecnicoResponse> Listado { get; set; } = new();
-    public PaginationRequest Request { get; set; } = new();    
-    public PaginationResponse<ListaTecnicoResponse> Paginacion { get; set; } = new();
+    public List<ListaPmTareaHallazgoResponse> Listado { get; set; } = new();
+    public PaginationRequest RequestPagination { get; set; } = new();
+    public PaginationResponse<ListaPmTareaHallazgoResponse> Paginacion { get; set; } = new();
     public bool isLoading { get; set; }
 
-    public TecnicoRequest RequestTecnico { get; set; } = new();
+    public PmTareaHallazgoRequest Request { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -110,8 +106,8 @@
         isLoading = true;
         try
         {
-            var respuesta = await tecnicoProxy.Listar(Request);
-            if(respuesta?.Result != null)
+            var respuesta = await hallazgoProxy.Listar(RequestPagination);
+            if (respuesta?.Result != null)
             {
                 Paginacion = respuesta;
                 Listado = respuesta.Result.ToList();
@@ -119,7 +115,7 @@
         }
         catch (Exception ex)
         {
-            toastService.ShowError(ex.Message);            
+            toastService.ShowError(ex.Message);
         }
         finally
         {
@@ -133,14 +129,14 @@
         Request = new();
         await Listar();
     }
-   
-    
-    public async Task OnEliminar(ListaTecnicoResponse item)
+
+
+    public async Task OnEliminar(ListaPmTareaHallazgoResponse item)
     {
         var respuesta = await swal.FireAsync(new SweetAlertOptions
         {
             Title = "Estas seguro en eliminar este registro?",
-            Text = $"Eliminar {item.NombresCompletos}.",
+            Text = $"Eliminar {item.TipoHallazgo}.",
             Icon = SweetAlertIcon.Question,
             ShowCancelButton = true,
             ConfirmButtonText = "Si",
@@ -158,8 +154,8 @@
         isLoading = true;
         try
         {
-            var response = await tecnicoProxy.Eliminar(id);
-            if(response != null)
+            var response = await hallazgoProxy.Eliminar(id);
+            if (response != null)
             {
                 await Listar();
                 toastService.ShowSuccess("Registro eliminado correctamente");
@@ -177,14 +173,13 @@
         }
     }
 
-    void Nuevo()
+    public void Nuevo()
     {
-        Navegador.NavigateTo(Routes.TecnicoNuevo);
+        Navegador.NavigateTo(Routes.HallazgoNuevo);
     }
-
     void Editar(int id)
     {
-        Navegador.NavigateTo($"{Routes.TecnicoEditar}/{id}");
+        Navegador.NavigateTo($"{Routes.HallazgoEditar}/{id}");
     }
-    
+
 }

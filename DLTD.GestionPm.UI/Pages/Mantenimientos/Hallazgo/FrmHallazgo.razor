@@ -1,0 +1,315 @@
+﻿@using DLTD.GestionPm.Dto.Response.TipoHallazgo
+
+
+@attribute [Route(Routes.HallazgoNuevo + "/{IdPmDetalle:int}")]
+@attribute [Route(Routes.HallazgoEditar + "/{id:int}")]
+
+@layout MainLayout
+
+@inject IPmTareaHallazgoProxy hallazgoProxy;
+@inject ITipoHallazgoProxy tipohallazgoProxy;
+@inject IToastService toastService;
+@inject NavigationManager Navegador;
+
+<h3 class="uk-text-bold uk-margin-small-bottom">Gestionar Hallazgos</h3>
+
+<EditForm Model="Request" OnValidSubmit="OnGuardar">
+    <DataAnnotationsValidator />
+
+    <div uk-grid>
+        <div class="uk-width-1-1">
+            <GroupBox Titulo="Parametros Principales">
+                <Contenido>
+
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">No Equipo</label>
+                                <div class="uk-width-expand">
+                                    <input class="uk-input uk-form-small uk-input-borde-fijo" disabled @bind="NoEquipo">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Tipos de Hallazgos</label>
+                                <select class="uk-select uk-form-small" @bind="Request.IdTipoHallazgo"  disabled="@(Id != 0)">
+                                    <option value="0">Seleccione un Tipo de Hallazgo...</option>
+                                    @foreach (var item in TiposHallazgos)
+                                    {
+                                        <option value="@item.Id">@item.Nombre</option>
+                                    }
+                                </select>
+                                <ValidationMessage For="@(() => Request.IdTipoHallazgo)" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Fecha Hallazgo</label>
+                                <div class="uk-width-expand">
+                                    <input type="date" class="uk-input uk-form-small uk-input-borde-fijo"
+                                           @bind:culture="CultureInfo.InvariantCulture" @bind="FechaHallazgo" format="yyyy-MM-dd"  />
+                                </div>
+                                <ValidationMessage For="@(() => Request.FechaHallazgo)" />
+                            </div>
+                        </div>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Hora Hallazgo</label>
+                                <div class="uk-width-expand">
+                                    <input type="time" class="uk-input uk-form-small uk-input-borde-fijo"
+                                           @bind:culture="CultureInfo.InvariantCulture" @bind="HoraHallazgo" format="HH:mm"  />
+                                </div>
+                                <ValidationMessage For="@(() => Request.FechaHallazgo)" />
+                            </div>
+                        </div>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Validado por:</label>
+                                <div class="uk-width-expand">
+                                    <input class="uk-input uk-form-small uk-input-borde-fijo"  disabled @bind="Request.ValidadoPor">
+                                </div>                                
+                            </div>
+                        </div>
+                        <div class="uk-width-1-4@s">
+                            <div class="uk-margin-remove-bottom">
+                                <label class="uk-form-label">Status</label>
+                                <select class="uk-select uk-form-small" @bind="Request.Status">
+                                    <option value="Activo">Activo</option>
+                                    <option value="Inactivo">Inactivo</option>
+                                </select>
+                                <ValidationMessage For="@(() => Request.Status)" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-1@s">
+                            <label class="uk-form-label">Descripción</label>
+                            <textarea class="uk-textarea textarea-minima" @bind="Request.Descripcion" placeholder="Descripción del Hallazgo"></textarea>
+                            <ValidationMessage For="@(() => Request.Descripcion)" />
+                        </div>
+                    </div>
+
+                </Contenido>
+            </GroupBox>
+        </div>
+    </div>
+
+    <div class="uk-margin">
+        <GroupBox Titulo="Soporte Hallazgo">
+            <Contenido>
+                <div class="uk-grid-small" uk-grid>
+                    <div class="uk-width-1-4@s">
+                        <div class="uk-margin-remove-bottom">
+                            <label class="uk-form-label">Soporte</label>
+                            <div class="uk-width-expand">
+                                <InputFile class="uk-input uk-form-small uk-input-borde-fijo" accept="imagen/png, imagen/jpg, imagen/webp" OnChange="OnSoporteChanged"></InputFile>
+                                <ValidationMessage For="@(() => Request.Soporte.Base64)" />
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+                <div class="uk-grid-small" uk-grid>
+                    <div class="uk-width-1-4@s">
+                        <div class="uk-margin-remove-bottom">
+                            
+                            <div class="uk-width-expand">
+                                @if (!string.IsNullOrEmpty(Request.Soporte.Base64))
+                                {
+                                    <img src="data:img/jpeg;base64,@Request.Soporte.Base64" style="width:150px;"/>
+                                }
+                                else if (!string.IsNullOrEmpty(ImagenActualUrl))
+                                {
+                                    <img src="@ImagenActualUrl" style="width:150px; border: 1px solid #ccc;" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>               
+            </Contenido>
+        </GroupBox>
+    </div>
+
+    <div class="uk-width-1-1 uk-flex uk-flex-right uk-margin-small-top">
+        <button type="button" class="uk-button btn-secundario uk-margin-small-right" @onclick="OnCancelar">
+            <i class="icon-feather-x-circle uk-margin-small-right"></i> Cancelar
+        </button>
+        <button type="submit" class="uk-button btn-corporativo" >
+            <i class="icon-feather-save uk-margin-small-right"></i> Guardar
+        </button>
+    </div>
+
+</EditForm>
+
+<Loading Isloading="isLoading" />
+
+@code{
+    [Parameter] public int Id { get; set; } // Se usa para editar
+    [Parameter] public int IdPmDetalle { get; set; } //Se usa para navegar al componente FrmTareaDetalle
+
+    public PmTareaHallazgoRequest Request { get; set; } = new();
+
+    public List<ListaTipoHallazgoResponse> TiposHallazgos { get; set; } = new();
+
+    public bool isLoading { get; set; }
+    private string NoEquipo;
+    private string? ImagenActualUrl;
+    private DateTime? FechaHallazgo;
+    private DateTime? HoraHallazgo;
+    private long TamanioMaximo = 1024 * 1024 * 5; //5Mb
+    private bool vieneDesdeTarea = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IdPmDetalle > 0)
+        {
+            vieneDesdeTarea = true;
+            Request.IdPmDetalle = IdPmDetalle;
+            var res = await hallazgoProxy.ObtenerEquipo(Request.IdPmDetalle);
+            NoEquipo = res.IsSuccess ? res.Result : "0000";
+        }
+
+        if (Id > 0) // Estamos editando
+        {
+            await CargarHallazgo(Id);
+        }
+
+        await CargarCombos();
+    }
+
+    public async Task CargarCombos()
+    {
+        isLoading = true;
+        try
+        {
+            var tiposPm = await tipohallazgoProxy.Listarcombo();
+            if (tiposPm?.Result != null)
+            {
+                TiposHallazgos = tiposPm.Result.ToList();
+            }
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CargarHallazgo(int id)
+    {
+        isLoading = true;
+        try
+        {
+            var response = await hallazgoProxy.ObtenerPorId(id);
+            if (response.IsSuccess && response.Result != null)
+            {
+                // Mapeamos el Response (Cabecera + Detalles) al Request para edición
+                Request.Id = response.Result.Id;
+                Request.IdPmDetalle = response.Result.IdPmDetalle;
+                Request.NoEquipo = response.Result.NoEquipo;
+                Request.IdTipoHallazgo = response.Result.IdTipoHallazgo;
+                Request.Descripcion = response.Result.Descripcion;
+                Request.FechaHallazgo = response.Result.FechaHallazgo;
+                Request.ValidadoPor = response.Result.ValidadoPor;
+                Request.Status = response.Result.Status;
+
+                ImagenActualUrl = response.Result.ImagenUrl;
+                Request.Soporte.Base64 = null!;
+
+                FechaHallazgo = Request.FechaHallazgo;
+                HoraHallazgo = Request.FechaHallazgo;
+                NoEquipo = Request.NoEquipo;
+            }
+            else
+            {
+                toastService.ShowError(response.Message!);
+                Navegador.NavigateTo(Routes.ListaPm);
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error al cargar Pm: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    public async Task OnSoporteChanged(InputFileChangeEventArgs e)
+    {
+        var imagen = e.File;
+        var buffer = new byte[imagen.Size];
+        await imagen.OpenReadStream(TamanioMaximo).ReadAsync(buffer);
+        Request.Soporte.Base64 = Convert.ToBase64String(buffer);
+        Request.Soporte.Name = imagen.Name;
+    }
+
+    public async Task OnGuardar()
+    {
+        Request.NoEquipo = NoEquipo;
+        if (FechaHallazgo.HasValue && HoraHallazgo.HasValue)
+        {
+            Request.FechaHallazgo = FechaHallazgo.Value.Date + HoraHallazgo.Value.TimeOfDay;
+        }
+
+        isLoading = true;
+        try
+        {
+            BaseResponse respuesta;
+
+            // 2. Decidimos si es Crear o Editar
+            if (Id > 0)
+                respuesta = await hallazgoProxy.Actualizar(Id, Request);
+            else
+                respuesta = await hallazgoProxy.Registrar(Request);
+
+            if (respuesta.IsSuccess)
+            {
+                toastService.ShowSuccess(respuesta.Message!);
+
+                // 3. Redirección fluida según el origen
+                if (vieneDesdeTarea)
+                    Navegador.NavigateTo($"/pm/tarea/{Request.IdPmDetalle}");
+                else
+                    Navegador.NavigateTo(Routes.ListaHallazgos);
+            }
+            else
+            {
+                toastService.ShowError(respuesta.Message!);
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void OnCancelar()
+    {
+        if (vieneDesdeTarea)
+        {
+            // Regresa a la tarea específica
+            Navegador.NavigateTo($"/pm/tarea/{Request.IdPmDetalle}");
+        }
+        else
+        {
+            // Regresa a la lista general de hallazgos
+            Navegador.NavigateTo(Routes.ListaHallazgos);
+        }
+    }
+}

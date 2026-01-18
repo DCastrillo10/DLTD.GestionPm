@@ -4,8 +4,10 @@ using DLTD.GestionPm.Dto.Response;
 using DLTD.GestionPm.Dto.Response.Pm;
 using DLTD.GestionPm.Entidad;
 using DLTD.GestionPm.Negocios.Interfaces;
+using DLTD.GestionPm.Repositorios.Implementaciones;
 using DLTD.GestionPm.Repositorios.Interfaces;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using System;
@@ -39,6 +41,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                                                         .Select(d => d.Adapt<Pmdetalle>())
                                                         .ToList();
                 await _uow.PmRepo.AddMasterDetailsAsync(nuevoMasterDetail);
+                //await _uow.SaveAsync(); No es necesario porque en el repositorio ya lo tiene
                 response.IsSuccess = true;
                 response.Message = "Pm registrada exitosamente.";
             }
@@ -63,7 +66,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                 {
                     masterDetails.PmDetalles = Pm.PmDetalles
                                  .Where(d => d.Status != "Eliminado")
-                                 .Select(d => MapearDetalleConRutas(d))
+                                 .Select(d => MapearNombresFk(d))
                                  .ToList();                   
 
                 }
@@ -140,12 +143,15 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                 var masterExistente = await _uow.PmRepo.FindByIdWithDetailAsync(id);
                 if (masterExistente == null) throw new InvalidDataException("Pm no encontrada.");
 
-                request.Adapt(masterExistente); //Mapear Cabecera: Actualizar las propiedades del Maestro
-                ActualizarDetalles(masterExistente, request.PmDetalles); //Actualizamos los detalles
+                request.Adapt(masterExistente); //Mapear Cabecera: Actualizar las propiedades del Maestro               
+                ActualizarDetalles(masterExistente, request.PmDetalles); //Mapear Detalle: Actualizar las propiedades del Detalle
+
+                if (request.ProcesamientoMasivo) RegistrarTareaTecnico(masterExistente, request.PmDetalles, request.IdTecnicos); //Insertamos las actividad en TareaTecnico
                 await _uow.SaveAsync();
 
                 response.IsSuccess = true;
                 response.Message = "Pm actualizado exitosamente.";
+                
             }
             catch (InvalidDataException ex)
             {
@@ -193,6 +199,8 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             return response;
         }
 
+
+        //Metodos adicionales segun el caso de uso
         public async Task<BaseResponse<bool>> ExistePm(int idTipopm, int idModelo, string NoEquipo, string WorkOrder)
         {
             var response = new BaseResponse<bool>();
@@ -273,7 +281,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             return response;
         }
 
-        public async Task<BaseResponse<PmDetallesResponse>> GetDetalleTareaPmById(int id) //Permite buscar los datos de un detail por id. (Sin cabecera)
+        public async Task<BaseResponse<PmDetallesResponse>> GetDetalleTareaPmById(int id) //Este Buscar lo uso para ir a la pagina de las acciones IDRF
         {
             var response = new BaseResponse<PmDetallesResponse>();
             try
@@ -281,7 +289,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                 var detalleTarea = await _uow.PmRepo.GetDetalleTareaPmById(id);
                 if (detalleTarea == null) throw new InvalidDataException("Tarea no encontrada.");
 
-                var details = MapearDetalleConRutas(detalleTarea);
+                var details = MapearNombresFk(detalleTarea);
 
                 response.IsSuccess = true;
                 response.Result = details;
@@ -300,7 +308,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             return response;
         }
 
-        public async Task<BaseResponse> UpdateDetailsById(int id, PmDetallesRequest request) //Permite actualizar los datos de un detail por id. (Sin cabecera)
+        public async Task<BaseResponse> UpdateDetailsById(int id, PmDetallesRequest request) //Este Update lo uso para las acciones Iniciar,Detener..etc
         {
             var response = new BaseResponse();
             try
@@ -321,46 +329,55 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
         }
 
 
-        //Metodos Privados
-        private void ActualizarDetalles(Pm masterExistente, List<PmDetallesRequest> nuevoDetalles) //Permite insertar/eliminar los filas o registros de un masterDetails
+        //Metodos Privados   
+        private void ActualizarDetalles(Pm master, List<PmDetallesRequest> detallesRequest)
         {
-            //Manejo de Eliminados
-
-            // Lista de IDs de los registros del detalle que el cliente NOS ENVIÓ
-            var idsRequest = nuevoDetalles.Where(d => d.Id > 0).Select(d => d.Id).ToList();
-            // Recorrer los registros que actualmente tiene la entidad (los que cargó el FindByIdWithDetailAsync)
-            foreach (var detalleExistente in masterExistente.PmDetalles.ToList())
+            
+            foreach (var detReq in detallesRequest)
             {
-                // Si el registro del detalle cliente NO está en la lista de IDs del Request, fue eliminado por el usuario.
-                if (!idsRequest.Contains(detalleExistente.Id))
+                var detExist = master.PmDetalles.FirstOrDefault(d => d.Id == detReq.Id);
+                if (detExist != null)
                 {
-                    detalleExistente.Status = "Eliminado";
-                    //masterExistente.PmPmDetalles.Remove(detalleExistente);
+                    detReq.Adapt(detExist);
                 }
             }
-
-            //Manejo de Agregados y modificados
-            foreach (var detalleRequest in nuevoDetalles)
-            {
-                if (detalleRequest.Id == 0)
+        }
+        private void RegistrarTareaTecnico(Pm masterExistente, List<PmDetallesRequest> nuevoDetalles, List<int> idTecnicos) //Permite actualizar las tareas masivamente
+        {
+            
+            foreach (var detalleRequest in nuevoDetalles.Where(d => d.Seleccion))
+            {                
+                var detalleModificar = masterExistente.PmDetalles.FirstOrDefault(d => d.Id == detalleRequest.Id);
+                if (detalleModificar != null)
                 {
-                    var nuevoDetalle = detalleRequest.Adapt<Pmdetalle>();
-                    //Añadir a la colección rastreada. EF Core le asignará el FK IdPmPm y el estado 'Added'.
-                    masterExistente.PmDetalles.Add(nuevoDetalle);
-                }
-                else
-                {
-                    var detalleModificar = masterExistente.PmDetalles.FirstOrDefault(d => d.Id == detalleRequest.Id);
-                    if (detalleModificar != null)
+                    if(detalleRequest.StatusTarea == "Completado")
                     {
-                        detalleRequest.Adapt(detalleModificar);
+                        detalleModificar.PmTareaTecnicos ??= new List<PmTareaTecnico>();                      
+
+                        foreach (var idTecnico in idTecnicos)
+                        {
+                            detalleModificar.PmTareaTecnicos.Add(new PmTareaTecnico
+                            {
+                                IdPmDetalle = detalleModificar.Id,
+                                IdTecnico = idTecnico,
+                                IdTipoActividad = 4, // Tarea finalizada
+                                FechaInicialActividad = detalleModificar.FechaInicialTarea!.Value,
+                                FechaFinalActividad = detalleModificar.FechaFinalTarea!.Value,
+                                DuracionActividad = detalleModificar.DuracionTarea,
+                                Descripcion = detalleModificar.Observacion,
+                                Activo = false
+
+                            });
+                        }
                     }
+                    
+                    
                 }
+                
             }
-
-        } 
-
-        private PmDetallesResponse MapearDetalleConRutas(Pmdetalle entity) //Permite mapear un Detail incluyendo los campos de los FK
+            
+        }
+        private PmDetallesResponse MapearNombresFk(Pmdetalle entity) //Permite mapear un Detail incluyendo los campos de los FK
         {
             // 1. Mapeo automático de campos 1:1 con Mapster
             var response = entity.Adapt<PmDetallesResponse>();            
@@ -372,7 +389,9 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             //Aqui puedo colocar otras propiedades de navegacion
             
             return response;
-        } 
+        }
+
+        
 
     }
 }

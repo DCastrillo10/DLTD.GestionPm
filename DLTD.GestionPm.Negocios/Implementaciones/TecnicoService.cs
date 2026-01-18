@@ -52,6 +52,8 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                     return response;
                 }
 
+                await _uow.SaveAsync();
+
                 response.IsSuccess = true;
                 response.Message = "Tecnico registrado correctamente.";
                 await _email.SendEmail(tecnicoEntity.Email!, "Registro al Sistema Integrado de PM", CreateTemplate(request));

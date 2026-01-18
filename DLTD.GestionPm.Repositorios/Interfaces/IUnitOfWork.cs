@@ -1,4 +1,5 @@
 ﻿using DLTD.GestionPm.Entidad;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,7 @@ namespace DLTD.GestionPm.Repositorios.Interfaces
         IPmRepository PmRepo { get; }
         IPmTareaTecnicoRepository PmTareaTecnicoRepo { get; }
         IPmTareaDemoraRepository PmTareaDemoraRepo { get; }
+        IPmTareaHallazgoRepository PmTareaHallazgoRepo { get; }
 
         Task<int> SaveAsync();
     }

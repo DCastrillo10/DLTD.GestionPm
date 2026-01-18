@@ -48,29 +48,14 @@ namespace DLTD.GestionPm.Dto.Request.Pm
 
         public string Status { get; set; } = "Activo";
 
-        //Detalles
+
+        //Detalles y los Ids de los tecnicos o el usuario 
         public List<PmDetallesRequest> PmDetalles { get; set; } = new();
 
+        public List<int> IdTecnicos { get; set; } = new List<int>();
 
-        //Metodo para obligar al usuario a completar las fechas y horas del PM
-        //public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        //{
-        //    // 1. Validar que la duración sea > 0 (Tu validación original)
-        //    if (Duracion.HasValue && Duracion.Value <= 0)
-        //    {
-        //        yield return new ValidationResult("La duración calculada debe ser mayor a cero.", new[] { nameof(Duracion) });
-        //    }
+        //Tipo Procesamiento de la tarea Individual o Masivo
+        public bool ProcesamientoMasivo { get; set; } = false;
 
-        //    // 2. Validar que la hora no sea 00:00:00 (hora por defecto si solo se selecciona la fecha)
-        //    if (FechaInicialPm.HasValue && FechaInicialPm.Value.TimeOfDay == TimeSpan.Zero)
-        //    {
-        //        yield return new ValidationResult("Debe completar la hora en el campo Fecha y Hora Inicial.", new[] { nameof(FechaInicialPm) });
-        //    }
-
-        //    if (FechaFinalPm.HasValue && FechaFinalPm.Value.TimeOfDay == TimeSpan.Zero)
-        //    {
-        //        yield return new ValidationResult("Debe completar la hora en el campo Fecha y Hora Inicial.", new[] { nameof(FechaInicialPm) });
-        //    }
-        //}
     }
 }

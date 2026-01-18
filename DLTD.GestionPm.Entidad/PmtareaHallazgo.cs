@@ -19,13 +19,11 @@ public partial class PmTareaHallazgo : EntidadBase
 
     public string? ValidadoPor { get; set; }
 
-  
-
-    public int IdTecnico { get; set; }
+    public string NoEquipo { get; set; } = null!;
+    public string? Tecnicos { get; set; }
 
     public virtual Pmdetalle IdPmDetalleNavigation { get; set; } = null!;
 
-    public virtual Tecnico IdTecnicoNavigation { get; set; } = null!;
-
+    
     public virtual TipoHallazgo IdTipoHallazgoNavigation { get; set; } = null!;
 }

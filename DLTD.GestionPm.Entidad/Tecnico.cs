@@ -29,8 +29,6 @@ public partial class Tecnico : EntidadBase
 
     public virtual ICollection<PmTareaDemora> PmTareaDemoras { get; set; } = new List<PmTareaDemora>();
 
-    public virtual ICollection<PmTareaHallazgo> PmTareaHallazgos { get; set; } = new List<PmTareaHallazgo>();
-
     public virtual ICollection<PmTareaTecnico> PmTareaTecnicos { get; set; } = new List<PmTareaTecnico>();
     
     public virtual ICollection<GrupoTrabajo> GrupoTrabajoIdTecnicoPrincipalNavigations { get; set; } = new List<GrupoTrabajo>();

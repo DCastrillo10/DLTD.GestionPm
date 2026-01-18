@@ -30,6 +30,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             {
                 var nuevo = request.Adapt<Maquina>();
                 await _uow.MaquinaRepo.AddAsync(nuevo);
+                await _uow.SaveAsync();
 
                 response.IsSuccess = true;
                 response.Message = "Maquina registrada exitosamente.";

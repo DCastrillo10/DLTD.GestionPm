@@ -3,6 +3,7 @@ using DLTD.GestionPm.AccesoDatos.Contexto;
 using DLTD.GestionPm.Entidad;
 using DLTD.GestionPm.Repositorios.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
     {
         private readonly GestionPmBdContext _contexto;
         private readonly UserManager<SecurityEntity> _userManager;
+
         public ITecnicoRepository TecnicoRepo { get; }
         public IMarcaRepository MarcaRepo { get; }
         public IModeloRepository ModeloRepo { get; }
@@ -30,6 +32,7 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
         public IPmRepository PmRepo { get; }
         public IPmTareaTecnicoRepository PmTareaTecnicoRepo { get; }
         public IPmTareaDemoraRepository PmTareaDemoraRepo { get; }
+        public IPmTareaHallazgoRepository PmTareaHallazgoRepo { get; }
         
 
 
@@ -53,6 +56,7 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
             PmRepo = new PmRepository(_contexto);
             PmTareaTecnicoRepo = new PmTareaTecnicoRepository(_contexto);
             PmTareaDemoraRepo = new PmTareaDemoraRepository(_contexto);
+            PmTareaHallazgoRepo = new PmTareaHallazgoRepository(_contexto);
             
         }
 

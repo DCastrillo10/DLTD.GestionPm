@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using DLTD.GestionPm.Dto.Request.Azure;
+using DLTD.GestionPm.Negocios.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DLTD.GestionPm.Negocios.Implementaciones
 {
-    public class AzureBlobService
+    public class AzureBlobService: IAzureBlobService
     {
         private readonly IConfiguration _config;
 

@@ -48,7 +48,6 @@ public partial class Pmdetalle : EntidadBase
     public int? NoTecnicos { get; set; }
 
     public DateTime? FechaActualizacion { get; set; }
-
     public string? UsuarioRevision { get; set; }
     public DateTime? FechaRevision { get; set; }
     public string? UsuarioAprobacion { get; set; }

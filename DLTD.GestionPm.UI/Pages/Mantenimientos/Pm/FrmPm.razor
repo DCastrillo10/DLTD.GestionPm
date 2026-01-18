@@ -3,7 +3,6 @@
 @using DLTD.GestionPm.Dto.Response.Pm
 @using DLTD.GestionPm.Dto.Response.Ruta
 @using DLTD.GestionPm.Dto.Response.TipoPm
-@using System.Globalization
 
 @attribute [Route(Routes.PmNuevo)]
 @attribute [Route(Routes.PmEditar + "/{id:int}")]
@@ -15,8 +14,9 @@
 @inject IModeloProxy modeloProxy;
 @inject IRutaProxy rutaProxy;
 @inject IMaquinaProxy maquinaProxy;
-@inject GrupoTrabajoEstado grupoEstado;
+@inject GrupoTrabajoEstado grupoTrabajo;
 @inject IToastService toastService;
+@inject SweetAlertService swal;
 @inject NavigationManager Navegador;
 @implements IDisposable;
 
@@ -112,8 +112,8 @@
                             <div class="uk-margin-remove-bottom">
                                 <label class="uk-form-label">Fecha Inicial</label>
                                 <div class="uk-width-expand">
-                                    <input type="date" class="uk-input uk-form-small uk-input-borde-fijo"                                                                                        
-                                           @bind:culture="CultureInfo.InvariantCulture" @bind="Request.FechaInicialPm" format="yyyy-MM-dd" />
+                                    <input type="date" class="uk-input uk-form-small uk-input-borde-fijo"
+                                           @bind:culture="CultureInfo.InvariantCulture" @bind="FechaITemp" format="yyyy-MM-dd" @bind:after="CalcularDuracionPM" />
                                 </div>
                                 <ValidationMessage For="@(() => Request.FechaInicialPm)" />
                             </div>
@@ -122,8 +122,8 @@
                             <div class="uk-margin-remove-bottom">
                                 <label class="uk-form-label">Hora Incial</label>
                                 <div class="uk-width-expand">
-                                    <input type="time" class="uk-input uk-form-small uk-input-borde-fijo"                                           
-                                           @bind:culture="CultureInfo.InvariantCulture" @bind="Request.FechaInicialPm" format="HH:mm" />
+                                    <input type="time" class="uk-input uk-form-small uk-input-borde-fijo"
+                                           @bind:culture="CultureInfo.InvariantCulture" @bind="HoraITemp" format="HH:mm" @bind:after="CalcularDuracionPM" />
                                 </div>
                                 <ValidationMessage For="@(() => Request.FechaInicialPm)" />
                             </div>
@@ -133,7 +133,7 @@
                                 <label class="uk-form-label">Fecha Final</label>
                                 <div class="uk-width-expand">
                                     <input type="date" class="uk-input uk-form-small uk-input-borde-fijo"                                                                                        
-                                           @bind:culture="CultureInfo.InvariantCulture" @bind="Request.FechaFinalPm" format="yyyy-MM-dd" />
+                                           @bind:culture="CultureInfo.InvariantCulture" @bind="FechaFTemp" format="yyyy-MM-dd" @bind:after="CalcularDuracionPM" />
                                 </div>
                                 <ValidationMessage For="@(() => Request.FechaFinalPm)" />
                             </div>
@@ -143,7 +143,7 @@
                                 <label class="uk-form-label">Hora Final</label>
                                 <div class="uk-width-expand">
                                     <input type="time" class="uk-input uk-form-small uk-input-borde-fijo" 
-                                           @bind:culture="CultureInfo.InvariantCulture" @bind="Request.FechaFinalPm" format="HH:mm" @bind:after="CalcularDuracionPM" />
+                                           @bind:culture="CultureInfo.InvariantCulture" @bind="HoraFTemp" format="HH:mm" @bind:after="CalcularDuracionPM" />
                                 </div>
                                 <ValidationMessage For="@(() => Request.FechaFinalPm)" />
                             </div>
@@ -163,8 +163,7 @@
                                 <label class="uk-form-label">Status PM</label>
                                 <select class="uk-select uk-form-small" @bind="Request.StatusPm">
                                     <option value="Pendiente">Pendiente</option>
-                                    <option value="Procesando">Procesando</option>
-                                    <option value="Detenido">Detenido</option>
+                                    <option value="Procesando">Procesando</option>                                    
                                     <option value="Completado">Completado</option>
                                 </select>
                                 <ValidationMessage For="@(() => Request.StatusPm)" />
@@ -184,16 +183,22 @@
                         </div>
                         <div class="uk-width-auto@s">
                             <div class="uk-inline">
-                                <input class="uk-input uk-form-small uk-input-borde-fijo" style="width:260px;" value="@grupoEstado.NombresConcatenados" disabled />                                
+                                <input class="uk-input uk-form-small uk-input-borde-fijo" style="width:260px;" value="@grupoTrabajo.NombresConcatenados" disabled />                                
                             </div>                                
                         </div>                          
 
                         <div class="uk-width-expand@s"></div>
 
-                        <div class="uk-width-auto@s ">                            
+                        <div class="uk-width-auto@s">                              
                             <button type="button" class="uk-button btn-corporativo" @onclick="OnCargarTareas" disabled="@(Id != 0 || Request.IdModelo == 0 || Request.IdTipoPm == 0)">
                                 <i class="icon-feather-alert-circle uk-margin-small-right"></i> Cargar Tareas
-                            </button>                            
+                            </button>   
+                            <button type="submit" class="uk-button btn-corporativo uk-margin-small-right" >
+                                <i class="icon-feather-save uk-margin-small-right"></i> Guardar
+                            </button>
+                            <button type="button" class="uk-button btn-secundario" @onclick="OnCancelar">
+                                <i class="icon-feather-arrow-left uk-margin-small-right"></i> Volver
+                            </button>
                         </div>
                     </div>
                   
@@ -225,13 +230,13 @@
                     <div class="uk-width-expand@s"></div>
 
                     <div class="uk-width-auto@s">
-                        <button type="button" class="uk-button uk-button-success" @onclick="CompletarTareasSeleccionadas">
+                        <button type="button" class="uk-button uk-button-success" @onclick='() => ProcesarTareasMasivamente("Completado")'>
                             <i class="icon-feather-check-circle uk-margin-small-right"></i> Completar Tareas
                         </button>
-                        <button type="button" class="uk-button uk-button-success" @onclick="CompletarTareasSeleccionadas">
+                        <button type="button" class="uk-button uk-button-success" @onclick='() => ProcesarTareasMasivamente("Revisado")'>
                             <i class="icon-feather-check-circle uk-margin-small-right"></i> Revisar Tareas
                         </button>
-                        <button type="button" class="uk-button uk-button-success" @onclick="CompletarTareasSeleccionadas">
+                        <button type="button" class="uk-button uk-button-success" @onclick='() => ProcesarTareasMasivamente("Aprobado")'>
                             <i class="icon-feather-check-circle uk-margin-small-right"></i> Aprobar Tareas
                         </button>
                     </div>
@@ -278,20 +283,13 @@
 
                 </div>
 
-                <PaginacionLocal PaginaActual="PaginaActual" TotalPaginas="TotalPaginas" TotalElementos="TotalElementos" ElementosPorPagina="ElementosPorPagina" OnPageChange="HandlePageChange" />
+                <PaginacionLocal PaginaActual="PaginaActual" TotalPaginas="TotalPaginas" TotalElementos="TotalElementos" ElementosPorPagina="ElementosPorPagina" OnPageChange="AplicarFiltro" />
 
             </Contenido>
         </GroupBox>
     </div>
 
-    <div class="uk-width-1-1 uk-flex uk-flex-right uk-margin-small-top">
-        <button type="button" class="uk-button btn-secundario uk-margin-small-right" @onclick="OnCancelar">
-            <i class="icon-feather-x-circle uk-margin-small-right"></i> Cancelar
-        </button>
-        <button type="submit" class="uk-button btn-corporativo"  >
-            <i class="icon-feather-save uk-margin-small-right"></i> Guardar
-        </button>
-    </div>
+    
 
 </EditForm>
 
@@ -309,11 +307,15 @@
     public List<ListaModeloResponse> ListadoModelos { get; set; } = new();
     public List<ListaTipoPmResponse> ListadoTipoPms { get; set; } = new();
 
-
     public bool isLoading { get; set; }
     public bool EsPmExistente { get; set; } = false;
     public string FiltroBusqueda { get; set; } = string.Empty;
-    public string NombreModeloSel { get; set; } = string.Empty;    
+    public string NombreModeloSel { get; set; } = string.Empty;
+
+    private DateTime? FechaITemp;
+    private DateTime? HoraITemp;
+    private DateTime? FechaFTemp;
+    private DateTime? HoraFTemp;
 
     public int PaginaActual { get; set; } = 1;
     public int ElementosPorPagina { get; set; } = 8; // Valor razonable para una tabla detallada
@@ -333,7 +335,7 @@
             Request = new() { PmDetalles = new List<PmDetallesRequest>() }; // Inicializar detalles
         }
         // Llamada inicial para mostrar la tabla completa (sin filtro)
-        AplicarFiltro();
+        AplicarFiltro(1);
     }
 
     public async Task CargarCombos()
@@ -394,17 +396,47 @@
                 Request.Observacion = response.Result.Observacion;
                 Request.Status = response.Result.Status;
 
+
+                if (Request.FechaInicialPm.HasValue)
+                {
+                    FechaITemp = Request.FechaInicialPm.Value;
+                    HoraITemp = Request.FechaInicialPm.Value;
+                }
+
+                if (Request.FechaFinalPm.HasValue)
+                {
+                    FechaFTemp = Request.FechaFinalPm.Value;
+                    HoraFTemp = Request.FechaFinalPm.Value;
+                }
+
                 // Mapeamos la colección de Detalles (Response Detalle -> Request Detalle)
                 Request.PmDetalles = response.Result.PmDetalles
                                         .Select(d => new PmDetallesRequest
                                         {
                                             Id = d.Id,
+                                            IdPm = d.IdPm,
                                             IdRuta = d.IdRuta,
                                             NomRuta = d.NomRuta!,
                                             IdTarea = d.IdTarea,
-                                            NomTarea = d.NomTarea!,
+                                            NomTarea = d.NomTarea!,                                            
                                             StatusTarea = d.StatusTarea,
-                                            Status = d.Status
+                                            FechaInicialTarea = d.FechaInicialTarea,
+                                            FechaFinalTarea = d.FechaFinalTarea,
+                                            DuracionTarea = d.DuracionTarea,
+                                            Realizado = d.Realizado,
+                                            Valor1 = d.Valor1,
+                                            Valor2 = d.Valor2,
+                                            Valor3 = d.Valor3,
+                                            Observacion = d.Observacion,
+                                            Duracion = d.Duracion,
+                                            NoTecnicos = d.NoTecnicos,
+                                            FechaActualizacion = d.FechaActualizacion,
+                                            Status = d.Status,
+                                            UsuarioRevision = d.UsuarioRevision,
+                                            FechaRevision = d.FechaRevision,
+                                            UsuarioAprobacion = d.UsuarioAprobacion,
+                                            FechaAprobacion = d.FechaAprobacion
+
                                         })
                                         .ToList();
             }
@@ -426,6 +458,18 @@
 
     public async Task OnGuardar()
     {
+        
+        if (Request.FechaInicialPm > Request.FechaFinalPm)
+        {
+            await swal.FireAsync(new SweetAlertOptions
+            {
+                Title ="Fechas Incorrectas",
+                Text ="La fecha inicial no puede ser mayor a la final",
+                Icon = SweetAlertIcon.Warning,
+                ConfirmButtonText="Entendido"
+            });
+            return;
+        }
 
         isLoading = true;
 
@@ -438,7 +482,8 @@
 
         try
         {
-            BaseResponse response;
+            BaseResponse response;            
+
             if (Request.Id == 0)
             {
                 response = await PmProxy.Registrar(Request);
@@ -450,6 +495,8 @@
 
             if (response.IsSuccess)
             {
+                Request.PmDetalles.ForEach(d => d.Seleccion = false);
+                Request.ProcesamientoMasivo = false;
                 toastService.ShowSuccess(response.Message!);
                 Navegador.NavigateTo(Routes.ListaPm);
             }
@@ -618,84 +665,98 @@
 
     public void OnCancelar()
     {
+        Request.PmDetalles.ForEach(d => d.Seleccion = false);
         Navegador.NavigateTo(Routes.ListaPm);
     }
 
-    public void CompletarTareasSeleccionadas()
+    public void ProcesarTareasMasivamente(string Accion)
     {
         var fechaActual = DateTime.Now;
         decimal duracionTareaMinutos = 10;
+        Request.ProcesamientoMasivo = true;
+        Request.IdTecnicos = grupoTrabajo.IdTecnicoEquipo;
 
-        var tareasACompletar = Request.PmDetalles.Where(d => d.Seleccion).ToList();
-        if (!tareasACompletar.Any())
+        var tareasSeleccionadas = Request.PmDetalles.Where(d => d.Seleccion).ToList();
+        if (!tareasSeleccionadas.Any())
         {
-            toastService.ShowWarning("Debe seleccionar al menos una tarea para completar.");
+            toastService.ShowWarning("Debe seleccionar al menos una tarea.");
             return;
         }
 
-        foreach (var detalle in tareasACompletar)
+        var tareasAProcesar = Request.PmDetalles.Where(d => d.Seleccion && d.StatusTarea != Accion).ToList();
+        if (!tareasAProcesar.Any())
         {
-            detalle.StatusTarea = "Completado";
-            detalle.FechaInicialTarea = fechaActual;
-            detalle.FechaFinalTarea = fechaActual.AddMinutes((double)duracionTareaMinutos);
-            var duracionCalculada = FechasDiff.CalcularDuracionMinutos(detalle.FechaInicialTarea.Value, detalle.FechaFinalTarea.Value);
-            detalle.DuracionTarea = (decimal)duracionCalculada;
-            detalle.Realizado = true;
-            detalle.Observacion = "Completado Masivamente";
-
-            detalle.Seleccion = false;
+            toastService.ShowWarning("Las tareas seleccionadas ya tienen el estado solicitado.");
+            return;
         }
 
-        toastService.ShowSuccess($"Se completaron {tareasACompletar.Count} tareas exitosamente.");        
+        foreach (var detalle in tareasAProcesar)
+        {
+
+            switch (Accion)
+            {
+                case "Completado":
+                    detalle.StatusTarea = "Completado";
+                    detalle.FechaInicialTarea = fechaActual;
+                    detalle.FechaFinalTarea = fechaActual.AddMinutes((double)duracionTareaMinutos);
+                    detalle.DuracionTarea = duracionTareaMinutos;
+                    detalle.FechaActualizacion = fechaActual;
+                    detalle.Realizado = true;
+                    detalle.Observacion = "Completado Masivamente";
+                    break;
+
+                case "Revisado":
+                    detalle.StatusTarea = "Revisado";
+                    detalle.UsuarioRevision = "UsuarioActual"; // Aquí usas tu sistema de Auth
+                    detalle.FechaRevision = fechaActual;
+                    detalle.FechaActualizacion = fechaActual;
+                    detalle.Observacion += " - Revisado Masivamente";
+                    break;
+
+                case "Aprobado":
+                    detalle.StatusTarea = "Aprobado";
+                    detalle.UsuarioAprobacion = "UsuarioActual";
+                    detalle.FechaAprobacion = fechaActual;
+                    detalle.FechaActualizacion = fechaActual;
+                    detalle.Observacion += " - Aprobado Masivamente";
+                    break;
+            }
+
+        }
+
+        int ignoradas = tareasSeleccionadas.Count - tareasAProcesar.Count;
+        if(ignoradas > 0)
+        {
+            toastService.ShowInfo($"{ignoradas} tareas se omitieron porque ya estaba en estado {Accion}.");
+        }
+
+        toastService.ShowSuccess($"Se procesaran {tareasAProcesar.Count} tareas, solo si presiona Guardar.");
         AplicarFiltro();
         StateHasChanged();
     }
 
     public void CalcularDuracionPM()
     {
-        if(Request.FechaInicialPm.HasValue && Request.FechaFinalPm.HasValue)
+       
+        if(FechaITemp.HasValue && HoraITemp.HasValue && 
+            FechaFTemp.HasValue && HoraFTemp.HasValue)
         {
-            var duracion = FechasDiff.CalcularDuracionMinutos(Request.FechaInicialPm.Value, Request.FechaFinalPm.Value);
-            Request.Duracion = (decimal)duracion;
+            var inicio = FechaITemp.Value.Date.Add(HoraITemp.Value.TimeOfDay);
+            var fin = FechaFTemp.Value.Date.Add(HoraFTemp.Value.TimeOfDay);
+            var duracion = FechasDiff.CalcularDuracionMinutos(inicio, fin);
+
+            Request.Duracion = duracion > 0 ? (decimal)duracion : 0;
+            Request.FechaInicialPm = FechaITemp.Value.Date.Add(HoraITemp.Value.TimeOfDay);
+            Request.FechaFinalPm = FechaFTemp.Value.Date.Add(HoraFTemp.Value.TimeOfDay);
         }
         else
         {
             Request.Duracion = 0;
-        }
+            Request.FechaInicialPm = null;
+            Request.FechaFinalPm = null;
+        }   
         StateHasChanged();
     }
-
-    public void AplicarFiltro(int paginaSolicitada = -1)
-    {
-        // Si la llamada viene del paginador (y es válida), la usamos.
-        if (paginaSolicitada > 0)
-        {
-            PaginaActual = paginaSolicitada;
-        }
-        // Si viene de OnBuscar o OnAdicionar, se mantiene PaginaActual, que se reajusta abajo.
-
-        IEnumerable<PmDetallesRequest> resultados = Request.PmDetalles;
-        if (!string.IsNullOrWhiteSpace(FiltroBusqueda))
-        {
-            resultados = resultados.Where(d => d.NomTarea.Contains(FiltroBusqueda, StringComparison.OrdinalIgnoreCase) ||
-                                               d.NomRuta.Contains(FiltroBusqueda, StringComparison.OrdinalIgnoreCase)).ToList();
-        }
-
-        TotalElementos = resultados.Count();
-        TotalPaginas = (int)Math.Ceiling((double)TotalElementos / ElementosPorPagina);
-
-        // Aseguramos que la página actual sea válida
-        PaginaActual = Math.Max(1, Math.Min(paginaSolicitada, TotalPaginas));
-        if (TotalElementos == 0) PaginaActual = 1;
-
-        // 3. PAGINACIÓN LOCAL (Skip y Take)
-        DetalleVisibles = resultados
-            .Skip((PaginaActual - 1) * ElementosPorPagina)
-            .Take(ElementosPorPagina)
-            .ToList();
-
-        StateHasChanged();
-    }        
 
     public void LimpiarFiltro()
     {
@@ -704,10 +765,30 @@
         StateHasChanged();
     }
 
-    public void HandlePageChange(int nuevaPagina)
+    public void AplicarFiltro(int paginaSolicitada = -1)
     {
-        // Llama al método de filtrado/paginación con la nueva página solicitada
-        AplicarFiltro(nuevaPagina);
+        // 1. Filtrado lógico
+        var resultados = Request.PmDetalles
+            .Where(d => string.IsNullOrWhiteSpace(FiltroBusqueda) ||
+                        d.NomTarea.Contains(FiltroBusqueda, StringComparison.OrdinalIgnoreCase) ||
+                        d.NomRuta.Contains(FiltroBusqueda, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        // 2. Cálculos de totales
+        TotalElementos = resultados.Count;
+        TotalPaginas = Math.Max(1, (int)Math.Ceiling((double)TotalElementos / ElementosPorPagina));
+
+        // 3. Determinar página (Si es -1 usamos la actual, si no la solicitada)
+        int objetivo = (paginaSolicitada > 0) ? paginaSolicitada : PaginaActual;
+        PaginaActual = Math.Clamp(objetivo, 1, TotalPaginas);
+
+        // 4. Proyección de vista
+        DetalleVisibles = resultados
+            .Skip((PaginaActual - 1) * ElementosPorPagina)
+            .Take(ElementosPorPagina)
+            .ToList();
+
+        StateHasChanged();
     }
 
     private void IrAGestionActividad(PmDetallesRequest detalle)
@@ -715,5 +796,5 @@
         Navegador.NavigateTo($"{Routes.PmTarea}/{detalle.Id}");
     }
 
-    public void Dispose() => grupoEstado.OnChange -= StateHasChanged;
+    public void Dispose() => grupoTrabajo.OnChange -= StateHasChanged;
 }

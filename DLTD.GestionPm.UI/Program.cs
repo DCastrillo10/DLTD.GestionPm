@@ -31,6 +31,7 @@ builder.Services.AddScoped<ITipoPmProxy, TipoPmProxy>();
 builder.Services.AddScoped<ICheckListProxy, CheckListProxy>();
 builder.Services.AddScoped<IPmProxy, PmProxy>();
 builder.Services.AddScoped<IPmTareaTecnicoProxy, PmTareaTecnicoProxy>();
+builder.Services.AddScoped<IPmTareaHallazgoProxy, PmTareaHallazgoProxy>();
 
 
 builder.Services.AddBlazoredSessionStorage();

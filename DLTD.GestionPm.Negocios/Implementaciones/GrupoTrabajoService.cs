@@ -36,6 +36,8 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             {
                 var nuevo = request.Adapt<GrupoTrabajo>();
                 await _uow.GrupoTrabajoRepo.AddAsync(nuevo);
+                await _uow.SaveAsync();
+
                 response.IsSuccess = true;
                 response.Message = "Tecnico vinculado exitosamente.";
             }
@@ -94,6 +96,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                 if (GrupoTrabajo == null) throw new InvalidDataException("GrupoTrabajo no encontrada");
 
                 await _uow.GrupoTrabajoRepo.DeleteAsync(id);
+                
                 response.IsSuccess = true;
                 response.Message = "GrupoTrabajo eliminada correctamente.";
                 

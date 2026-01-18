@@ -37,6 +37,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             {
                 var nuevo = request.Adapt<PmTareaDemora>();
                 await _uow.PmTareaDemoraRepo.AddAsync(nuevo);
+                await _uow.SaveAsync();
 
                 response.IsSuccess = true;
                 response.Message = "PmTareaDemora registrada exitosamente.";

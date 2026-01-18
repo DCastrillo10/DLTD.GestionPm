@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DLTD.GestionPm.Comun;
 using DLTD.GestionPm.Entidad;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,15 +8,44 @@ namespace DLTD.GestionPm.AccesoDatos.Contexto;
 
 public partial class GestionPmBdContext : DbContext
 {
+    private readonly IUsuarioService? _usuarioService;
     public GestionPmBdContext()
     {
+        
     }
 
-    public GestionPmBdContext(DbContextOptions<GestionPmBdContext> options)
+    public GestionPmBdContext(DbContextOptions<GestionPmBdContext> options, IUsuarioService usuarioService)
         : base(options)
     {
+        _usuarioService = usuarioService;
     }
 
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var usuarioActual = _usuarioService!.GetUserName();
+        var entries = ChangeTracker.Entries()
+                        .Where(e => e.Entity is EntidadBase && (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+        foreach (var entry in entries)
+        {
+            var entidad = (EntidadBase)entry.Entity;
+            if(entry.State == EntityState.Added)
+            {
+                entidad.UsuarioRegistro = usuarioActual!;
+                entidad.FechaRegistro = DateTime.Now;
+            }
+
+            if (entry.State == EntityState.Modified)
+            {
+                entry.Property("FechaRegistro").IsModified = false;
+                entry.Property("UsuarioRegistro").IsModified = false;
+            }
+        }
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+
+    //Grupo de DbSets
     public virtual DbSet<GrupoTrabajo> GrupoTrabajos { get; set; }
 
     public virtual DbSet<Horometro> Horometros { get; set; }
@@ -349,14 +379,12 @@ public partial class GestionPmBdContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.UsuarioRegistro).HasMaxLength(20);
             entity.Property(e => e.ValidadoPor).HasMaxLength(20);
+            entity.Property(e => e.NoEquipo).HasMaxLength(10);
+            entity.Property(e => e.Tecnicos).HasMaxLength(50);
 
             entity.HasOne(d => d.IdPmDetalleNavigation).WithMany(p => p.PmTareaHallazgos)
                 .HasForeignKey(d => d.IdPmDetalle)
                 .HasConstraintName("PMTareaHallazgos_PMDetalles_FK");
-
-            entity.HasOne(d => d.IdTecnicoNavigation).WithMany(p => p.PmTareaHallazgos)
-                .HasForeignKey(d => d.IdTecnico)
-                .HasConstraintName("PMTareaHallazgos_Tecnicos_FK");
 
             entity.HasOne(d => d.IdTipoHallazgoNavigation).WithMany(p => p.PmTareaHallazgos)
                 .HasForeignKey(d => d.IdTipoHallazgo)

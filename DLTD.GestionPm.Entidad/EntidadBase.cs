@@ -11,8 +11,8 @@ namespace DLTD.GestionPm.Entidad
         public int Id { get; set; }
         public string Status { get; set; } = "Activo";
 
-        public string UsuarioRegistro { get; set; } = Environment.UserName;
+        public string UsuarioRegistro { get; set; } = string.Empty;
 
-        public DateTime FechaRegistro { get; set; } = DateTime.Now;
+        public DateTime FechaRegistro { get; set; } 
     }
 }

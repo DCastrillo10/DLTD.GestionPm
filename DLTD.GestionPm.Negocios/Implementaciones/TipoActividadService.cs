@@ -36,6 +36,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             {
                 var nuevo = request.Adapt<TipoActividad>();
                 await _uow.TipoActividadRepo.AddAsync(nuevo);
+                await _uow.SaveAsync();
 
                 response.IsSuccess = true;
                 response.Message = "Registro realizado exitosamente.";

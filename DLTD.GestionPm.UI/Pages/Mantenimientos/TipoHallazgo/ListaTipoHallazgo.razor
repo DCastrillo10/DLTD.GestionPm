@@ -1,8 +1,7 @@
 ﻿@using DLTD.GestionPm.Dto.Response.TipoHallazgo
 
 
-
-@attribute [Route(Routes.ListaHallazgos)]
+@attribute [Route(Routes.ListaTipoHallazgos)]
 @layout MainLayout
 @attribute [Authorize(Roles = CatalogRoles.Administrador)]
 
@@ -10,9 +9,9 @@
 @inject IToastService toastService;
 @inject SweetAlertService swal;
 
-<h3 class="uk-text-bold uk-margin-small-bottom">Listado de TipoHallazgos</h3>
+<h3 class="uk-text-bold uk-margin-small-bottom">Listado Tipo de Hallazgos</h3>
 
-<GroupBox Titulo="Buscar TipoHallazgos">
+<GroupBox Titulo="Buscar Tipo de Hallazgos">
     <Contenido>
         <div class="uk-grid-small" uk-grid>
             <!-- Input + botones -->
@@ -85,7 +84,7 @@
     </table>
 </div>
 
-<Modal Title="TipoHallazgos" Size="ModalSize.Regular" UseStaticBackdrop=true @ref="ModalTipoHallazgos">
+<Modal Title="Tipo Hallazgos" Size="ModalSize.Regular" UseStaticBackdrop=true @ref="ModalTipoHallazgos">
     <BodyTemplate>        
         <FrmTipoHallazgo Request="RequestTipoHallazgo" OnGuardarEvent="OnGuardar" OnCancelarEvent="() => ModalTipoHallazgos.HideAsync()" />
     </BodyTemplate>

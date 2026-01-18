@@ -22,7 +22,7 @@ namespace DLTD.GestionPm.Repositorios.Implementaciones
                                .Include(p => p.PmDetalles)
                                     .ThenInclude(d => d.IdTareaNavigation)
                                         .ThenInclude(t => t.IdRutaNavigation)
-                               .FirstAsync(p => p.Id == id);
+                               .FirstOrDefaultAsync(p => p.Id == id);
             return master;
         }
         public async Task AddMasterDetailsAsync(Pm master)

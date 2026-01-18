@@ -143,7 +143,7 @@
         if (grupoEstado.IdTecnicoEquipo.Count == 0)
         {
             var sesion = await ((AuthService)auth).GetTecnicoSesion();
-            var res = await grupoProxy.Listar(new PaginationRequest { /* tus filtros si aplican */ });
+            var res = await grupoProxy.Listar(new PaginationRequest { /* para los filtros */ });
 
             if (res?.Result != null)
             {

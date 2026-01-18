@@ -37,6 +37,8 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             {
                 var nuevo = request.Adapt<Ruta>();
                 await _uow.RutaRepo.AddAsync(nuevo);
+                await _uow.SaveAsync();
+
                 response.IsSuccess = true;
                 response.Message = "Ruta registrada exitosamente.";
             }

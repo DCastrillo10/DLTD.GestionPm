@@ -11,7 +11,6 @@ namespace DLTD.GestionPm.Dto.Request.Pm
         public bool Seleccion { get; set; } = false;
         public int Id { get; set; }
         public int IdPm { get; set; }
-
         public int IdRuta { get; set; }
         public string NomRuta { get; set; } = string.Empty;
         public int IdTarea { get; set; }
@@ -24,6 +23,7 @@ namespace DLTD.GestionPm.Dto.Request.Pm
         public decimal? DuracionTarea { get; set; }
         
         public string? StatusTarea { get; set; }
+        
 
         public bool? Realizado { get; set; }
 
@@ -42,5 +42,10 @@ namespace DLTD.GestionPm.Dto.Request.Pm
         public DateTime? FechaActualizacion { get; set; }
 
         public string Status { get; set; } = "Activo";
+
+        public string? UsuarioRevision { get; set; }
+        public DateTime? FechaRevision { get; set; }
+        public string? UsuarioAprobacion { get; set; }
+        public DateTime? FechaAprobacion { get; set; }
     }
 }

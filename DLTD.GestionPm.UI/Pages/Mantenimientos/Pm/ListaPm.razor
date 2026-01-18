@@ -142,7 +142,6 @@
         Navegador.NavigateTo($"{Routes.PmEditar}/{id}");
     }
 
-
     public async Task OnEliminar(ListaPmResponse item)
     {
         var respuesta = await swal.FireAsync(new SweetAlertOptions

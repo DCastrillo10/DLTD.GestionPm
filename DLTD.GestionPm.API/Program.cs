@@ -1,11 +1,11 @@
 using DLTD.GestionPm.AccesoDatos.Configuracion;
 using DLTD.GestionPm.AccesoDatos.Contexto;
-using DLTD.GestionPm.Comun.Mappings;
+using DLTD.GestionPm.API.Services;
+using DLTD.GestionPm.Comun;
 using DLTD.GestionPm.Dto.Request.Email;
 using DLTD.GestionPm.Dto.Request.Security;
-using DLTD.GestionPm.Negocios.Implementaciones;
+using DLTD.GestionPm.Negocios.Configuraciones;
 using DLTD.GestionPm.Negocios.Interfaces;
-using DLTD.GestionPm.Repositorios.Implementaciones;
 using DLTD.GestionPm.Repositorios.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -16,8 +16,10 @@ using Serilog;
 using Serilog.Events;
 using System.Text;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
+MapsterConfig.RegisterMappings();
 
 // Add services to the container.
 
@@ -40,7 +42,7 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSet
 //Mapeo EmailSettings
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
-//Inyectar cadenas de conexion
+
 builder.Services.AddDbContext<SeguridadBdContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("SeguridadBD"));
@@ -50,6 +52,12 @@ builder.Services.AddDbContext<GestionPmBdContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("GestionPmBD"));
 });
+
+//Registro Accessor para que UsuarioService funcione
+builder.Services.AddHttpContextAccessor();
+//Como la implementacion esta en la capa API, scrutor no lo toma
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+
 
 const string CorsPolicy = "AppGestionPM";
 
@@ -109,13 +117,11 @@ builder.Services.Scan(p => p
     .WithScopedLifetime()
     );
 
-
 //Inyeccion de Dependencias de los Servicios y repositorios
 //builder.Services.AddScoped<ISecurityService, SecurityService>();
 //builder.Services.AddScoped<IEmailService, EmailService>();
 //builder.Services.AddScoped<ITecnicoService, TecnicoService>();
 //builder.Services.AddScoped<ITecnicoRepository, TecnicoRepository>();
-
 
 var app = builder.Build();
 

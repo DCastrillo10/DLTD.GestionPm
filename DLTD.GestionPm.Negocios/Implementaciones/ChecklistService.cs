@@ -38,6 +38,8 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                                                         .Select(d => d.Adapt<PmcheckListDetalle>())
                                                         .ToList();
                 await _uow.CheckListRepo.AddMasterDetailsAsync(nuevoMasterDetail);
+                await _uow.SaveAsync();
+
                 response.IsSuccess = true;
                 response.Message = "CheckList registrada exitosamente.";
             }
@@ -164,7 +166,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                     detalle.Status = "Eliminado";
                 }
 
-                await _uow.SaveAsync();
+                
                 response.IsSuccess = true;
                 response.Message = "Checklist eliminado correctamente.";
             }

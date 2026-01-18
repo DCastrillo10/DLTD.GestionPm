@@ -37,6 +37,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                 request.AplicaDetencion ??= false;
                 var nuevo = request.Adapt<TipoDemora>();
                 await _uow.TipoDemoraRepo.AddAsync(nuevo);
+                await _uow.SaveAsync();
 
                 response.IsSuccess = true;
                 response.Message = "Registro realizado exitosamente.";

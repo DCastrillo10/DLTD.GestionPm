@@ -38,6 +38,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             {
                 var nuevo = request.Adapt<PmTareaTecnico>();
                 await _uow.PmTareaTecnicoRepo.AddAsync(nuevo);
+                await _uow.SaveAsync();
 
                 response.IsSuccess = true;
                 response.Message = "PmTareaTecnico registrada exitosamente.";
@@ -208,9 +209,11 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
 
         public async Task<BaseResponse> RegistrarAcciones(PmTareaTecnicoRequest request)
         {
-            var response = new BaseResponse();
+            var response = new BaseResponse();            
             try
             {
+                var fechaActual = DateTime.Now;
+
                 //Realizamos las operaciones para PMTareaTecnico
                 //Buscamos y actualizamos la ultima actividad en PMTareaTecnico
                 var actividadesAbiertas = await _uow.PmTareaTecnicoRepo.FindAllAsync(
@@ -218,7 +221,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                 );
                 foreach (var actividad in actividadesAbiertas)
                 {
-                    actividad.FechaFinalActividad = DateTime.Now;
+                    actividad.FechaFinalActividad = fechaActual;
                     actividad.Activo = false;
                     var calcularDuracion = FechasDiff.CalcularDuracionMinutos((DateTime)actividad.FechaInicialActividad, (DateTime)actividad.FechaFinalActividad.Value);
                     actividad.DuracionActividad = (decimal)calcularDuracion;
@@ -230,10 +233,10 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                     IdPmDetalle = request.IdPmDetalle,
                     IdTecnico = idTecnico,
                     IdTipoActividad = request.IdTipoActividad,
-                    FechaInicialActividad = DateTime.Now,
+                    FechaInicialActividad = fechaActual,
                     Descripcion = request.Descripcion,
                     Activo = request.IdTipoActividad != 4,
-                    FechaFinalActividad = request.IdTipoActividad == 4 ? DateTime.Now : null,
+                    FechaFinalActividad = request.IdTipoActividad == 4 ? fechaActual : null,
                     DuracionActividad = request.IdTipoActividad == 4 ? 0 : null
                 }).ToList();
 
@@ -248,7 +251,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                     );
                     foreach (var demora in demorasActivas)
                     {
-                        demora.FechaFinalDemora = DateTime.Now;
+                        demora.FechaFinalDemora = fechaActual;
                         demora.Activo = false;
                         var calcularDuracion = FechasDiff.CalcularDuracionMinutos((DateTime)demora.FechaInicialDemora, (DateTime)demora.FechaFinalDemora.Value);
                         demora.DuracionDemora = (decimal)calcularDuracion;
@@ -262,16 +265,17 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
                     {
                         IdPmDetalle = request.IdPmDetalle,
                         IdTipoDemora = request.IdTipoDemora,
-                        FechaInicialDemora = DateTime.Now,
+                        FechaInicialDemora = fechaActual,
                         Descripcion = request.Descripcion,
                         IdTecnico = idTecnico,
                         Activo = true
-                    });
+                    }).ToList();
+
                     await _uow.PmTareaDemoraRepo.AddRangeAsync(nuevaDemora);
                 }
 
                 //Actualizamos los datos de la tarea
-                var tareaDetalle = await    _uow.PmRepo.GetDetalleTareaPmById(request.IdPmDetalle);
+                var tareaDetalle = await _uow.PmRepo.GetDetalleTareaPmById(request.IdPmDetalle);
                 if (tareaDetalle != null)
                 {
                     ActualizarEstadoYFechas(tareaDetalle, request);                    
@@ -292,6 +296,7 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
 
         private void ActualizarEstadoYFechas(Pmdetalle pmdetalle, PmTareaTecnicoRequest request)
         {
+            var fechaActual = DateTime.Now;
             pmdetalle.Valor1 = request.DatosTarea?.Valor1;
             pmdetalle.Valor2 = request.DatosTarea?.Valor2;
             pmdetalle.Valor3 = request.DatosTarea?.Valor3;
@@ -301,19 +306,19 @@ namespace DLTD.GestionPm.Negocios.Implementaciones
             if (tipo == 1)
             {
                 pmdetalle.StatusTarea = "Procesando";
-                pmdetalle.FechaInicialTarea = DateTime.Now;
+                pmdetalle.FechaInicialTarea = fechaActual;
             }
             else if (tipo == 2) pmdetalle.StatusTarea = "Detenido";
             else if (tipo == 3) pmdetalle.StatusTarea = "Procesando";
             else if (tipo == 4)
             {
                 pmdetalle.StatusTarea = "Completado";
-                pmdetalle.FechaFinalTarea = DateTime.Now;
+                pmdetalle.FechaFinalTarea = fechaActual;
                 var calcularDuracion  = FechasDiff.CalcularDuracionMinutos(pmdetalle.FechaInicialTarea!.Value, pmdetalle.FechaFinalTarea.Value);
                 pmdetalle.DuracionTarea = (decimal)calcularDuracion;
 
                 pmdetalle.Realizado = true;
-                pmdetalle.FechaActualizacion = DateTime.Now;
+                pmdetalle.FechaActualizacion = fechaActual;
             } 
         }
     }
